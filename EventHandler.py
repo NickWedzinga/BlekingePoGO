@@ -67,47 +67,39 @@ def checkMessages():
 		
 		#JOGGER, updates Jogger leaderboards. Format: ?jogger DISTANCE
 		elif message.content.upper().startswith('?JOGGER'):
-			#Split message by ,
-			orgMsg = message.content
-			orgMsg = orgMsg[8:] #remove "?jogger "
-			splitMsg = orgMsg.split(",")
-			#author = message.author
+			tempScore = message.content
+			tempScore = tempScore[8:] #remove "?jogger "
+			tempscore = float(tempScore)
 			tempJoggerList = []
 			notUpdated = True
 			current_dt = datetime.now()
-			#await client.send_message(message.channel, message.author.nickname)
-			#await client.send_message(message.channel, message.author.display_name)
-			#await client.send_message(message.channel, "Hello %s" % (message.author.display_name))
-			#Check if missing arguments
-			if len(splitMsg) != 2:
-				await client.send_message(message.channel, "Error: Missing or too much information. \n*Format: ?jogger NAME, SCORE.decimals*")
-			elif splitMsg[0] == "" or splitMsg[1] == "":
-				await client.send_message(message.channel, "Error: Maybe you forget a ','? \n*Format: ?jogger NAME, SCORE.decimals*")
-			elif not re.match("[A-Za-z0-9]*$", splitMsg[0]):
-				await client.send_message(message.channel, "Error: Illegal characters in name.")
+
+			p = re.compile('\d+(\.\d+)?')
+			#print(tempScore)
+			#print(p.match(tempScore))
+			if not p.match(tempScore):
+				await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?jogger SCORE.decimals*")
+			elif len(message.author.display_name) > 15:
+				await client.send_message(message.channel, "Error: Name should be shorter than 15 characters, please updated your server nickname. Ask admins for help if you're not sure how to do that.")
 			else:
-				#create array from string
-				for elem in splitMsg:
-					if elem[0] == " ":
-						elem = elem[1:] #remove any spaces that still remain
-					tempJoggerList.append(elem)
+				#Create temp joggerlist to be inserted if applicable
+				tempJoggerList.append(message.author.display_name)
+				tempJoggerList.append(tempScore)
 				tempJoggerList.append(current_dt.date())#strftime("%Y-%m-%d %H:%M:%S"))
 
 				floatError = False
 				try:
-					float(tempJoggerList[1])
+					float(tempScore)
 				except ValueError:
-					await client.send_message(message.channel, "Score in numbers only, split decimal with '.'")
+					await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?jogger SCORE.decimals*")
 					floatError = True
 
 				#Cast entry number to float
-				tempJoggerList[1] = float(tempJoggerList[1])
-				if tempJoggerList[1] > 20000:
+				#tempScore = float(tempScore)
+				if float(tempScore) > 20000:
 					await client.send_message(message.channel, "Score too high.")
 				elif floatError == True:
 					await client.send_message(message.channel, "Score in numbers only.")
-				elif len(tempJoggerList[0]) > 15:
-					await client.send_message(message.channel, "Name should be maximum 15 characters.")
 				else:
 					with open("jogger.txt") as file:
 						joggerList = [line.split(" ") for line in file]
@@ -116,43 +108,50 @@ def checkMessages():
 					found = False
 					for index, elem in enumerate(joggerList):
 						#If player already exists
-						if tempJoggerList[0].lower() == elem[0].lower() and found == False:
-							if tempJoggerList[1] > float(elem[1]):
+						print(message.author.display_name)
+						print(elem[0])
+						print("Comparing %s and %s" % (message.author.display_name, elem[0]))
+						if message.author.display_name.lower() == elem[0].lower() and found == False:
+							print("MATCH FOUND!")
+							#Score is higher than previously submitted
+							if float(tempScore) > float(elem[1]):
 								found = True
 								print("Similar player found: %s" % (tempJoggerList[0]))
 								#Update player stats
-								joggerList[index][1] = float(tempJoggerList[1])
-								joggerList[index][2] = tempJoggerList[2]
+								#joggerList[index][1] = float(tempJoggerList[1])
+								joggerList[index][1] = float(tempScore)
+								joggerList[index][2] = current_dt.date()
 								tempJoggerList = joggerList.pop(index) #remove updated score
 
 								notUpdated = False
 								#Move player to correct position
 								moved = False
 								for idx, elm in enumerate(joggerList):
-									print("Loop through joggerList for placing %f, scores: %f" %(tempJoggerList[1], float(elm[1])))
+									print("Loop through joggerList for placing %f, scores: %f" %(float(tempScore), float(elm[1])))
 									if moved:
 										break
-									elif tempJoggerList[1] > float(elm[1]):
-										print("Found place to fit at index %i updated score %s, because %s is >= %s" % (idx, tempJoggerList[1], tempJoggerList[1], elm[1]))
+									elif float(tempScore) > float(elm[1]):
+										print("Found place to fit at index %i updated score %f, because %f is >= %s" % (idx, float(tempScore), float(tempScore), elm[1]))
 										joggerList.insert(idx, tempJoggerList) #insert updated score
 										moved = True
 							else:
 								await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
+						else:
+							print("No match found.")
 
 					#Player is missing, insert new entry
 					if notUpdated:
 						insertedBool = False
 						for index, elem in enumerate(joggerList):
-							if tempJoggerList[1] >= float(elem[1]) and insertedBool == False:
+							if float(tempScore) >= float(elem[1]) and insertedBool == False:
 								joggerList.insert(index, tempJoggerList)
 								insertedBool = True
 
 					file = open("jogger.txt", "w")
 					for item in joggerList:
 						item2 = ' '.join(str(x) for x in item)
-						if item == tempJoggerList:# and notUpdated:
+						if item == tempJoggerList:
 							file.write("%s\n" % item2)
-						#elif notUpdated:
 						else:
 							file.write("%s" % item2)
 					file.close()
@@ -164,8 +163,6 @@ def checkMessages():
 
 					#Add fields to be presented in table, fill with data
 					for index, elem in enumerate(joggerList):
-						#if index < 5:
-						#	embed.add_field(name="%i. %s - %s km " % (index+1, elem[0], elem[1]), value = "Updated: %s" % (elem[2]), inline=True)
 						if index < 10:
 							embed.add_field(name="%i. %s - %s km " % (index+1, elem[0], elem[1]), value = "Updated: %s" % (elem[2]), inline=True)
 					
