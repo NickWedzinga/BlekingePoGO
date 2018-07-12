@@ -69,94 +69,94 @@ def checkMessages():
 		elif message.content.upper().startswith('?JOGGER'):
 			tempScore = message.content
 			tempScore = tempScore[8:] #remove "?jogger "
-			tempScore = float(tempScore)
 			tempJoggerList = []
 			notUpdated = True
 			current_dt = datetime.now()
+			floatError = False
 
-			p = re.compile('\d+(\.\d+)?')
-			#print(tempScore)
-			#.match() needs item to be string
-			if not p.match(str(tempScore)):
-				await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?jogger SCORE.decimals*")
-			elif len(message.author.display_name) > 15:
-				await client.send_message(message.channel, "Error: Name should be shorter than 15 characters, please updated your server nickname. Ask admins for help if you're not sure how to do that.")
-			else:
-				#Create temp joggerlist to be inserted if applicable
-				tempJoggerList.append(message.author.display_name)
-				tempJoggerList.append(tempScore)
-				tempJoggerList.append(current_dt.date())#strftime("%Y-%m-%d %H:%M:%S"))
-
-				floatError = False
-				try:
-					float(tempScore)
-				except ValueError:
-					await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?jogger SCORE.decimals*")
-					floatError = True
-
-				#Cast entry number to float
-				#tempScore = float(tempScore)
-				if tempScore > 20000:
-					await client.send_message(message.channel, "Score too high.")
-				elif tempScore < 0:
-					await client.send_message(message.channel, "Score can't be negative.")
-				elif floatError == True:
-					await client.send_message(message.channel, "Score in numbers only.")
+			try: 
+				float(tempScore)
+			except ValueError:
+				await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?jogger SCORE.decimals*")
+				floatError = True			
+			
+			if not floatError:
+				tempScore = float(tempScore)
+				p = re.compile('\d+(\.\d+)?')
+				#.match() needs item to be string
+				if not p.match(str(tempScore)):
+					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?jogger SCORE.decimals*")
+				elif len(message.author.display_name) > 15:
+					await client.send_message(message.channel, "Error: Name should be shorter than 15 characters, please updated your server nickname. Ask admins for help if you're not sure how to do that.")
 				else:
-					with open("jogger.txt") as file:
-						joggerList = [line.split(" ") for line in file]
+					#Create temp joggerlist to be inserted if applicable
+					tempJoggerList.append(message.author.display_name)
+					tempJoggerList.append(tempScore)
+					tempJoggerList.append(current_dt.date())#strftime("%Y-%m-%d %H:%M:%S"))
 
-					#Check if player is already in standings, update
-					found = False
-					for index, elem in enumerate(joggerList):
-						#If player already exists
-						#print(message.author.display_name)
-						#print(elem[0])
-						#print("Comparing %s and %s" % (message.author.display_name, elem[0]))
-						if message.author.display_name.lower() == elem[0].lower() and found == False:
-							#print("MATCH FOUND!")
-							#Score is higher than previously submitted
-							if tempScore > float(elem[1]):
-								found = True
-								#print("Similar player found: %s" % (tempJoggerList[0]))
-								#Update player stats
-								#joggerList[index][1] = float(tempJoggerList[1])
-								joggerList[index][1] = tempScore
-								joggerList[index][2] = current_dt.date()
-								tempJoggerList = joggerList.pop(index) #remove updated score
+					
 
-								notUpdated = False
-								#Move player to correct position
-								moved = False
-								for idx, elm in enumerate(joggerList):
-									#print("Loop through joggerList for placing %f, scores: %f" %(tempScore, float(elm[1])))
-									if moved:
-										break
-									elif tempScore > float(elm[1]):
-										#print("Found place to fit at index %i updated score %f, because %f is >= %s" % (idx, tempScore, tempScore, elm[1]))
-										joggerList.insert(idx, tempJoggerList) #insert updated score
-										moved = True
-							else:
-								await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
-						else:
-							#print("No match found.")
+					#Cast entry number to float
+					#tempScore = float(tempScore)
+					if tempScore > 20000:
+						await client.send_message(message.channel, "Score too high.")
+					elif tempScore < 0:
+						await client.send_message(message.channel, "Score can't be negative.")
+					elif floatError == True:
+						await client.send_message(message.channel, "Score in numbers only.")
+					else:
+						with open("jogger.txt") as file:
+							joggerList = [line.split(" ") for line in file]
 
-					#Player is missing, insert new entry
-					if notUpdated:
-						insertedBool = False
+						#Check if player is already in standings, update
+						found = False
 						for index, elem in enumerate(joggerList):
-							if tempScore >= float(elem[1]) and insertedBool == False:
-								joggerList.insert(index, tempJoggerList)
-								insertedBool = True
+							#If player already exists
+							#print(message.author.display_name)
+							#print(elem[0])
+							#print("Comparing %s and %s" % (message.author.display_name, elem[0]))
+							if message.author.display_name.lower() == elem[0].lower() and found == False:
+								#print("MATCH FOUND!")
+								#Score is higher than previously submitted
+								if tempScore > float(elem[1]):
+									found = True
+									#print("Similar player found: %s" % (tempJoggerList[0]))
+									#Update player stats
+									#joggerList[index][1] = float(tempJoggerList[1])
+									joggerList[index][1] = tempScore
+									joggerList[index][2] = current_dt.date()
+									tempJoggerList = joggerList.pop(index) #remove updated score
 
-					file = open("jogger.txt", "w")
-					for item in joggerList:
-						item2 = ' '.join(str(x) for x in item)
-						if item == tempJoggerList:
-							file.write("%s\n" % item2)
-						else:
-							file.write("%s" % item2)
-					file.close()
+									notUpdated = False
+									#Move player to correct position
+									moved = False
+									for idx, elm in enumerate(joggerList):
+										#print("Loop through joggerList for placing %f, scores: %f" %(tempScore, float(elm[1])))
+										if moved:
+											break
+										elif tempScore > float(elm[1]):
+											#print("Found place to fit at index %i updated score %f, because %f is >= %s" % (idx, tempScore, tempScore, elm[1]))
+											joggerList.insert(idx, tempJoggerList) #insert updated score
+											moved = True
+								else:
+									await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
+
+						#Player is missing, insert new entry
+						if notUpdated:
+							insertedBool = False
+							for index, elem in enumerate(joggerList):
+								if tempScore >= float(elem[1]) and insertedBool == False:
+									joggerList.insert(index, tempJoggerList)
+									insertedBool = True
+
+						file = open("jogger.txt", "w")
+						for item in joggerList:
+							item2 = ' '.join(str(x) for x in item)
+							if item == tempJoggerList:
+								file.write("%s\n" % item2)
+							else:
+								file.write("%s" % item2)
+						file.close()
 
 					embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
 					embed.set_thumbnail(url="https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png")
@@ -169,10 +169,36 @@ def checkMessages():
 							embed.add_field(name="%i. %s - %s km " % (index+1, elem[0], elem[1]), value = "Updated: %s" % (elem[2]), inline=True)
 					
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
-					await client.send_message(message.channel, embed=embed)
+					channel2 = client.get_channel('466913214656020493')
+					await client.send_message(channel2, embed=embed)
 				
-			
+		#List ranks across leaderboards
+		elif message.content.upper().startswith('?RANKS'):
+			print("Nibba we in")
+			nickname = message.author.display_name
+			tempJoggerList = []
 
+			joggerFile = open("jogger.txt", "r")
+			for index, line in enumerate(joggerFile):
+				line = line.split(" ")
+				#print("Line in loop: %s" % line)
+				#print("Line[0].lower() is: %s" % line[0].lower())
+				#print("Nickname.lower() is: %s" % nickname.lower())
+				if line[0].lower() == nickname.lower():
+					#print("WE HAVE A MATCH!")
+					if(index+1 == 1):
+						await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
+					elif(index+1 == 2):
+						await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
+					elif(index+1 == 3):
+						await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
+					else:
+						await client.send_message(message.channel, "%s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
+
+			#with open("jogger.txt") as file:
+			#			joggerList = [line.split(" ") for line in file]
+
+			
 		#Add quest to list
 		#elif message.content.upper().startswith('?RESEARCH'):
 		#	args = message.content
