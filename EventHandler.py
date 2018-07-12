@@ -71,6 +71,7 @@ def checkMessages():
 			tempScore = tempScore[8:] #remove "?jogger "
 			tempJoggerList = []
 			notUpdated = True
+			skipUpdate = False
 			current_dt = datetime.now()
 			floatError = False
 
@@ -116,9 +117,11 @@ def checkMessages():
 							#print(elem[0])
 							#print("Comparing %s and %s" % (message.author.display_name, elem[0]))
 							if message.author.display_name.lower() == elem[0].lower() and found == False:
-								#print("MATCH FOUND!")
+								print("MATCH FOUND!")
 								#Score is higher than previously submitted
-								if tempScore > float(elem[1]):
+								if tempScore > float(elem[1]) and found == False:
+									print("%f%f" % (tempScore, float(elem[1])))
+									print("Score is bigger than last")
 									found = True
 									#print("Similar player found: %s" % (tempJoggerList[0]))
 									#Update player stats
@@ -139,10 +142,11 @@ def checkMessages():
 											joggerList.insert(idx, tempJoggerList) #insert updated score
 											moved = True
 								else:
+									skipUpdate = True
 									await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
 
 						#Player is missing, insert new entry
-						if notUpdated:
+						if notUpdated and not skipUpdate:
 							insertedBool = False
 							for index, elem in enumerate(joggerList):
 								if tempScore >= float(elem[1]) and insertedBool == False:
@@ -168,8 +172,17 @@ def checkMessages():
 						if index < 10:
 							embed.add_field(name="%i. %s - %s km " % (index+1, elem[0], elem[1]), value = "Updated: %s" % (elem[2]), inline=True)
 					
-					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					channel2 = client.get_channel('466913214656020493')
+
+					#async for x in client.logs_from(channel2, 10):
+					#	try:
+					#		await client.delete_message(m)
+					#	except:
+					#		print("somehow failed to delete message")
+
+					#await asyncio.sleep(1)
+
+					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
 		#List ranks across leaderboards

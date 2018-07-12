@@ -17,3 +17,4 @@ EventHandler.client.close()
 # Update leaderboards in different channels
 # submission approval (client.wait_for_message)
 # delete commands
+# delete last leaderboard
