@@ -9,3 +9,12 @@ EventHandler.client.run('NDM1ODg1MDIyNTA0MDI2MTEy.Dbineg.scoWXTLQWPsJc64XXv8dagg
 EventHandler.client.close()
 
 # TODO:
+
+#JOGGER---------------------------------------------
+# Check negatives
+# Give error messages in one specific channel, only take commands from that channel
+# When updating score "Updated go check in #jogger if you're top 10"
+# Update leaderboards in different channels
+# ?standings
+# submission approval (client.wait_for_message)
+# delete commands
