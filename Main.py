@@ -14,7 +14,14 @@ EventHandler.client.close()
 #JOGGER---------------------------------------------
 # Give error messages in one specific channel, only take commands from that channel
 # When updating score "Updated go check in #jogger if you're top 10"
-# Update leaderboards in different channels
 # submission approval (client.wait_for_message)
 # delete commands
-# delete last leaderboard
+
+#HELP
+#----------------------------------------------------
+
+
+#IMPORTERING
+#---------------------------------------------------
+#Ändra leaderboard channel ID i alla funktioners embed message + delete channel
+#Ändra command channel ID i alla funktionskall

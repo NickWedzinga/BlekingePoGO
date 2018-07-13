@@ -12,6 +12,7 @@ Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
 researchList = []
 joggerList = []
+commandChannel = client.get_channel('466563505462575106')
 #chat_filter = ["MEW", "SNEASEL", "VALOR"]
 
 def startUp():
@@ -42,31 +43,31 @@ def checkMessages():
 		#		await client.send_message(message.channel, "VALOR BABYYYY :fire:")
 
 		#Test if bot is still responsive
-		if message.content.upper().startswith('?TEST'):
+		if message.content.upper().startswith('?TEST') and message.channel.id == '466563505462575106':
 			await client.send_message(message.channel, "I still send messages! :sweat_smile:")
 
 		#Help, lists available commands
-		elif message.content.upper().startswith('?HELP'):
-			args = message.content.split(' ')
-			if len(args) > 1:
-				if args[1] == 'research':
-					await client.send_message(message.channel, "**Usage:** *?research* followed by *Pokéstop*, *Quest type* and *Reward*. Separated with commas")
-					await client.send_message(message.channel, "**Example:** *?research John Hankes Mansion, Hatch 5 eggs, Chansey*")
-				elif args[1] == 'repeat':
-					await client.send_message(message.channel, "**Usage:** ?repeat followed by the word/ sentence you want Sneasel to repeat.")
-				elif args[1] == 'list':
-					await client.send_message(message.channel, "**Usage:** ?list research, to retrieve a list of today's reported quests.")
-				else:
-					await client.send_message(message.channel, "Command not found, please use lowercase letters for the commands.")
-			elif len(args) == 1:
-				await client.send_message(message.channel, "**Commands:**")
-				await client.send_message(message.channel, "*?research X, Y, Z*")
-				await client.send_message(message.channel, "*?list research*")
-				await client.send_message(message.channel, "*?repeat X*")
-				await client.send_message(message.channel, "For more detail on a specific command please type ?help followed by the requested command, **Example:** *?help research*")
+		#elif message.content.upper().startswith('?HELP'):
+		#	args = message.content.split(' ')
+		#	if len(args) > 1:
+		#		if args[1] == 'research':
+		#			await client.send_message(message.channel, "**Usage:** *?research* followed by *Pokéstop*, *Quest type* and *Reward*. Separated with commas")
+		#			await client.send_message(message.channel, "**Example:** *?research John Hankes Mansion, Hatch 5 eggs, Chansey*")
+		#		elif args[1] == 'repeat':
+		#			await client.send_message(message.channel, "**Usage:** ?repeat followed by the word/ sentence you want Sneasel to repeat.")
+		#		elif args[1] == 'list':
+		#			await client.send_message(message.channel, "**Usage:** ?list research, to retrieve a list of today's reported quests.")
+		#		else:
+		#			await client.send_message(message.channel, "Command not found, please use lowercase letters for the commands.")
+		#	elif len(args) == 1:
+		#		await client.send_message(message.channel, "**Commands:**")
+		#		await client.send_message(message.channel, "*?research X, Y, Z*")
+		#		await client.send_message(message.channel, "*?list research*")
+		#		await client.send_message(message.channel, "*?repeat X*")
+		#		await client.send_message(message.channel, "For more detail on a specific command please type ?help followed by the requested command, **Example:** *?help research*")
 		
 		#JOGGER, updates Jogger leaderboards. Format: ?jogger DISTANCE
-		elif message.content.upper().startswith('?JOGGER'):
+		elif message.content.upper().startswith('?JOGGER') and message.channel.id == '466563505462575106':
 			tempScore = message.content
 			tempScore = tempScore[8:] #remove "?jogger "
 			tempJoggerList = []
@@ -174,19 +175,19 @@ def checkMessages():
 					
 					channel2 = client.get_channel('466913214656020493')
 
-					#async for x in client.logs_from(channel2, 10):
-					#	try:
-					#		await client.delete_message(m)
-					#	except:
-					#		print("somehow failed to delete message")
+					async for x in client.logs_from(channel2, 10):
+						try:
+							await client.delete_message(x)
+						except:
+							print("somehow failed to delete message")
 
-					#await asyncio.sleep(1)
+					await asyncio.sleep(1)
 
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
 		#List ranks across leaderboards
-		elif message.content.upper().startswith('?RANKS'):
+		elif message.content.upper().startswith('?RANKS') and message.channel.id == '466563505462575106':
 			print("Nibba we in")
 			nickname = message.author.display_name
 			tempJoggerList = []
@@ -244,7 +245,7 @@ def checkMessages():
 		#	await client.send_message(message.channel, "%s" % (" ".join(args[1:])))
 
 		#E U R E K A
-		elif message.content.upper().startswith('EUREKA'):
+		elif message.content.upper().startswith('EUREKA') and message.channel.id == '466563505462575106':
 			await client.send_message(message.channel, "We did it! :smile:")
 
 		#Check if message author has a certain role
@@ -255,5 +256,5 @@ def checkMessages():
 		#		await client.send_message(message.channel, "No, you are not admin, unlucky.")
 
 		#Last if statement, invalid command
-		elif message.content.upper().startswith('?'):
+		elif message.content.upper().startswith('?') and message.channel.id == '466563505462575106':
 			await client.send_message(message.channel, "Invalid command :sob:")
