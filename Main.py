@@ -13,14 +13,14 @@ EventHandler.client.close()
 
 #JOGGER---------------------------------------------
 # submission approval (client.wait_for_message)
-# delete commands
 
-#HELP
+#?HELP
 #----------------------------------------------------
-
+#?delete. Format: ?delete leaderboard_type,name. Exempel: ?delete jogger, mcmomo
+#?leadererboard type, score. Exempel: ?jogger, 3000
 
 #IMPORTERING
 #---------------------------------------------------
 #Ändra leaderboard channel ID i alla funktioners embed message + delete channel
 #Ändra command channel ID i alla funktionskall
-#Ändra role ID för admin under DELETE command
+#Ändra role ID för admin under DELETE command (skriv "\Admin" för att få admin ID)

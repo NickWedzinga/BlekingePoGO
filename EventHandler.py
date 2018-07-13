@@ -76,6 +76,7 @@ def checkMessages():
 			current_dt = datetime.now()
 			floatError = False
 			scoreUpdated = False
+			sneaselRefresh = False
 
 			try: 
 				float(tempScore)
@@ -97,6 +98,19 @@ def checkMessages():
 					tempJoggerList.append(tempScore)
 					tempJoggerList.append(current_dt.date())
 
+					#Check if Sneasel is trying to refresh list
+					if str(message.author.display_name.lower()) == "sneasel bot":
+						#print("%ssneasel bot"%(str(message.author.display_name.lower())))
+						print("Sneasel is trying to refresh")
+						sneaselRefresh = True
+						async for x in client.logs_from(message.channel, 1):
+							try:
+								await client.delete_message(x)
+							except:
+								print("Somehow failed to delete message.")
+
+						await asyncio.sleep(1)
+
 					#Cast entry number to float
 					if tempScore > 20000:
 						await client.send_message(message.channel, "Score too high.")
@@ -107,44 +121,44 @@ def checkMessages():
 					else:
 						with open("jogger.txt") as file:
 							joggerList = [line.split(" ") for line in file]
-
-						#Check if player is already in standings, update
-						found = False
-						for index, elem in enumerate(joggerList):
-							#If player already exists
-							if message.author.display_name.lower() == elem[0].lower() and found == False:
-								print("MATCH FOUND!")
-								#Score is higher than previously submitted
-								if tempScore > float(elem[1]) and found == False:
-									found = True
-									#Update player stats
-									joggerList[index][1] = tempScore
-									joggerList[index][2] = current_dt.date()
-									tempJoggerList = joggerList.pop(index) #remove updated score
-
-									notUpdated = False
-									#Move player to correct position
-									moved = False
-									for idx, elm in enumerate(joggerList):
-										if moved:
-											break
-										elif tempScore > float(elm[1]):
-											#Insert updated score
-											joggerList.insert(idx, tempJoggerList) #insert updated score
-											moved = True
-											scoreUpdated = True
-								else:
-									skipUpdate = True
-									await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
-
-						#Player is missing, insert new entry
-						if notUpdated and not skipUpdate:
-							insertedBool = False
+						if not sneaselRefresh:
+							#Check if player is already in standings, update
+							found = False
 							for index, elem in enumerate(joggerList):
-								if tempScore >= float(elem[1]) and insertedBool == False:
-									joggerList.insert(index, tempJoggerList)
-									insertedBool = True
-									scoreUpdated = True
+								#If player already exists
+								if message.author.display_name.lower() == elem[0].lower() and found == False:
+									print("MATCH FOUND!")
+									#Score is higher than previously submitted
+									if tempScore > float(elem[1]) and found == False:
+										found = True
+										#Update player stats
+										joggerList[index][1] = tempScore
+										joggerList[index][2] = current_dt.date()
+										tempJoggerList = joggerList.pop(index) #remove updated score
+
+										notUpdated = False
+										#Move player to correct position
+										moved = False
+										for idx, elm in enumerate(joggerList):
+											if moved:
+												break
+											elif tempScore > float(elm[1]):
+												#Insert updated score
+												joggerList.insert(idx, tempJoggerList) #insert updated score
+												moved = True
+												scoreUpdated = True
+									else:
+										skipUpdate = True
+										await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
+
+							#Player is missing, insert new entry
+							if notUpdated and not skipUpdate:
+								insertedBool = False
+								for index, elem in enumerate(joggerList):
+									if tempScore >= float(elem[1]) and insertedBool == False:
+										joggerList.insert(index, tempJoggerList)
+										insertedBool = True
+										scoreUpdated = True
 
 						file = open("jogger.txt", "w")
 						for item in joggerList:
@@ -200,23 +214,42 @@ def checkMessages():
 						await client.send_message(message.channel, "%s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
 
 		#DELETE, admins may delete leaderboard entries Format: ?jogger leaderboard_type, name
-		#elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
-		#	orgMsg = message.content
-		#	orgMsg = dltMsg[8:] #remove "?delete "
-		#	dltMsg = orgMsg.split(",") #create array "leaderboard_type", "name"
-		#	tempDeleteList = []
+		elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
+			orgMsg = message.content
+			orgMsg = orgMsg[8:] #remove "?delete "
+			dltMsg = orgMsg.split(",") #create array "leaderboard_type", "name"
+
+			#Remove blank spaces, e.g. "jogger, mcmomo" becomes "jogger,mcmomo"
+			dltMsg[0] = dltMsg[0].replace(" ","")
+			dltMsg[1] = dltMsg[1].replace(" ","")
+
+			#beautiful variable name
+			linesToKeepInFile = []
+			deleteIndex = 0
 
 			#Check if author is admin (TESTROLE)
-		#	if '435908470936698910' in [role.id for role in message.author.roles]:
-		#		#Admin is trying to remove entry from Jogger Leaderboard
-		#		if dltMsg[0].lower() == "jogger":
-		#			dltFile = open("jogger.txt", "r")
-		#			for index, line in enumerate(dltFile):
-		#				#Found name trying to delete from file in file
-		#				if line[0].lower() == dltMsg[1].lower():
-		#					dltFile.pop(index)
-		#	else:
-		#		await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
+			if '435908470936698910' in [role.id for role in message.author.roles]:
+				#Admin is trying to remove entry from Jogger Leaderboard
+				if dltMsg[0].lower() == "jogger":
+					dltFile = open("jogger.txt", "r")
+					for index, line in enumerate(dltFile):
+						splitLine = line.split(' ')
+						#Found name trying to delete from file in file
+						if splitLine[0].lower() == dltMsg[1].lower():
+							await client.send_message(message.channel, "%s found, deleting %s from the %s leaderboard." % (dltMsg[1],dltMsg[1],dltMsg[0]))
+						else:
+							linesToKeepInFile.append(line)
+					#Write back lines with the exception of the deleted element
+					dltFile = open("jogger.txt", "w")
+					for elem in linesToKeepInFile:
+						dltFile.write(elem)
+					await client.send_message(message.channel, "?jogger 1")
+					
+				#Admin ios trying to remove entry from Pikachu Leaderboard
+				elif dltMsg[0].lower() == "pikachu":
+					print("pikachu leaderboard")
+			else:
+				await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
 
 
 		#Add quest to list
