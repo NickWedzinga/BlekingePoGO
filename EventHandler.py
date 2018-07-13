@@ -15,6 +15,10 @@ joggerList = []
 commandChannel = client.get_channel('466563505462575106')
 #chat_filter = ["MEW", "SNEASEL", "VALOR"]
 
+#Could be useful for debugging, counts how many times jogger has been called this lifetime
+#joggerCallsCounter = 0
+
+
 def startUp():
 	print("Starting..")
 	@client.event
@@ -77,6 +81,12 @@ def checkMessages():
 			floatError = False
 			scoreUpdated = False
 			sneaselRefresh = False
+			topThree = False
+			newTopOne = False
+			newRank = 0
+
+			#joggerCallsCounter = joggerCallsCounter + 1
+			print("Amount of jogger calls: %i" % joggerCallsCounter)
 
 			try: 
 				float(tempScore)
@@ -127,7 +137,6 @@ def checkMessages():
 							for index, elem in enumerate(joggerList):
 								#If player already exists
 								if message.author.display_name.lower() == elem[0].lower() and found == False:
-									print("MATCH FOUND!")
 									#Score is higher than previously submitted
 									if tempScore > float(elem[1]) and found == False:
 										found = True
@@ -145,8 +154,15 @@ def checkMessages():
 											elif tempScore > float(elm[1]):
 												#Insert updated score
 												joggerList.insert(idx, tempJoggerList) #insert updated score
+												newRank = idx
 												moved = True
 												scoreUpdated = True
+												#Updated score gets top one, was not top one before
+												if idx < 1 and index > 0:
+													newTopOne = True
+												#Updated score gets top three, was not top three
+												elif idx < 3 and index > 2:
+													topThree = True
 									else:
 										skipUpdate = True
 										await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
@@ -159,6 +175,13 @@ def checkMessages():
 										joggerList.insert(index, tempJoggerList)
 										insertedBool = True
 										scoreUpdated = True
+										newRank = index
+										#New score is top one
+										if index < 1:
+											newTopOne = True
+										#New score is among top three
+										if index < 3:
+											topThree = True
 
 						file = open("jogger.txt", "w")
 						for item in joggerList:
@@ -188,14 +211,19 @@ def checkMessages():
 							print("somehow failed to delete message")
 
 					await asyncio.sleep(1)
-					if scoreUpdated:
-						await client.send_message(message.channel, "Score updated, go check %s to see if you are top 10." % channel2.mention)
+					if newTopOne:
+						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS, you have reached #%i. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (newRank+1))
+					elif topThree:
+						await client.send_message(message.channel, ":crown: Congratulations on your #%i placing, please send an in game screenshot to any admin so they may confirm your entry." % (newRank+1))
+					elif scoreUpdated:
+						await client.send_message(message.channel, "Congratulations, you placed #%i. Check %s to see the top 10." % (newRank+1,channel2.mention))
+					#elif scoreUpdated:
+					#	await client.send_message(message.channel, "Score updated, check %s to see the top 10." % channel2.mention)
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
 		#List ranks across leaderboards
 		elif message.content.upper().startswith('?RANKS') and message.channel.id == '466563505462575106':
-			print("Nibba we in")
 			nickname = message.author.display_name
 			tempJoggerList = []
 

@@ -12,12 +12,13 @@ EventHandler.client.close()
 #Change icon
 
 #JOGGER---------------------------------------------
-# submission approval (client.wait_for_message)
+#
 
 #?HELP
 #----------------------------------------------------
 #?delete. Format: ?delete leaderboard_type,name. Exempel: ?delete jogger, mcmomo
 #?leadererboard type, score. Exempel: ?jogger, 3000
+#?ranks to list your score in each leaderboard
 
 #IMPORTERING
 #---------------------------------------------------
