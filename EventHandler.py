@@ -199,7 +199,26 @@ def checkMessages():
 					else:
 						await client.send_message(message.channel, "%s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
 
-			
+		#DELETE, admins may delete leaderboard entries Format: ?jogger leaderboard_type, name
+		#elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
+		#	orgMsg = message.content
+		#	orgMsg = dltMsg[8:] #remove "?delete "
+		#	dltMsg = orgMsg.split(",") #create array "leaderboard_type", "name"
+		#	tempDeleteList = []
+
+			#Check if author is admin (TESTROLE)
+		#	if '435908470936698910' in [role.id for role in message.author.roles]:
+		#		#Admin is trying to remove entry from Jogger Leaderboard
+		#		if dltMsg[0].lower() == "jogger":
+		#			dltFile = open("jogger.txt", "r")
+		#			for index, line in enumerate(dltFile):
+		#				#Found name trying to delete from file in file
+		#				if line[0].lower() == dltMsg[1].lower():
+		#					dltFile.pop(index)
+		#	else:
+		#		await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
+
+
 		#Add quest to list
 		#elif message.content.upper().startswith('?RESEARCH'):
 		#	args = message.content

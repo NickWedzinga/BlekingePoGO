@@ -12,7 +12,6 @@ EventHandler.client.close()
 #Change icon
 
 #JOGGER---------------------------------------------
-# When updating score "Updated go check in #jogger if you're top 10"
 # submission approval (client.wait_for_message)
 # delete commands
 
@@ -24,3 +23,4 @@ EventHandler.client.close()
 #---------------------------------------------------
 #Ändra leaderboard channel ID i alla funktioners embed message + delete channel
 #Ändra command channel ID i alla funktionskall
+#Ändra role ID för admin under DELETE command
