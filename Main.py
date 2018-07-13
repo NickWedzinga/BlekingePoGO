@@ -12,7 +12,6 @@ EventHandler.client.close()
 #Change icon
 
 #JOGGER---------------------------------------------
-# Give error messages in one specific channel, only take commands from that channel
 # When updating score "Updated go check in #jogger if you're top 10"
 # submission approval (client.wait_for_message)
 # delete commands

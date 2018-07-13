@@ -75,6 +75,7 @@ def checkMessages():
 			skipUpdate = False
 			current_dt = datetime.now()
 			floatError = False
+			scoreUpdated = False
 
 			try: 
 				float(tempScore)
@@ -94,12 +95,9 @@ def checkMessages():
 					#Create temp joggerlist to be inserted if applicable
 					tempJoggerList.append(message.author.display_name)
 					tempJoggerList.append(tempScore)
-					tempJoggerList.append(current_dt.date())#strftime("%Y-%m-%d %H:%M:%S"))
-
-					
+					tempJoggerList.append(current_dt.date())
 
 					#Cast entry number to float
-					#tempScore = float(tempScore)
 					if tempScore > 20000:
 						await client.send_message(message.channel, "Score too high.")
 					elif tempScore < 0:
@@ -114,19 +112,12 @@ def checkMessages():
 						found = False
 						for index, elem in enumerate(joggerList):
 							#If player already exists
-							#print(message.author.display_name)
-							#print(elem[0])
-							#print("Comparing %s and %s" % (message.author.display_name, elem[0]))
 							if message.author.display_name.lower() == elem[0].lower() and found == False:
 								print("MATCH FOUND!")
 								#Score is higher than previously submitted
 								if tempScore > float(elem[1]) and found == False:
-									print("%f%f" % (tempScore, float(elem[1])))
-									print("Score is bigger than last")
 									found = True
-									#print("Similar player found: %s" % (tempJoggerList[0]))
 									#Update player stats
-									#joggerList[index][1] = float(tempJoggerList[1])
 									joggerList[index][1] = tempScore
 									joggerList[index][2] = current_dt.date()
 									tempJoggerList = joggerList.pop(index) #remove updated score
@@ -135,13 +126,13 @@ def checkMessages():
 									#Move player to correct position
 									moved = False
 									for idx, elm in enumerate(joggerList):
-										#print("Loop through joggerList for placing %f, scores: %f" %(tempScore, float(elm[1])))
 										if moved:
 											break
 										elif tempScore > float(elm[1]):
-											#print("Found place to fit at index %i updated score %f, because %f is >= %s" % (idx, tempScore, tempScore, elm[1]))
+											#Insert updated score
 											joggerList.insert(idx, tempJoggerList) #insert updated score
 											moved = True
+											scoreUpdated = True
 								else:
 									skipUpdate = True
 									await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
@@ -153,6 +144,7 @@ def checkMessages():
 								if tempScore >= float(elem[1]) and insertedBool == False:
 									joggerList.insert(index, tempJoggerList)
 									insertedBool = True
+									scoreUpdated = True
 
 						file = open("jogger.txt", "w")
 						for item in joggerList:
@@ -182,7 +174,8 @@ def checkMessages():
 							print("somehow failed to delete message")
 
 					await asyncio.sleep(1)
-
+					if scoreUpdated:
+						await client.send_message(message.channel, "Score updated, go check %s to see if you are top 10." % channel2.mention)
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
@@ -195,9 +188,6 @@ def checkMessages():
 			joggerFile = open("jogger.txt", "r")
 			for index, line in enumerate(joggerFile):
 				line = line.split(" ")
-				#print("Line in loop: %s" % line)
-				#print("Line[0].lower() is: %s" % line[0].lower())
-				#print("Nickname.lower() is: %s" % nickname.lower())
 				if line[0].lower() == nickname.lower():
 					#print("WE HAVE A MATCH!")
 					if(index+1 == 1):
@@ -208,9 +198,6 @@ def checkMessages():
 						await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
 					else:
 						await client.send_message(message.channel, "%s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
-
-			#with open("jogger.txt") as file:
-			#			joggerList = [line.split(" ") for line in file]
 
 			
 		#Add quest to list
