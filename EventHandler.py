@@ -11,7 +11,7 @@ import re
 Client = discord.Client()
 client = commands.Bot(command_prefix = "?")
 researchList = []
-joggerList = []
+leaderboardList = []
 commandChannel = client.get_channel('466563505462575106')
 #chat_filter = ["MEW", "SNEASEL", "VALOR"]
 
@@ -70,11 +70,36 @@ def checkMessages():
 		#		await client.send_message(message.channel, "*?repeat X*")
 		#		await client.send_message(message.channel, "For more detail on a specific command please type ?help followed by the requested command, **Example:** *?help research*")
 		
-		#JOGGER, updates Jogger leaderboards. Format: ?jogger DISTANCE
-		elif message.content.upper().startswith('?JOGGER') and message.channel.id == '466563505462575106':
-			tempScore = message.content
-			tempScore = tempScore[8:] #remove "?jogger "
-			tempJoggerList = []
+		#REFRESH, Format: ?refresh LEADERBOARD_TYPE
+		elif(message.content.upper().startswith('?REFRESH')):
+			leaderboard_type = message.content.lower().split(" ",1)[1]
+			leaderboard_list = ["jogger","pikachu"]
+
+			if leaderboard_type in leaderboard_list:
+				await client.send_message(message.channel, "?%s 1"%leaderboard_type)
+			else:
+				await client.send_message(message.channel, "That leaderboard does not exist.")
+			#sneasel says ?jogger 1
+			#sneasel says ?pika 1
+
+		#LEADERBOARDS Format: ?LEADERBOARD_TYPE, SCORE
+		elif (message.content.upper().startswith('?JOGGER') or message.content.upper().startswith('?PIKACHU')) and message.channel.id == '466563505462575106':
+			joggerTrue = False
+			pikachuTrue = False
+
+			#Which leaderboard the user is updating
+			leaderboard_type = message.content.lower().split(" ",1)[0]
+			leaderboard_type = leaderboard_type[1:]
+
+			#Score part of string
+			tempScore = message.content.lower().split(" ",1)[1]
+
+			if leaderboard_type == "jogger":
+				joggerTrue = True
+			elif leaderboard_type == "pikachu":
+				pikachuTrue = True
+
+			tempList = []
 			notUpdated = True
 			skipUpdate = False
 			current_dt = datetime.now()
@@ -85,13 +110,10 @@ def checkMessages():
 			newTopOne = False
 			newRank = 0
 
-			#joggerCallsCounter = joggerCallsCounter + 1
-			print("Amount of jogger calls: %i" % joggerCallsCounter)
-
 			try: 
 				float(tempScore)
 			except ValueError:
-				await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?jogger SCORE.decimals*")
+				await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?leaderboard_type SCORE.decimals*")
 				floatError = True			
 			
 			if not floatError:
@@ -99,14 +121,14 @@ def checkMessages():
 				p = re.compile('\d+(\.\d+)?')
 				#.match() needs item to be string
 				if not p.match(str(tempScore)):
-					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?jogger SCORE.decimals*")
+					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?leaderboard_type SCORE.decimals*")
 				elif len(message.author.display_name) > 15:
 					await client.send_message(message.channel, "Error: Name should be shorter than 15 characters, please updated your server nickname. Ask admins for help if you're not sure how to do that.")
 				else:
-					#Create temp joggerlist to be inserted if applicable
-					tempJoggerList.append(message.author.display_name)
-					tempJoggerList.append(tempScore)
-					tempJoggerList.append(current_dt.date())
+					#Create temp leaderboardList to be inserted if applicable
+					tempList.append(message.author.display_name)
+					tempList.append(tempScore)
+					tempList.append(current_dt.date())
 
 					#Check if Sneasel is trying to refresh list
 					if str(message.author.display_name.lower()) == "sneasel bot":
@@ -129,31 +151,32 @@ def checkMessages():
 					elif floatError == True:
 						await client.send_message(message.channel, "Score in numbers only.")
 					else:
-						with open("jogger.txt") as file:
-							joggerList = [line.split(" ") for line in file]
+						with open("%s.txt"%leaderboard_type) as file:
+							leaderboardList = [line.split(" ") for line in file]
+							print(leaderboardList)
 						if not sneaselRefresh:
 							#Check if player is already in standings, update
 							found = False
-							for index, elem in enumerate(joggerList):
+							for index, elem in enumerate(leaderboardList):
 								#If player already exists
 								if message.author.display_name.lower() == elem[0].lower() and found == False:
 									#Score is higher than previously submitted
 									if tempScore > float(elem[1]) and found == False:
 										found = True
 										#Update player stats
-										joggerList[index][1] = tempScore
-										joggerList[index][2] = current_dt.date()
-										tempJoggerList = joggerList.pop(index) #remove updated score
+										leaderboardList[index][1] = tempScore
+										leaderboardList[index][2] = current_dt.date()
+										tempList = leaderboardList.pop(index) #remove updated score
 
 										notUpdated = False
 										#Move player to correct position
 										moved = False
-										for idx, elm in enumerate(joggerList):
+										for idx, elm in enumerate(leaderboardList):
 											if moved:
 												break
 											elif tempScore > float(elm[1]):
 												#Insert updated score
-												joggerList.insert(idx, tempJoggerList) #insert updated score
+												leaderboardList.insert(idx, tempList) #insert updated score
 												newRank = idx
 												moved = True
 												scoreUpdated = True
@@ -170,9 +193,9 @@ def checkMessages():
 							#Player is missing, insert new entry
 							if notUpdated and not skipUpdate:
 								insertedBool = False
-								for index, elem in enumerate(joggerList):
+								for index, elem in enumerate(leaderboardList):
 									if tempScore >= float(elem[1]) and insertedBool == False:
-										joggerList.insert(index, tempJoggerList)
+										leaderboardList.insert(index, tempList)
 										insertedBool = True
 										scoreUpdated = True
 										newRank = index
@@ -183,26 +206,38 @@ def checkMessages():
 										if index < 3:
 											topThree = True
 
-						file = open("jogger.txt", "w")
-						for item in joggerList:
+						file = open("%s.txt"%leaderboard_type, "w")
+						for item in leaderboardList:
 							item2 = ' '.join(str(x) for x in item)
-							if item == tempJoggerList:
+							if item == tempList:
 								file.write("%s\n" % item2)
 							else:
 								file.write("%s" % item2)
 						file.close()
 
-					embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
-					embed.set_thumbnail(url="https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png")
-					embed.set_footer(text = "The remaining standings are hidden, find out your standings by typing ?standings")
-					embed.add_field(name="\u200b", value = "\u200b", inline=False)
+					#Medal images: http://pokemongo.wikia.com/wiki/Medals
+					#https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png
+					unitString = ""
+					if joggerTrue:
+						embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
+						embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
+						embed.set_footer(text = "The remaining standings are hidden, find out your standings by typing ?standings")
+						embed.add_field(name="\u200b", value = "\u200b", inline=False)
+						channel2 = client.get_channel('466913214656020493')
+						unitString = "km"
+					elif pikachuTrue:
+						embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
+						embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
+						embed.set_footer(text = "The remaining standings are hidden, find out your standings by typing ?standings")
+						embed.add_field(name="\u200b", value = "\u200b", inline=False)
+						channel2 = client.get_channel('467754615413407745')
 
 					#Add fields to be presented in table, fill with data
-					for index, elem in enumerate(joggerList):
+					print(leaderboardList)
+					for index, elem in enumerate(leaderboardList):
 						if index < 10:
-							embed.add_field(name="%i. %s - %s km " % (index+1, elem[0], elem[1]), value = "Updated: %s" % (elem[2]), inline=True)
-					
-					channel2 = client.get_channel('466913214656020493')
+							print("Scores going in fields: %s"%elem[1])
+							embed.add_field(name="%i. %s - %.1f %s" % (index+1, elem[0], float(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
 
 					async for x in client.logs_from(channel2, 10):
 						try:
@@ -212,72 +247,76 @@ def checkMessages():
 
 					await asyncio.sleep(1)
 					if newTopOne:
-						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS, you have reached #%i. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (newRank+1))
+						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS, you have reached #%i in the %s leaderboard. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (newRank+1, leaderboard_type))
 					elif topThree:
-						await client.send_message(message.channel, ":crown: Congratulations on your #%i placing, please send an in game screenshot to any admin so they may confirm your entry." % (newRank+1))
+						await client.send_message(message.channel, ":crown: Congratulations on your #%i placing in the %s leaderboard, please send an in game screenshot to any admin so they may confirm your entry." % (newRank+1, leaderboard_type))
 					elif scoreUpdated:
-						await client.send_message(message.channel, "Congratulations, you placed #%i. Check %s to see the top 10." % (newRank+1,channel2.mention))
-					#elif scoreUpdated:
-					#	await client.send_message(message.channel, "Score updated, check %s to see the top 10." % channel2.mention)
+						await client.send_message(message.channel, "Congratulations, you placed #%i in the %s leaderboard. Check %s to see the top 10." % (newRank+1, leaderboard_type, channel2.mention))
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
 		#List ranks across leaderboards
 		elif message.content.upper().startswith('?RANKS') and message.channel.id == '466563505462575106':
 			nickname = message.author.display_name
-			tempJoggerList = []
+			tempList = []
+			leaderboard_list = ["jogger","pikachu"]
+			unitString = ""
 
-			joggerFile = open("jogger.txt", "r")
-			for index, line in enumerate(joggerFile):
-				line = line.split(" ")
-				if line[0].lower() == nickname.lower():
-					#print("WE HAVE A MATCH!")
-					if(index+1 == 1):
-						await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
-					elif(index+1 == 2):
-						await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
-					elif(index+1 == 3):
-						await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
-					else:
-						await client.send_message(message.channel, "%s is ranked \#%i in the jogger leaderboards with a distance of %.1f km." % (nickname, index+1, float(line[1])))
+			for item in leaderboard_list:
+				if item == "jogger":
+					unitString = "km"
+				leaderboard_file = open("%s.txt"%item, "r")
+				for index, line in enumerate(leaderboard_file):
+					line = line.split(" ")
+					if line[0].lower() == nickname.lower():
+						#print("WE HAVE A MATCH!")
+						if(index+1 == 1):
+							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
+						elif(index+1 == 2):
+							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
+						elif(index+1 == 3):
+							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
+						elif(index+1 > 3):
+							await client.send_message(message.channel, "%s is ranked \#%i in the %s leaderboards with a score of %.1f km." % (nickname, index+1, item, float(line[1]),unitString))
+						else:
+							await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (nickname, item, item))
+							
 
-		#DELETE, admins may delete leaderboard entries Format: ?jogger leaderboard_type, name
-		elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
-			orgMsg = message.content
-			orgMsg = orgMsg[8:] #remove "?delete "
-			dltMsg = orgMsg.split(",") #create array "leaderboard_type", "name"
+		#DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type, name_to_delete
+		#elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
+			#Which leaderboard the user is updating
+		#	leaderboard_type = message.content.lower().split(" ",1)[0]
+		#	leaderboard_type = leaderboard_type[1:] #removes "?"
 
-			#Remove blank spaces, e.g. "jogger, mcmomo" becomes "jogger,mcmomo"
-			dltMsg[0] = dltMsg[0].replace(" ","")
-			dltMsg[1] = dltMsg[1].replace(" ","")
+			#Name to delete part of string
+		#	deleteName = message.content.lower().split(" ",1)[1]
+
+		#	print(leaderboard_type)
+		#	print(deleteName)
 
 			#beautiful variable name
-			linesToKeepInFile = []
-			deleteIndex = 0
+			#linesToKeepInFile = []
+			#deleteIndex = 0
 
 			#Check if author is admin (TESTROLE)
-			if '435908470936698910' in [role.id for role in message.author.roles]:
-				#Admin is trying to remove entry from Jogger Leaderboard
-				if dltMsg[0].lower() == "jogger":
-					dltFile = open("jogger.txt", "r")
-					for index, line in enumerate(dltFile):
-						splitLine = line.split(' ')
-						#Found name trying to delete from file in file
-						if splitLine[0].lower() == dltMsg[1].lower():
-							await client.send_message(message.channel, "%s found, deleting %s from the %s leaderboard." % (dltMsg[1],dltMsg[1],dltMsg[0]))
-						else:
-							linesToKeepInFile.append(line)
-					#Write back lines with the exception of the deleted element
-					dltFile = open("jogger.txt", "w")
-					for elem in linesToKeepInFile:
-						dltFile.write(elem)
-					await client.send_message(message.channel, "?jogger 1")
-					
-				#Admin ios trying to remove entry from Pikachu Leaderboard
-				elif dltMsg[0].lower() == "pikachu":
-					print("pikachu leaderboard")
-			else:
-				await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
+			#if '435908470936698910' in [role.id for role in message.author.roles]:
+				#Admin is trying to remove entry from Leaderboard
+			#	if deleteName.lower() == "jogger":
+			#		dltFile = open("%s.txt"%leaderboard_type, "r")
+			#		for index, line in enumerate(dltFile):
+			#			splitLine = line.split(' ')
+			#			#Found name trying to delete from file in file
+			#			if splitLine[0].lower() == deleteName.lower():
+			#				await client.send_message(message.channel, "%s found, deleting %s from the %s leaderboard." % (deleteName,deleteName,leaderboard_type))
+			#			else:
+			#				linesToKeepInFile.append(line)
+			#		#Write back lines with the exception of the deleted element
+			#		dltFile = open("%s.txt"%leaderboard_type, "w")
+			#		for elem in linesToKeepInFile:
+			#			dltFile.write(elem)
+			#		await client.send_message(message.channel, "?%s 1"%leaderboard_type)
+			#else:
+			#	await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
 
 
 		#Add quest to list
