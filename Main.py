@@ -9,21 +9,18 @@ EventHandler.client.run('')
 EventHandler.client.close()
 
 # TODO:
+#GENERAL-----------------------------------------------------
 #Change icon
+#Svenska?
 
 #LEADERBOARDS---------------------------------------------
-#The leaderboard has been refreshed @mention
-#you have reached #1 in the "P"ikachu, capitalize leaderboard_type
-#?jogger should give format
-#ta bort decimaler från Pikachu
-#jogger 0, triggar refresh samma med pikachu 0, ändra till < 1 = "score too low" msg
-#20000 övre gräns ska bero på vilken leaderboard det är som uppdateras
-#möjlighet för komma som decimaldivider
-#regex check i början så att username som kommer från discord endast innehåller a-z och 0-9
-# ta bort begränsningen att sänka sin egna score?
+#if same score as person above, same rank
+
+#DELETE-----------------------------------------------------
+#BRING BACK DELETE
 
 #RANKS-----------------------------------------------
-# Instead of McMOmo is #1, @McMomo is #1 user mention
+# If same score as person above, same rank
 
 #CLAIM----------------------------------------------
 # claim nick, koppla till user.ID. DÅ kan folk med user.ID som inte matchar nick
@@ -33,7 +30,7 @@ EventHandler.client.close()
 #lägg in claim check i andra funtioner, seems like youve not claimed your nick yet...
 #ADMIN_CLAIM----------------------------------------
 # du har redan claimat namnet: %s, be admin ändra namn åt dig
-
+ 
 #?HELP
 #----------------------------------------------------
 #?delete. Format: ?delete leaderboard_type,name. Exempel: ?delete jogger, mcmomo

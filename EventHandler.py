@@ -87,17 +87,27 @@ def checkMessages():
 			joggerTrue = False
 			pikachuTrue = False
 
+			upperLimit = 0
+
 			#Which leaderboard the user is updating
 			leaderboard_type = message.content.lower().split(" ",1)[0]
 			leaderboard_type = leaderboard_type[1:]
 
 			#Score part of string
-			tempScore = message.content.lower().split(" ",1)[1]
+			try:
+				tempScore = message.content.lower().split(" ",1)[1]
+			except IndexError: #User only typed ?LEADERBOARD_TYPE
+				await client.send_message(message.channel, "The correct use of %s is ?%s 'SCORE'. \n*Example: ?jogger 2500*" % (leaderboard_type,leaderboard_type))
+
+			#Replace possible commas with dots
+			tempScore = str(tempScore.replace(",","."))
 
 			if leaderboard_type == "jogger":
 				joggerTrue = True
+				upperLimit=20000
 			elif leaderboard_type == "pikachu":
 				pikachuTrue = True
+				upperLimit=5000
 
 			tempList = []
 			notUpdated = True
@@ -110,18 +120,22 @@ def checkMessages():
 			newTopOne = False
 			newRank = 0
 
+			#Check if score is numbers only
 			try: 
 				float(tempScore)
 			except ValueError:
-				await client.send_message(message.channel, "Score in numbers only, split decimal with '.' *Format: ?leaderboard_type SCORE.decimals*")
+				await client.send_message(message.channel, "Score in numbers only. *Format: ?LEADERBOARD_TYPE SCORE*")
 				floatError = True			
 			
 			if not floatError:
 				tempScore = float(tempScore)
 				p = re.compile('\d+(\.\d+)?')
-				#.match() needs item to be string
-				if not p.match(str(tempScore)):
-					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?leaderboard_type SCORE.decimals*")
+				#Check for illegal nickname symbols, + ensures min size == 1
+				if not re.match(r'[\w-]+$', message.author.display_name):
+					await client.send_message(message.channel, "Discord nickname contains illegal characters, please change it to match your Pokémon Go nickname.")
+				
+				elif not p.match(str(tempScore)):
+					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?LEADERBOARD_TYPE SCORE*")
 				elif len(message.author.display_name) > 15:
 					await client.send_message(message.channel, "Error: Name should be shorter than 15 characters, please updated your server nickname. Ask admins for help if you're not sure how to do that.")
 				else:
@@ -144,16 +158,15 @@ def checkMessages():
 						await asyncio.sleep(1)
 
 					#Cast entry number to float
-					if tempScore > 20000:
+					if tempScore > upperLimit:
 						await client.send_message(message.channel, "Score too high.")
-					elif tempScore < 0:
-						await client.send_message(message.channel, "Score can't be negative.")
+					elif tempScore < 1:
+						await client.send_message(message.channel, "Score too low to be submitted.")
 					elif floatError == True:
 						await client.send_message(message.channel, "Score in numbers only.")
 					else:
 						with open("%s.txt"%leaderboard_type) as file:
 							leaderboardList = [line.split(" ") for line in file]
-							print(leaderboardList)
 						if not sneaselRefresh:
 							#Check if player is already in standings, update
 							found = False
@@ -161,7 +174,7 @@ def checkMessages():
 								#If player already exists
 								if message.author.display_name.lower() == elem[0].lower() and found == False:
 									#Score is higher than previously submitted
-									if tempScore > float(elem[1]) and found == False:
+									if found == False: #tempScore > float(elem[1]) and 
 										found = True
 										#Update player stats
 										leaderboardList[index][1] = tempScore
@@ -188,7 +201,7 @@ def checkMessages():
 													topThree = True
 									else:
 										skipUpdate = True
-										await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
+										#await client.send_message(message.channel, "To update your score, it has to be higher than your previous submission.")
 
 							#Player is missing, insert new entry
 							if notUpdated and not skipUpdate:
@@ -221,23 +234,25 @@ def checkMessages():
 					if joggerTrue:
 						embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
 						embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
-						embed.set_footer(text = "The remaining standings are hidden, find out your standings by typing ?standings")
+						embed.set_footer(text = "The remaining ranks are hidden, find out your rankings by typing ?ranks")
 						embed.add_field(name="\u200b", value = "\u200b", inline=False)
 						channel2 = client.get_channel('466913214656020493')
 						unitString = "km"
 					elif pikachuTrue:
 						embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
 						embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
-						embed.set_footer(text = "The remaining standings are hidden, find out your standings by typing ?standings")
+						embed.set_footer(text = "The remaining ranks are hidden, find out your rankings by typing ?ranks")
 						embed.add_field(name="\u200b", value = "\u200b", inline=False)
 						channel2 = client.get_channel('467754615413407745')
 
 					#Add fields to be presented in table, fill with data
-					print(leaderboardList)
 					for index, elem in enumerate(leaderboardList):
 						if index < 10:
-							print("Scores going in fields: %s"%elem[1])
-							embed.add_field(name="%i. %s - %.1f %s" % (index+1, elem[0], float(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
+							#Pikachu can't have decimals
+							if pikachuTrue:
+								embed.add_field(name="%i. %s - %i %s" % (index+1, elem[0], int(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
+							else:
+								embed.add_field(name="%i. %s - %.1f %s" % (index+1, elem[0], float(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
 
 					async for x in client.logs_from(channel2, 10):
 						try:
@@ -247,11 +262,11 @@ def checkMessages():
 
 					await asyncio.sleep(1)
 					if newTopOne:
-						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS, you have reached #%i in the %s leaderboard. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (newRank+1, leaderboard_type))
+						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS %s, you have reached #%i in the %s leaderboard. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention, newRank+1, leaderboard_type.capitalize()))
 					elif topThree:
-						await client.send_message(message.channel, ":crown: Congratulations on your #%i placing in the %s leaderboard, please send an in game screenshot to any admin so they may confirm your entry." % (newRank+1, leaderboard_type))
+						await client.send_message(message.channel, ":crown: Congratulations %s on your #%i placing in the %s leaderboard, please send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention,newRank+1, leaderboard_type.capitalize()))
 					elif scoreUpdated:
-						await client.send_message(message.channel, "Congratulations, you placed #%i in the %s leaderboard. Check %s to see the top 10." % (newRank+1, leaderboard_type, channel2.mention))
+						await client.send_message(message.channel, "Congratulations %s, you placed #%i in the %s leaderboard. Check %s to see the top 10." % (message.author.mention,newRank+1, leaderboard_type.capitalize(), channel2.mention))
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
@@ -262,24 +277,36 @@ def checkMessages():
 			leaderboard_list = ["jogger","pikachu"]
 			unitString = ""
 
+			num2words1 = {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', \
+            6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', \
+            11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', \
+            15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
+
 			for item in leaderboard_list:
 				if item == "jogger":
 					unitString = "km"
+				elif item == "pikachu":
+					unitString = "catches"
 				leaderboard_file = open("%s.txt"%item, "r")
 				for index, line in enumerate(leaderboard_file):
 					line = line.split(" ")
 					if line[0].lower() == nickname.lower():
+						localScore = round(float(line[1]),1)
+						if item == "pikachu":
+							localScore = int(localScore)
 						#print("WE HAVE A MATCH!")
 						if(index+1 == 1):
-							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
+							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
 						elif(index+1 == 2):
-							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
+							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
 						elif(index+1 == 3):
-							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %.1f%s." % (nickname, index+1, item, float(line[1]),unitString))
-						elif(index+1 > 3):
-							await client.send_message(message.channel, "%s is ranked \#%i in the %s leaderboards with a score of %.1f km." % (nickname, index+1, item, float(line[1]),unitString))
+							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
+						elif(index+1 > 3 and index+1 < 11):
+							await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[index+1].lower(),message.author.mention, index+1, item.capitalize(), localScore,unitString))
+						elif index+1 > 10:
+							await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
 						else:
-							await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (nickname, item, item))
+							await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
 							
 
 		#DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type, name_to_delete
