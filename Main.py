@@ -15,9 +15,13 @@ EventHandler.client.close()
 
 #LEADERBOARDS---------------------------------------------
 #if same score as person above, same rank
+#congratulations on your #2 score, when actually tied for #1
 
 #DELETE-----------------------------------------------------
 #BRING BACK DELETE
+
+#REFRESH----------------------------------------------------
+#Rewrite to no longer post ?jogger 1, instead direct call? Maybe requires function
 
 #RANKS-----------------------------------------------
 # If same score as person above, same rank

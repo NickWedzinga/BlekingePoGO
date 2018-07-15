@@ -119,6 +119,8 @@ def checkMessages():
 			topThree = False
 			newTopOne = False
 			newRank = 0
+			currentRank = 0
+			currentScore = 0
 
 			#Check if score is numbers only
 			try: 
@@ -131,9 +133,8 @@ def checkMessages():
 				tempScore = float(tempScore)
 				p = re.compile('\d+(\.\d+)?')
 				#Check for illegal nickname symbols, + ensures min size == 1
-				if not re.match(r'[\w-]+$', message.author.display_name):
+				if not re.match(r'[\w-]+$', message.author.display_name) and not message.author.display_name.lower() == "sneasel bot":
 					await client.send_message(message.channel, "Discord nickname contains illegal characters, please change it to match your Pokémon Go nickname.")
-				
 				elif not p.match(str(tempScore)):
 					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?LEADERBOARD_TYPE SCORE*")
 				elif len(message.author.display_name) > 15:
@@ -189,6 +190,8 @@ def checkMessages():
 												break
 											elif tempScore > float(elm[1]):
 												#Insert updated score
+												if pikachuTrue:
+													tempList[1] = int(tempList[1])
 												leaderboardList.insert(idx, tempList) #insert updated score
 												newRank = idx
 												moved = True
@@ -208,6 +211,8 @@ def checkMessages():
 								insertedBool = False
 								for index, elem in enumerate(leaderboardList):
 									if tempScore >= float(elem[1]) and insertedBool == False:
+										if pikachuTrue:
+											tempList[1] = int(tempList[1])
 										leaderboardList.insert(index, tempList)
 										insertedBool = True
 										scoreUpdated = True
@@ -245,14 +250,21 @@ def checkMessages():
 						embed.add_field(name="\u200b", value = "\u200b", inline=False)
 						channel2 = client.get_channel('467754615413407745')
 
+					currentRank = 0
+					currentScore = 0
 					#Add fields to be presented in table, fill with data
 					for index, elem in enumerate(leaderboardList):
 						if index < 10:
+							#Same score as previous user, dont update score index rank
+							if not currentScore == float(elem[1]):
+								currentRank = index+1
+								currentScore = float(elem[1])
+								
 							#Pikachu can't have decimals
 							if pikachuTrue:
-								embed.add_field(name="%i. %s - %i %s" % (index+1, elem[0], int(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
+								embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
 							else:
-								embed.add_field(name="%i. %s - %.1f %s" % (index+1, elem[0], float(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
+								embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
 
 					async for x in client.logs_from(channel2, 10):
 						try:
