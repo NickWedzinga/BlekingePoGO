@@ -3,7 +3,13 @@ import EventHandler
 #Start the bot
 EventHandler.startUp()
 #Read message every loop,  act accordingly
-EventHandler.checkMessages()
+
+#Sneasel List
+#id_list = []
+#Dev list
+id_list = []
+
+EventHandler.checkMessages(id_list)
 #Infinite blocking loop
 with open("apitoken.txt","r") as apiFile:
 	apitoken = apiFile.read()
@@ -18,6 +24,7 @@ EventHandler.client.close()
 #TODO: Parse channel IDs
 
 #LEADERBOARDS---------------------------------------------
+#PRIO, bara A-Za-z
 
 #DELETE-----------------------------------------------------
 #BRING BACK DELETE

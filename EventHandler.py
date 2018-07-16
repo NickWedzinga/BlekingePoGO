@@ -29,7 +29,7 @@ def startUp():
 		print('------')
 
 
-def checkMessages():
+def checkMessages(id_list):
 	print("Checking for messages..")
 	@client.event
 	async def on_message(message):
@@ -132,9 +132,10 @@ def checkMessages():
 			if not floatError:
 				tempScore = float(tempScore)
 				p = re.compile('\d+(\.\d+)?')
+				stringPattern=r'[^\.A-Za-z0-9]'
 				#Check for illegal nickname symbols, + ensures min size == 1
-				if not re.match(r'[\w-]+$', message.author.display_name) and not message.author.display_name.lower() == "sneasel bot":
-					await client.send_message(message.channel, "Discord nickname contains illegal characters, please change it to match your Pokémon Go nickname.")
+				if re.search(stringPattern, message.author.display_name) and not message.author.display_name.lower() == "sneasel bot":
+					await client.send_message(message.channel, "Discord nickname contains illegal character %r, please change it to match your Pokémon Go nickname."%message.author.display_name)
 				elif not p.match(str(tempScore)):
 					await client.send_message(message.channel, "Error: Illegal characters in score. *Format: ?LEADERBOARD_TYPE SCORE*")
 				elif len(message.author.display_name) > 15:
