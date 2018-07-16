@@ -121,6 +121,7 @@ def checkMessages():
 			newRank = 0
 			currentRank = 0
 			currentScore = 0
+			insertedIndex = 0
 
 			#Check if score is numbers only
 			try: 
@@ -192,6 +193,7 @@ def checkMessages():
 												#Insert updated score
 												if pikachuTrue:
 													tempList[1] = int(tempList[1])
+												insertedIndex = idx
 												leaderboardList.insert(idx, tempList) #insert updated score
 												newRank = idx
 												moved = True
@@ -213,6 +215,7 @@ def checkMessages():
 									if tempScore >= float(elem[1]) and insertedBool == False:
 										if pikachuTrue:
 											tempList[1] = int(tempList[1])
+										insertedIndex = index
 										leaderboardList.insert(index, tempList)
 										insertedBool = True
 										scoreUpdated = True
@@ -252,14 +255,19 @@ def checkMessages():
 
 					currentRank = 0
 					currentScore = 0
+					currentRankList = []
 					#Add fields to be presented in table, fill with data
 					for index, elem in enumerate(leaderboardList):
+						currentRankList.append(index+1)
 						if index < 10:
-							#Same score as previous user, dont update score index rank
+							#Score not same as previous user, dont update score index rank
 							if not currentScore == float(elem[1]):
 								currentRank = index+1
 								currentScore = float(elem[1])
-								
+							else:
+								currentRankList[index] = currentRank
+								print(currentRankList)
+		
 							#Pikachu can't have decimals
 							if pikachuTrue:
 								embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value = "Updated: %s" % (elem[2]), inline=True)
@@ -274,11 +282,11 @@ def checkMessages():
 
 					await asyncio.sleep(1)
 					if newTopOne:
-						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS %s, you have reached #%i in the %s leaderboard. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention, newRank+1, leaderboard_type.capitalize()))
+						await client.send_message(message.channel, ":crown: :first_place: CONGRATULATIONS %s, you have reached #%i in the %s leaderboard. \nPlease send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
 					elif topThree:
-						await client.send_message(message.channel, ":crown: Congratulations %s on your #%i placing in the %s leaderboard, please send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention,newRank+1, leaderboard_type.capitalize()))
+						await client.send_message(message.channel, ":crown: Congratulations %s on your #%i placing in the %s leaderboard, please send an in game screenshot to any admin so they may confirm your entry." % (message.author.mention,currentRankList[insertedIndex], leaderboard_type.capitalize()))
 					elif scoreUpdated:
-						await client.send_message(message.channel, "Congratulations %s, you placed #%i in the %s leaderboard. Check %s to see the top 10." % (message.author.mention,newRank+1, leaderboard_type.capitalize(), channel2.mention))
+						await client.send_message(message.channel, "Congratulations %s, you placed #%i in the %s leaderboard. Check %s to see the top 10." % (message.author.mention,currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
 					await client.send_message(message.channel, "The leaderboard has been refreshed.")
 					await client.send_message(channel2, embed=embed)
 				
@@ -288,35 +296,46 @@ def checkMessages():
 			tempList = []
 			leaderboard_list = ["jogger","pikachu"]
 			unitString = ""
+			currentRank = 0
+			currentScore = 0
+			currentRankList = []
 
 			num2words1 = {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', \
             6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten', \
             11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen', \
             15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
 
+            #Loop through leaderboard types
 			for item in leaderboard_list:
 				if item == "jogger":
 					unitString = "km"
 				elif item == "pikachu":
 					unitString = "catches"
 				leaderboard_file = open("%s.txt"%item, "r")
+				#Loop through file
 				for index, line in enumerate(leaderboard_file):
 					line = line.split(" ")
+
+					#If score not same as previous player, update rank
+					if not float(currentScore) == float(line[1]):
+						currentRank = index+1
+						currentScore = float(line[1])
+
 					if line[0].lower() == nickname.lower():
 						localScore = round(float(line[1]),1)
 						if item == "pikachu":
 							localScore = int(localScore)
 						#print("WE HAVE A MATCH!")
 						if(index+1 == 1):
-							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
+							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						elif(index+1 == 2):
-							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
+							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						elif(index+1 == 3):
-							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
+							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						elif(index+1 > 3 and index+1 < 11):
-							await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[index+1].lower(),message.author.mention, index+1, item.capitalize(), localScore,unitString))
+							await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[index+1].lower(),message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						elif index+1 > 10:
-							await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, index+1, item.capitalize(), localScore,unitString))
+							await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						else:
 							await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
 							

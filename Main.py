@@ -14,8 +14,6 @@ EventHandler.client.close()
 #Svenska?
 
 #LEADERBOARDS---------------------------------------------
-#if same score as person above, same rank
-#congratulations on your #2 score, when actually tied for #1
 
 #DELETE-----------------------------------------------------
 #BRING BACK DELETE
@@ -24,7 +22,6 @@ EventHandler.client.close()
 #Rewrite to no longer post ?jogger 1, instead direct call? Maybe requires function
 
 #RANKS-----------------------------------------------
-# If same score as person above, same rank
 
 #CLAIM----------------------------------------------
 # claim nick, koppla till user.ID. DÅ kan folk med user.ID som inte matchar nick
