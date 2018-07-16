@@ -47,7 +47,7 @@ def checkMessages(id_list):
 
 		#Test if bot is still responsive
 		if message.content.upper().startswith('?TEST') and message.channel.id == '466563505462575106':
-			await client.send_message(message.channel, "I still send messages! :sweat_smile:")
+			await client.send_message(message.channel, "I still sänd messages! :sweat_smile:")
 
 		#Help, lists available commands
 		#elif message.content.upper().startswith('?HELP'):

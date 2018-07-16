@@ -14,14 +14,14 @@ EventHandler.checkMessages(id_list)
 with open("apitoken.txt","r") as apiFile:
 	apitoken = apiFile.read()
 EventHandler.client.run(apitoken)
-#EventHandler.client.run('')
 EventHandler.client.close()
 
 # TODO:
 #GENERAL-----------------------------------------------------
 #Change icon
 #Svenska?
-#TODO: Parse channel IDs
+#TODO: Parse channel IDs. if client.user.display_name == "Dev Bot", use ids else...
+#Ikoner till embeds lokalt istället för url
 
 #LEADERBOARDS---------------------------------------------
 #PRIO, bara A-Za-z
