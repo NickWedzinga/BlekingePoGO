@@ -8,12 +8,14 @@ EventHandler.checkMessages()
 with open("apitoken.txt","r") as apiFile:
 	apitoken = apiFile.read()
 EventHandler.client.run(apitoken)
+#EventHandler.client.run('')
 EventHandler.client.close()
 
 # TODO:
 #GENERAL-----------------------------------------------------
 #Change icon
 #Svenska?
+#TODO: Parse channel IDs
 
 #LEADERBOARDS---------------------------------------------
 

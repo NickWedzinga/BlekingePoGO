@@ -5,7 +5,6 @@ from discord import server
 from datetime import datetime, timezone
 import asyncio
 import time
-import numpy as np
 import re
 
 Client = discord.Client()
