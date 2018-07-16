@@ -326,15 +326,15 @@ def checkMessages():
 						if item == "pikachu":
 							localScore = int(localScore)
 						#print("WE HAVE A MATCH!")
-						if(index+1 == 1):
+						if(currentRank == 1):
 							await client.send_message(message.channel, ":first_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
-						elif(index+1 == 2):
+						elif(currentRank == 2):
 							await client.send_message(message.channel, ":second_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
-						elif(index+1 == 3):
+						elif(currentRank == 3):
 							await client.send_message(message.channel, ":third_place: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
-						elif(index+1 > 3 and index+1 < 11):
+						elif(currentRank > 3 and currentRank < 11):
 							await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[index+1].lower(),message.author.mention, currentRank, item.capitalize(), localScore,unitString))
-						elif index+1 > 10:
+						elif currentRank > 10:
 							await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore,unitString))
 						else:
 							await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
