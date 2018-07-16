@@ -5,7 +5,9 @@ EventHandler.startUp()
 #Read message every loop,  act accordingly
 EventHandler.checkMessages()
 #Infinite blocking loop
-EventHandler.client.run('')
+with open("apitoken.txt","r") as apiFile:
+	apitoken = apiFile.read()
+EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
 # TODO:
