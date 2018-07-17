@@ -27,7 +27,7 @@ EventHandler.client.close()
 
 
 # LEADERBOARDS---------------------------------------------
-# Lägg till Battle Girl, gitignore
+# Lägg till Battle Girl, gitignore, skapa .txt filer på PI
 
 # rewrite error msgs svenska
 
