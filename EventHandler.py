@@ -31,7 +31,7 @@ def startup():
 @client.event
 async def refresh(message, id_list):
     """Refresh function, parses and presents leaderboard of choosing."""
-    leaderboard_type = message.content.lower().split(" ", 1)[1]
+    leaderboard_type = message.content.lower().split(" ", 2)[1]
     leaderboard_list = ["jogger", "pikachu"]
 
     if leaderboard_type in leaderboard_list:
@@ -56,9 +56,9 @@ async def leaderboard(message, id_list):
     leaderboard_type = leaderboard_type[1:]
 
     # Sneasel is trying to refresd, set true and set leaderboard type
-    if leaderboard_type.lower() == "refresh":
+    if leaderboard_type.lower() == "refresh" or leaderboard_type.lower() == "delete":
         sneaselRefresh = True
-        leaderboard_type = message.content.lower().split(" ", 1)[1]
+        leaderboard_type = message.content.lower().split(" ", 2)[1]
 
     # Score part of string
     try:
@@ -121,7 +121,7 @@ async def leaderboard(message, id_list):
             tempList.append(message.author.display_name)
             tempList.append(tempScore)
             tempList.append(current_dt.date())
-            
+
             # if Sneasel is not refreshing, check score for illegal characters
             if not sneaselRefresh:
                 # Cast entry number to float
@@ -214,12 +214,6 @@ async def leaderboard(message, id_list):
                 embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                 embed.add_field(name="\u200b", value="\u200b", inline=False)
                 channel2 = client.get_channel(id_list[2])
-
-            #if sneaselRefresh:
-            #    print(leaderboard_type)
-            #    with open("%s.txt" % leaderboard_type) as file:
-            #        leaderboardList = [line.split(" ") for line in file]
-            #    print(leaderboardList)
 
             currentRank = 0
             currentScore = 0
@@ -328,85 +322,64 @@ def checkMessages(id_list):
                         else:
                             await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
 
-        #DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type, name_to_delete
-        #elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
-            #Which leaderboard the user is updating
-        #	leaderboard_type = message.content.lower().split(" ",1)[0]
-        #	leaderboard_type = leaderboard_type[1:] #removes "?"
+        #DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
+        elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
+            leaderboard_type = ""
+            message2 = message
+            deleteName = ""
+            found = False
+            if "," in message2.content.lower():
+                await client.send_message(message.channel, "**(ENDAST ADMINS)** Inga kommatecken. *Format* ?delete LEADERBOARD_TYPE NAMN")
+            else:
+                #Which leaderboard the user is updating
+                try:
+                    message2 = message2.content.lower()
+                    #message2 = message2.replace(",","")
+                    message2 = message2[8:].split(" ")
 
-            #Name to delete part of string
-        #	deleteName = message.content.lower().split(" ",1)[1]
+                    leaderboard_type = message2[0]
 
-        #	print(leaderboard_type)
-        #	print(deleteName)
+                    #Name to delete part of string
+                    deleteName = message2[1]
 
-            #beautiful variable name
-            #linesToKeepInFile = []
-            #deleteIndex = 0
+                except Exception as e:
+                    print("Error deleting: %s" % str(e))
+                    await client.send_message(message.channel, "**(ENDAST ADMINS)** *Format* ?delete LEADERBOARD_TYPE NAMN")
 
-            #Check if author is admin (TESTROLE)
-            #if '435908470936698910' in [role.id for role in message.author.roles]:
-                #Admin is trying to remove entry from Leaderboard
-            #	if deleteName.lower() == "jogger":
-            #		dltFile = open("%s.txt"%leaderboard_type, "r")
-            #		for index, line in enumerate(dltFile):
-            #			splitLine = line.split(' ')
-            #			#Found name trying to delete from file in file
-            #			if splitLine[0].lower() == deleteName.lower():
-            #				await client.send_message(message.channel, "%s found, deleting %s from the %s leaderboard." % (deleteName,deleteName,leaderboard_type))
-            #			else:
-            #				linesToKeepInFile.append(line)
-            #		#Write back lines with the exception of the deleted element
-            #		dltFile = open("%s.txt"%leaderboard_type, "w")
-            #		for elem in linesToKeepInFile:
-            #			dltFile.write(elem)
-            #		await client.send_message(message.channel, "?%s 1"%leaderboard_type)
-            #else:
-            #	await client.send_message(message.channel, "Only admins are allowed to delete entries, please contact an admin.")
+                #beautiful variable name
+                linesToKeepInFile = []
+                deleteIndex = 0
 
-
-        #Add quest to list
-        #elif message.content.upper().startswith('?RESEARCH'):
-        #	args = message.content
-        #	args = args[10:] #remove "?research "
-        #	args2 = args.split(",")
-        #	userID = message.author.name
-
-        #Clean up
-        #	if len(args2) == 3:
-        #		tempList = []
-        #		for elem in args2:
-        #			if elem[0] == " ":
-        #				elem = elem[1:]
-        #			tempList.append(elem)
-        #		tempList.append(userID)
-        #		await client.send_message(message.channel, "**Pokéstop:** %s, **Quest:** %s, **Reward:** %s, **Added by:** %s" % (tempList[0], tempList[1], tempList[2], userID))
-        #		researchList.append(tempList)
-        #	else:
-        #		await client.send_message(message.channel, "Too few or too many arguments..")
-
-        #List quests
-        #elif message.content.upper().startswith('?LIST RESEARCH'):
-        #	await client.send_message(message.channel, "**Today's reported quests:** \n")
-        #	for quest in researchList:
-        #		await client.send_message(message.channel, ":gem: **Pokéstop name:** %s, **Quest type:** %s, **Reward:** %s, **Added by:** %s" % (quest[0], quest[1], quest[2], quest[3]))
-
-        #Repeater
-        #elif  message.content.upper().startswith('?REPEAT'):
-        #	args = message.content.split(' ')
-        #	await client.send_message(message.channel, "%s" % (" ".join(args[1:])))
+                #Check if author is admin (TESTROLE)
+                if '435908470936698910' in [role.id for role in message.author.roles]:
+                    #Admin is trying to remove entry from Leaderboard
+                    if leaderboard_type.lower() == "jogger":
+                        print("Deleting name from jogger leaderboard")
+                        dltFile = open("%s.txt"%leaderboard_type, "r")
+                        for index, line in enumerate(dltFile):
+                            splitLine = line.split(' ')
+                            #Found name trying to delete from file in file
+                            if splitLine[0].lower() == deleteName.lower():
+                                found = True
+                                await client.send_message(message.channel, "%s hittades, %s tas bort från %s leaderboarden." % (deleteName,deleteName,leaderboard_type))
+                            else:
+                                linesToKeepInFile.append(line)
+                        if found:
+                            #Write back lines with the exception of the deleted element
+                            dltFile = open("%s.txt"%leaderboard_type, "w")
+                            for elem in linesToKeepInFile:
+                                dltFile.write(elem)
+                            dltFile.close()
+                            await refresh(message, id_list)
+                        else:
+                            await client.send_message(message.channel, "%s kunde inte hittas i %s leaderboarden." % (deleteName,leaderboard_type))
+                else:
+                    await client.send_message(message.channel, "Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
 
         # E U R E K A
         elif message.content.upper().startswith('EUREKA'):
             await client.send_message(message.channel, "We did it! :smile:")
 
-        #Check if message author has a certain role
-        #elif message.content.upper().startswith('?ADMIN'):
-        #	if '435908470936698910' in [role.id for role in message.author.roles]:
-        #		await client.send_message(message.channel, "Yes, you are admin")
-        #	else:
-        #		await client.send_message(message.channel, "No, you are not admin, unlucky.")
-
         #Last if statement, invalid command
         elif message.content.upper().startswith('?') and message.channel.id == id_list[0]:
-            await client.send_message(message.channel, "Invalid command :sob:")
+            await client.send_message(message.channel, "Detta kommandot finns inte, skriv ?help för en lista på kommandon :sob:")
