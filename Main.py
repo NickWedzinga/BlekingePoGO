@@ -22,7 +22,10 @@ EventHandler.client.close()
 
 # LEADERBOARDS---------------------------------------------
 # Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help, loop through new files in admin claim
+# lägg till i delete if case (skriva om till match in list)
+
 # GRATULERAT, inte korrekt svenska?
+
 
 # DELETE-----------------------------------------------------
 # crash vid delete, kraschen är kring local leaderboardList i funktionen leaderboard

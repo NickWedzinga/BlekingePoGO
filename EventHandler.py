@@ -248,6 +248,7 @@ async def leaderboard(message, id_list):
         joggerTrue = False
         pikachuTrue = False
         sneaselRefresh = False
+        leaderboardList = []
 
         upperLimit = 0
 
@@ -567,50 +568,52 @@ def checkMessages(id_list):
                 if not found:
                     await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards. Du verkar inte registrerat några poäng ännu.")
 
-        #DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
+        # DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
         elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
             leaderboard_type = ""
             message2 = message
             deleteName = ""
             found = False
+
+            leaderboard_list = ["jogger", "pikachu"]
+
             if "," in message2.content.lower():
                 await client.send_message(message.channel, "**(ENDAST ADMINS)** Inga kommatecken. *Format* ?delete LEADERBOARD_TYPE NAMN")
             else:
-                #Which leaderboard the user is updating
+                # Which leaderboard the user is updating
                 try:
                     message2 = message2.content.lower()
-                    #message2 = message2.replace(",","")
                     message2 = message2[8:].split(" ")
 
                     leaderboard_type = message2[0]
 
-                    #Name to delete part of string
+                    # Name to delete part of string
                     deleteName = message2[1]
 
                 except Exception as e:
                     print("Error deleting: %s" % str(e))
                     await client.send_message(message.channel, "**(ENDAST ADMINS)** *Format* ?delete LEADERBOARD_TYPE NAMN")
 
-                #beautiful variable name
+                # beautiful variable name
                 linesToKeepInFile = []
                 deleteIndex = 0
 
-                #Check if author is admin (TESTROLE)
+                # Check if author is admin (TESTROLE)
                 if '435908470936698910' in [role.id for role in message.author.roles]:
                     #Admin is trying to remove entry from Leaderboard
-                    if leaderboard_type.lower() == "jogger":
+                    if leaderboard_type.lower() in leaderboard_list:
                         print("Deleting %s from jogger leaderboard" % deleteName)
                         dltFile = open("%s.txt"%leaderboard_type, "r")
                         for index, line in enumerate(dltFile):
                             splitLine = line.split(' ')
-                            #Found name trying to delete from file in file
+                            # Found name trying to delete from file in file
                             if splitLine[0].lower() == deleteName.lower():
                                 found = True
                                 await client.send_message(message.channel, "%s hittades, %s tas bort från %s leaderboarden." % (deleteName,deleteName,leaderboard_type))
                             else:
                                 linesToKeepInFile.append(line)
                         if found:
-                            #Write back lines with the exception of the deleted element
+                            # Write back lines with the exception of the deleted element
                             dltFile = open("%s.txt"%leaderboard_type, "w")
                             for elem in linesToKeepInFile:
                                 dltFile.write(elem)
