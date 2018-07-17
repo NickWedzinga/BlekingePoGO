@@ -18,14 +18,14 @@ EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
 # GENERAL-----------------------------------------------------
-
+# botten randomly la av
 
 # LEADERBOARDS---------------------------------------------
-# Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help
-
+# Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help, loop through new files in admin claim
+# GRATULERAT, inte korrekt svenska?
 
 # DELETE-----------------------------------------------------
-
+# crash vid delete, kraschen är kring local leaderboardList i funktionen leaderboard
 
 # REFRESH----------------------------------------------------
 
@@ -34,10 +34,11 @@ EventHandler.client.close()
 
 
 # CLAIM----------------------------------------------
-# Gör tiden som visas uppdaterande, visar inte korrekt atm
+# Gör så att om någon skriver vad som helst som inte är ?claim i claim så tip
 
 
 # ADMIN_CLAIM----------------------------------------
+# refresh längst ner
 
 
 # ?HELP

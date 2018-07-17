@@ -40,7 +40,7 @@ async def help(message):
     else:
         codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
         codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
-        codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
+        codeMessage += "2. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
         codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
         await client.send_message(message.channel, codeMessage)
 
@@ -49,9 +49,13 @@ async def help(message):
 @client.event
 async def admin_claim(message):
     """Admins can use this to fix nicknames of people that missclaimed."""
+    leaderboard_list = ["jogger.txt", "pikachu.txt"]
     claimString = message.content
     claimString = claimString[13:]
     claimString.replace(",", " ")
+
+    replacedNick = ""
+    newNick = ""
 
     # Format claimList: nickname userID
     tempList = []
@@ -86,9 +90,9 @@ async def admin_claim(message):
             if str(item[1]) == str(tempList[1]):
                 changedIndex = index
                 changed = True
-                print(temp2[2])
-                print(tempList[0])
+                replacedNick = temp2[0]
                 temp2[0] = tempList[0]
+                newNick = temp2[0]
                 insertList = temp2
             claimList.append(temp2)
         file.close()
@@ -97,14 +101,47 @@ async def admin_claim(message):
         if changed:
             claimList.pop(changedIndex)
             claimList.insert(changedIndex, insertList)
-        print(claimList)
+            await client.send_message(message.channel, "Användarnamnet har uppdaterats från %s till %s" % (replacedNick, newNick))
         file = open("idclaims.txt", "w")
         for item in claimList:
-            print(item)
             file.write(item[0])
             file.write(item[1])
             file.write(item[2])
         file.close()
+
+        # Loop through files and update to new nickname
+        for leaderboard in leaderboard_list:
+            fileList = []
+
+            # Read from file and look for nickname to update
+            file = open(leaderboard, "r")
+            for item in file:
+                item = item.split(" ")
+                # if name in file matches old name
+                if item[0].lower() == replacedNick.lower():
+                    item[0] = newNick
+                temp = []
+                temp.append(item[0])
+                temp.append(" ")
+                temp.append(item[1])
+                temp.append(" ")
+                temp.append(item[2])
+                fileList.append(temp)
+            file.close()
+
+            # Write back to file with updated nickname
+            file = open(leaderboard, "w")
+            for item in fileList:
+                # if name in file matches old name
+                file.write(item[0])
+                file.write(" ")
+                file.write(item[2])
+                file.write(" ")
+                file.write(item[4])
+            file.close()
+
+            #refresh list
+            #refresh(message)
 
 
 # Refresh function
@@ -412,7 +449,7 @@ async def leaderboard(message, id_list):
                     await client.send_message(message.channel, ":crown: Gratulerat %s till din #%i placering i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
                 elif scoreUpdated:
                     await client.send_message(message.channel, "Gratulerat %s, du placerade #%i i %s leaderboarden. Kolla %s för att se top 10." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
-                await client.send_message(message.channel, "Leaderboarden har skapats om.")
+                await client.send_message(message.channel, "Leaderboarden har laddats om.")
                 await client.send_message(channel2, embed=embed)
     else:
         await client.send_message(message.channel, "Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. Ta kontakt med valfri admin.")
@@ -562,7 +599,7 @@ def checkMessages(id_list):
                 if '435908470936698910' in [role.id for role in message.author.roles]:
                     #Admin is trying to remove entry from Leaderboard
                     if leaderboard_type.lower() == "jogger":
-                        print("Deleting name from jogger leaderboard")
+                        print("Deleting %s from jogger leaderboard" % deleteName)
                         dltFile = open("%s.txt"%leaderboard_type, "r")
                         for index, line in enumerate(dltFile):
                             splitLine = line.split(' ')
