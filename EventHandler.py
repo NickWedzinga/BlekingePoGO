@@ -46,10 +46,9 @@ async def refresh(message, id_list):
 @client.event
 async def claim(message):
     """Claim function, assigns claim role, adds user ID to a list."""
-    claimMsg = message
     claimedIDs = []
 
-    #Add information of user to temporary list
+    # Add information of user to temporary list
     tempID = []
     tempID.append(message.author.display_name)
     tempID.append(message.author.id + "\n")
@@ -64,7 +63,9 @@ async def claim(message):
     stringPattern = r'[^\.A-Za-z0-9]'
     # Check for illegal nickname symbols, + ensures min size == 1
     if (re.search(stringPattern, message.author.display_name)):
-        await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar Pokémon Go användarnamnet.")
+        await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
+    elif len(message.author.display_name > 15):
+        await client.send_message(message.channel, "Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
     else:
         with open("idclaims.txt") as file:
             claimedIDs = [line.split(" ") for line in file]
@@ -81,7 +82,7 @@ async def claim(message):
         print(claimedIDs)
         # Write to file
         if not found:
-            #Add to list
+            # Add to list
             claimedIDs.insert(0, tempID)
             print(claimedIDs)
             # Add ID to file
@@ -99,215 +100,229 @@ async def claim(message):
             await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
             await client.send_message(message.author, "Tjena, läget")
 
+
 # Leaderboard function
 @client.event
 async def leaderboard(message, id_list):
     """Leaderboard function, records, adds and presents leaderboards."""
-    joggerTrue = False
-    pikachuTrue = False
-    sneaselRefresh = False
 
-    upperLimit = 0
+    # Check if users display name is in claim list
+    earlyCheck = False
+    fileCheck = open("idclaims.txt", "r")
+    for item in fileCheck:
+        item = item.split(" ")
+        if str(item[0].lower()) == str(message.author.display_name.lower()):
+            earlyCheck = True
+    fileCheck.close()
 
-    # Which leaderboard the user is updating
-    leaderboard_type = message.content.lower().split(" ", 1)[0]
-    leaderboard_type = leaderboard_type[1:]
+    if earlyCheck:
+        joggerTrue = False
+        pikachuTrue = False
+        sneaselRefresh = False
 
-    # Sneasel is trying to refresd, set true and set leaderboard type
-    if leaderboard_type.lower() == "refresh" or leaderboard_type.lower() == "delete":
-        sneaselRefresh = True
-        leaderboard_type = message.content.lower().split(" ", 2)[1]
+        upperLimit = 0
 
-    # Score part of string
-    try:
-        tempScore = message.content.lower().split(" ", 1)[1]
-    except IndexError:  # User only typed ?LEADERBOARD_TYPE
-        await client.send_message(message.channel,
-                                  "Korrekt sätt att skicka in dina poäng är ?%s 'POÄNG. \n*Exempel: ?jogger 2500*" %
-                                  (leaderboard_type))
+        # Which leaderboard the user is updating
+        leaderboard_type = message.content.lower().split(" ", 1)[0]
+        leaderboard_type = leaderboard_type[1:]
 
-    # Replace possible commas with dots
-    tempScore = str(tempScore.replace(",", "."))
+        # Sneasel is trying to refresd, set true and set leaderboard type
+        if leaderboard_type.lower() == "refresh" or leaderboard_type.lower() == "delete":
+            sneaselRefresh = True
+            leaderboard_type = message.content.lower().split(" ", 2)[1]
 
-    if leaderboard_type == "jogger":
-        joggerTrue = True
-        upperLimit = 20000
-    elif leaderboard_type == "pikachu":
-        pikachuTrue = True
-        upperLimit = 5000
-
-    tempList = []
-    notUpdated = True
-    skipUpdate = False
-    current_dt = datetime.now()
-    floatError = False
-    scoreUpdated = False
-
-    checkFailed = False
-    topThree = False
-    newTopOne = False
-    currentRank = 0
-    currentScore = 0
-    insertedIndex = 0
-
-    # Check if score is numbers only
-    if not sneaselRefresh:
+        # Score part of string
         try:
-            float(tempScore)
-        except ValueError:
-            await client.send_message(message.channel, "Poäng endast i siffror. *Format: ?LEADERBOARD_TYPE POÄNG*")
-            floatError = True
+            tempScore = message.content.lower().split(" ", 1)[1]
+        except IndexError:  # User only typed ?LEADERBOARD_TYPE
+            await client.send_message(message.channel,
+                                      "Korrekt sätt att skicka in dina poäng är ?%s 'POÄNG. \n*Exempel: ?jogger 2500*" %
+                                      (leaderboard_type))
 
-    if not floatError or sneaselRefresh:
-        # if Sneasel is not refreshing, check name for illegal characters
+        # Replace possible commas with dots
+        tempScore = str(tempScore.replace(",", "."))
+
+        if leaderboard_type == "jogger":
+            joggerTrue = True
+            upperLimit = 20000
+        elif leaderboard_type == "pikachu":
+            pikachuTrue = True
+            upperLimit = 5000
+
+        tempList = []
+        notUpdated = True
+        skipUpdate = False
+        current_dt = datetime.now()
+        floatError = False
+        scoreUpdated = False
+
+        checkFailed = False
+        topThree = False
+        newTopOne = False
+        currentRank = 0
+        currentScore = 0
+        insertedIndex = 0
+
+        # Check if score is numbers only
         if not sneaselRefresh:
-            tempScore = float(tempScore)
-            p = re.compile('\d+(\.\d+)?')
-            stringPattern = r'[^\.A-Za-z0-9]'
-            # Check for illegal nickname symbols, + ensures min size == 1
-            if (re.search(stringPattern, message.author.display_name)):
-                checkFailed = True
-                await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar Pokémon Go användarnamnet.")
-            elif not p.match(str(tempScore)):
-                checkFailed = True
-                await client.send_message(message.channel, "Error: Otillåtna tecken i poängen. *Format: ?LEADERBOARD_TYPE POÄNG*")
-            elif len(message.author.display_name) > 15:
-                checkFailed = True
-                await client.send_message(message.channel, "Error: Namn får vara max 15 tecken. Var god uppdatera ditt Discord användarnamn. Fråga admins om hjälp vid besvär.")
-        if not checkFailed:
-            # Create temp leaderboardList to be inserted if applicable
-            tempList.append(message.author.display_name)
-            tempList.append(tempScore)
-            tempList.append(current_dt.date())
+            try:
+                float(tempScore)
+            except ValueError:
+                await client.send_message(message.channel, "Poäng endast i siffror. *Format: ?LEADERBOARD_TYPE POÄNG*")
+                floatError = True
 
-            # if Sneasel is not refreshing, check score for illegal characters
+        if not floatError or sneaselRefresh:
+            # if Sneasel is not refreshing, check name for illegal characters
             if not sneaselRefresh:
-                # Cast entry number to float
-                if tempScore > upperLimit:
-                    await client.send_message(message.channel, "Poäng högre än tillåtet.")
-                elif tempScore < 1 and not sneaselRefresh:
-                    await client.send_message(message.channel, "Poäng lägre än tillåtet.")
-                elif floatError and not sneaselRefresh:
-                    await client.send_message(message.channel, "Poäng får inte innehålla annat än siffror.")
+                tempScore = float(tempScore)
+                p = re.compile('\d+(\.\d+)?')
+                stringPattern = r'[^\.A-Za-z0-9]'
+                # Check for illegal nickname symbols, + ensures min size == 1
+                if (re.search(stringPattern, message.author.display_name)):
+                    checkFailed = True
+                    await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar Pokémon Go användarnamnet.")
+                elif not p.match(str(tempScore)):
+                    checkFailed = True
+                    await client.send_message(message.channel, "Error: Otillåtna tecken i poängen. *Format: ?LEADERBOARD_TYPE POÄNG*")
+                elif len(message.author.display_name) > 15:
+                    checkFailed = True
+                    await client.send_message(message.channel, "Error: Namn får vara max 15 tecken. Var god uppdatera ditt Discord användarnamn. Fråga admins om hjälp vid besvär.")
             if not checkFailed:
-                with open("%s.txt" % leaderboard_type) as file:
-                    leaderboardList = [line.split(" ") for line in file]
+                # Create temp leaderboardList to be inserted if applicable
+                tempList.append(message.author.display_name)
+                tempList.append(tempScore)
+                tempList.append(current_dt.date())
+
+                # if Sneasel is not refreshing, check score for illegal characters
                 if not sneaselRefresh:
-                    # Check if player is already in standings, update
-                    found = False
-                    for index, elem in enumerate(leaderboardList):
-                        # If player already exists
-                        if (message.author.display_name.lower() == elem[0].lower() and not found):
-                            if not found:
-                                found = True
-                                # Update player stats
-                                leaderboardList[index][1] = tempScore
-                                leaderboardList[index][2] = current_dt.date()
-                                # Remove updated score
-                                tempList = leaderboardList.pop(index)
-
-                                notUpdated = False
-                                # Move player to correct position
-                                moved = False
-                                for idx, elm in enumerate(leaderboardList):
-                                    if moved:
-                                        break
-                                    elif tempScore > float(elm[1]):
-                                        # Insert updated score
-                                        if pikachuTrue:
-                                            tempList[1] = int(tempList[1])
-                                        insertedIndex = idx
-                                        leaderboardList.insert(idx, tempList)  # insert updated score
-                                        moved = True
-                                        scoreUpdated = True
-                                        # Updated score gets top one, was not top one before
-                                        if idx < 1 and index > 0:
-                                            newTopOne = True
-                                        # Updated score gets top three, was not top three
-                                        elif idx < 3 and index > 2:
-                                            topThree = True
-                            else:
-                                skipUpdate = True
-
-                    # Player is missing, insert new entry
-                    if notUpdated and not skipUpdate and not sneaselRefresh:
-                        insertedBool = False
+                    # Cast entry number to float
+                    if tempScore > upperLimit:
+                        await client.send_message(message.channel, "Poäng högre än tillåtet.")
+                    elif tempScore < 1 and not sneaselRefresh:
+                        await client.send_message(message.channel, "Poäng lägre än tillåtet.")
+                    elif floatError and not sneaselRefresh:
+                        await client.send_message(message.channel, "Poäng får inte innehålla annat än siffror.")
+                if not checkFailed:
+                    with open("%s.txt" % leaderboard_type) as file:
+                        leaderboardList = [line.split(" ") for line in file]
+                    if not sneaselRefresh:
+                        # Check if player is already in standings, update
+                        found = False
                         for index, elem in enumerate(leaderboardList):
-                            if tempScore >= float(elem[1]) and not insertedBool:
-                                if pikachuTrue:
-                                    tempList[1] = int(tempList[1])
-                                insertedIndex = index
-                                leaderboardList.insert(index, tempList)
-                                insertedBool = True
-                                scoreUpdated = True
-                                # New score is top one
-                                if index < 1:
-                                    newTopOne = True
-                                # New score is among top three
-                                if index < 3:
-                                    topThree = True
+                            # If player already exists
+                            if (message.author.display_name.lower() == elem[0].lower() and not found):
+                                if not found:
+                                    found = True
+                                    # Update player stats
+                                    leaderboardList[index][1] = tempScore
+                                    leaderboardList[index][2] = current_dt.date()
+                                    # Remove updated score
+                                    tempList = leaderboardList.pop(index)
 
-                file = open("%s.txt" % leaderboard_type, "w")
-                for item in leaderboardList:
-                    item2 = ' '.join(str(x) for x in item)
-                    if item == tempList:
-                        file.write("%s\n" % item2)
-                    else:
-                        file.write("%s" % item2)
-                file.close()
+                                    notUpdated = False
+                                    # Move player to correct position
+                                    moved = False
+                                    for idx, elm in enumerate(leaderboardList):
+                                        if moved:
+                                            break
+                                        elif tempScore > float(elm[1]):
+                                            # Insert updated score
+                                            if pikachuTrue:
+                                                tempList[1] = int(tempList[1])
+                                            insertedIndex = idx
+                                            leaderboardList.insert(idx, tempList)  # insert updated score
+                                            moved = True
+                                            scoreUpdated = True
+                                            # Updated score gets top one, was not top one before
+                                            if idx < 1 and index > 0:
+                                                newTopOne = True
+                                            # Updated score gets top three, was not top three
+                                            elif idx < 3 and index > 2:
+                                                topThree = True
+                                else:
+                                    skipUpdate = True
 
-            # Medal images: http://pokemongo.wikia.com/wiki/Medals
-            # https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png
-            unitString = ""
-            if joggerTrue:
-                embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
-                embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
-                embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
-                embed.add_field(name="\u200b", value="\u200b", inline=False)
-                channel2 = client.get_channel(id_list[1])
-                unitString = "km"
-            elif pikachuTrue:
-                embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
-                embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
-                embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
-                embed.add_field(name="\u200b", value="\u200b", inline=False)
-                channel2 = client.get_channel(id_list[2])
+                        # Player is missing, insert new entry
+                        if notUpdated and not skipUpdate and not sneaselRefresh:
+                            insertedBool = False
+                            for index, elem in enumerate(leaderboardList):
+                                if tempScore >= float(elem[1]) and not insertedBool:
+                                    if pikachuTrue:
+                                        tempList[1] = int(tempList[1])
+                                    insertedIndex = index
+                                    leaderboardList.insert(index, tempList)
+                                    insertedBool = True
+                                    scoreUpdated = True
+                                    # New score is top one
+                                    if index < 1:
+                                        newTopOne = True
+                                    # New score is among top three
+                                    if index < 3:
+                                        topThree = True
 
-            currentRank = 0
-            currentScore = 0
-            currentRankList = []
-            # Add fields to be presented in table, fill with data
-            for index, elem in enumerate(leaderboardList):
-                currentRankList.append(index + 1)
-                if index < 10:
-                    # Score not same as previous user, dont update score index rank
-                    if not currentScore == float(elem[1]):
-                        currentRank = index + 1
-                        currentScore = float(elem[1])
-                    else:
-                        currentRankList[index] = currentRank
+                    file = open("%s.txt" % leaderboard_type, "w")
+                    for item in leaderboardList:
+                        item2 = ' '.join(str(x) for x in item)
+                        if item == tempList:
+                            file.write("%s\n" % item2)
+                        else:
+                            file.write("%s" % item2)
+                    file.close()
 
-                    # Pikachu can't have decimals
-                    if pikachuTrue:
-                        embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
-                    else:
-                        embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
+                # Medal images: http://pokemongo.wikia.com/wiki/Medals
+                # https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png
+                unitString = ""
+                if joggerTrue:
+                    embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[1])
+                    unitString = "km"
+                elif pikachuTrue:
+                    embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[2])
 
-            async for x in client.logs_from(channel2, 10):
-                try:
-                    await client.delete_message(x)
-                except:
-                    print("somehow failed to delete message")
+                currentRank = 0
+                currentScore = 0
+                currentRankList = []
+                # Add fields to be presented in table, fill with data
+                for index, elem in enumerate(leaderboardList):
+                    currentRankList.append(index + 1)
+                    if index < 10:
+                        # Score not same as previous user, dont update score index rank
+                        if not currentScore == float(elem[1]):
+                            currentRank = index + 1
+                            currentScore = float(elem[1])
+                        else:
+                            currentRankList[index] = currentRank
 
-            await asyncio.sleep(1)
-            if newTopOne:
-                await client.send_message(message.channel, ":crown: :first_place: GRATULERAT %s, du har nått #%i i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
-            elif topThree:
-                await client.send_message(message.channel, ":crown: Gratulerat %s till din #%i placering i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
-            elif scoreUpdated:
-                await client.send_message(message.channel, "Gratulerat %s, du placerade #%i i %s leaderboarden. Kolla %s för att se top 10." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
-            await client.send_message(message.channel, "Leaderboarden har skapats om.")
-            await client.send_message(channel2, embed=embed)
+                        # Pikachu can't have decimals
+                        if pikachuTrue:
+                            embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
+                        else:
+                            embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
+
+                async for x in client.logs_from(channel2, 10):
+                    try:
+                        await client.delete_message(x)
+                    except:
+                        print("somehow failed to delete message")
+
+                await asyncio.sleep(1)
+                if newTopOne:
+                    await client.send_message(message.channel, ":crown: :first_place: GRATULERAT %s, du har nått #%i i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
+                elif topThree:
+                    await client.send_message(message.channel, ":crown: Gratulerat %s till din #%i placering i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
+                elif scoreUpdated:
+                    await client.send_message(message.channel, "Gratulerat %s, du placerade #%i i %s leaderboarden. Kolla %s för att se top 10." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
+                await client.send_message(message.channel, "Leaderboarden har skapats om.")
+                await client.send_message(channel2, embed=embed)
+    else:
+        await client.send_message(message.channel, "Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. Ta kontakt med valfri admin.")
 
 
 def checkMessages(id_list):
@@ -325,7 +340,6 @@ def checkMessages(id_list):
         if (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
             await claim(message)
 
-
         # REFRESH, Format: ?refresh LEADERBOARD_TYPE
         elif(message.content.upper().startswith('?REFRESH') and message.channel.id == id_list[0]):
             await refresh(message, id_list)
@@ -334,11 +348,9 @@ def checkMessages(id_list):
         elif ((message.content.upper().startswith('?JOGGER') or message.content.upper().startswith('?PIKACHU')) and message.channel.id == id_list[0]):
             await leaderboard(message, id_list)
 
-
         # List ranks across leaderboards
         elif message.content.upper().startswith('?RANKS') and message.channel.id == id_list[0]:
             nickname = message.author.display_name
-            tempList = []
             leaderboard_list = ["jogger","pikachu"]
             unitString = ""
             currentRank = 0
@@ -443,6 +455,12 @@ def checkMessages(id_list):
         elif message.content.upper().startswith('EUREKA'):
             await client.send_message(message.channel, "We did it! :smile:")
 
-        #Last if statement, invalid command
+        elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
+            await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
+
+        elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
+            await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
+
+        # Last if statement, invalid command
         elif message.content.upper().startswith('?') and message.channel.id == id_list[0]:
             await client.send_message(message.channel, "Detta kommandot finns inte, skriv ?help för en lista på kommandon :sob:")

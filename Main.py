@@ -37,24 +37,13 @@ EventHandler.client.close()
 
 
 # CLAIM----------------------------------------------
-# om claim i fel kanal, du har redan claimat, fråga admin
-
-# om annan kommando än claim så säg claim
-
-# claim nick, koppla till user.ID. DÅ kan folk med user.ID som inte matchar
-# nick inte posta som denna nick.
-
 # skriv pm
-
-# skriver inte in nya i filen atm
-# du har redan claimat namnet: %s, be admin ändra namn åt dig
 
 # krävs 1h membership på server för name claim
 
-# lägg in claim check i andra funtioner, seems like youve not claimed your
-# nick yet...
+# lägg in claim check i andra funtioner
 # ADMIN_CLAIM----------------------------------------
-# du har redan claimat namnet: %s, be admin ändra namn åt dig
+# ?admin_claim @mention nickname. Fetch user ID from mention, look for old nick, change
 
 
 # ?HELP
