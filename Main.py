@@ -34,7 +34,8 @@ EventHandler.client.close()
 
 
 # CLAIM----------------------------------------------
-# Gör tiden som visas uppdaterande
+# Gör tiden som visas uppdaterande, visar inte korrekt atm
+
 
 # ADMIN_CLAIM----------------------------------------
 

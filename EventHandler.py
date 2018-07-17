@@ -132,7 +132,8 @@ async def claim(message):
     memberTime = memberTime - message.author.joined_at
 
     seconds = memberTime.total_seconds()
-    minutes = (seconds % 60)
+    minutes = (seconds % 3600) // 60
+    minutesLeft = int(10 - minutes)
 
     # Add information of user to temporary list
     tempID = []
@@ -149,8 +150,8 @@ async def claim(message):
     # Check for illegal nickname symbols, + ensures min size == 1
     stringPattern = r'[^\.A-Za-z0-9]'
     # Check if member too new, stops spamming new accounts and entering scores
-    if int(memberTime.total_seconds()) < 600:
-        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge %s, försök igen om %i minuter." % (message.author.mention, int(10 - minutes)))
+    if minutesLeft > 0:
+        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge %s, försök igen om %i minuter." % (message.author.mention, minutesLeft))
     elif (re.search(stringPattern, message.author.display_name)):
         await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
     elif len(message.author.display_name) > 15:
