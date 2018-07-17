@@ -64,7 +64,7 @@ async def claim(message):
     # Check for illegal nickname symbols, + ensures min size == 1
     if (re.search(stringPattern, message.author.display_name)):
         await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
-    elif len(message.author.display_name > 15):
+    elif len(message.author.display_name) > 15:
         await client.send_message(message.channel, "Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
     else:
         with open("idclaims.txt") as file:
@@ -351,51 +351,86 @@ def checkMessages(id_list):
         # List ranks across leaderboards
         elif message.content.upper().startswith('?RANKS') and message.channel.id == id_list[0]:
             nickname = message.author.display_name
-            leaderboard_list = ["jogger","pikachu"]
-            unitString = ""
-            currentRank = 0
-            currentScore = 0
-            currentRankList = []
 
-            num2words1 = {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five',
-                          6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
-                          11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen',
-                          15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
+            # Check if users display name is in claim list--------------------------------
+            nameButNotID = False
+            IDButNotName = False
+            fileCheck = open("idclaims.txt", "r")
+            for item in fileCheck:
+                item = item.split(" ")
+                item[0] = item[0].replace("\n", "")
+                item[1] = item[1].replace("\n", "")
+                # Check if previously claimed, nickname matches
+                if (str(item[0].lower()) == str(message.author.display_name.lower())):
+                    # Check if previously claimed, id matches
+                    if not (str(item[1]) == str(message.author.id)):
+                        nameButNotID = True
+                # Check if previously claimed, id matches
+                if (str(item[1]) == str(message.author.id)):
+                    # Check if previously claimed, nickname matches
+                    if not (str(item[0].lower()) == str(message.author.display_name.lower())):
+                        IDButNotName = True
+            fileCheck.close()
+            # ------------------------------------------------------------------------------
 
-            # Loop through leaderboard types
-            for item in leaderboard_list:
-                if item == "jogger":
-                    unitString = "km"
-                elif item == "pikachu":
-                    unitString = "fångster"
-                leaderboard_file = open("%s.txt" % item, "r")
-                # Loop through file
-                for index, line in enumerate(leaderboard_file):
-                    line = line.split(" ")
+            # Nickname exists, but not correct ID
+            if nameButNotID and not IDButNotName:
+                await client.send_message(message.channel, "Ditt användarnamn matchar inte med det du registrerat tidigare, ändra tillbaka eller ta kontakt med valfri admin.")
+            elif nameButNotID:
+                await client.send_message(message.channel, "Ditt användarnamn matchar med någon annans och inte det du registrerat tidigare, ändra tillbaka eller ta kontakt med valfri admin.")
+            elif IDButNotName:
+                await client.send_message(message.channel, "Ditt användarnamn matchar inte med det du registrerat tidigare, ändra tillbaka det eller ta kontakt med valfri admin.")
+            else:
+                found = False
 
-                    # If score not same as previous player, update rank
-                    if not float(currentScore) == float(line[1]):
-                        currentRank = index + 1
-                        currentScore = float(line[1])
+                leaderboard_list = ["jogger", "pikachu"]
+                unitString = ""
+                currentRank = 0
+                currentScore = 0
+                currentRankList = []
 
-                    if line[0].lower() == nickname.lower():
-                        localScore = round(float(line[1]), 1)
-                        if item == "pikachu":
-                            localScore = int(localScore)
-                        if(currentRank == 1):
-                            await client.send_message(message.channel, ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        elif(currentRank == 2):
-                            await client.send_message(message.channel, ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        elif(currentRank == 3):
-                            await client.send_message(message.channel, ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        elif(currentRank == 10):
-                            await client.send_message(message.channel, ":keycap_%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        elif(currentRank > 3 and currentRank < 11):
-                            await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        elif currentRank > 10:
-                            await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
-                        else:
-                            await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
+                num2words1 = {1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five',
+                              6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
+                              11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen',
+                              15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
+
+                # Loop through leaderboard types
+                for item in leaderboard_list:
+                    if item == "jogger":
+                        unitString = "km"
+                    elif item == "pikachu":
+                        unitString = "fångster"
+                    leaderboard_file = open("%s.txt" % item, "r")
+                    # Loop through file
+                    for index, line in enumerate(leaderboard_file):
+                        line = line.split(" ")
+
+                        # If score not same as previous player, update rank
+                        if not float(currentScore) == float(line[1]):
+                            currentRank = index + 1
+                            currentScore = float(line[1])
+
+                        if line[0].lower() == nickname.lower():
+                            found = True
+                            localScore = round(float(line[1]), 1)
+                            if item == "pikachu":
+                                localScore = int(localScore)
+                            if(currentRank == 1):
+                                await client.send_message(message.channel, ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            elif(currentRank == 2):
+                                await client.send_message(message.channel, ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            elif(currentRank == 3):
+                                await client.send_message(message.channel, ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            elif(currentRank == 10):
+                                await client.send_message(message.channel, ":keycap_%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            elif(currentRank > 3 and currentRank < 11):
+                                await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            elif currentRank > 10:
+                                await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                            else:
+                                await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
+                if not found:
+                    await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards. Du verkar inte registrerat några poäng ännu.")
 
         #DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
         elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':

@@ -17,9 +17,7 @@ with open("apitoken.txt", "r") as apiFile:
 EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
-# TODO:?jogger 2
 # GENERAL-----------------------------------------------------
-# Change icon bot again?
 # Ikoner till embeds lokalt istället för url
 
 
@@ -35,13 +33,11 @@ EventHandler.client.close()
 
 # RANKS-----------------------------------------------
 
-
 # CLAIM----------------------------------------------
 # skriv pm
 
 # krävs 1h membership på server för name claim
 
-# lägg in claim check i andra funtioner
 # ADMIN_CLAIM----------------------------------------
 # ?admin_claim @mention nickname. Fetch user ID from mention, look for old nick, change
 
