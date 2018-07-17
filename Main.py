@@ -21,8 +21,6 @@ EventHandler.client.close()
 # GENERAL-----------------------------------------------------
 # Change icon bot
 
-# Svenska
-
 # Ikoner till embeds lokalt istället för url
 
 
@@ -37,7 +35,6 @@ EventHandler.client.close()
 
 
 # REFRESH----------------------------------------------------
-# Rewrite to no longer post ?jogger 1, instead direct call? Also fixes current error msg
 
 
 # RANKS-----------------------------------------------
