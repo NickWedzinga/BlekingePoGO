@@ -28,6 +28,16 @@ def startup():
         print('------')
 
 
+@client.event
+async def help(message):
+    
+
+    codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
+    codeMessage += "1. ?leaderboard poäng, Exempel: ?jogger 2320\n"
+    codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
+    codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. Exempel: ?help jogger\n"
+    await client.send_message(message.channel, codeMessage)
+
 # Refresh function
 @client.event
 async def refresh(message, id_list):
@@ -105,7 +115,6 @@ async def claim(message):
 @client.event
 async def leaderboard(message, id_list):
     """Leaderboard function, records, adds and presents leaderboards."""
-
     # Check if users display name is in claim list
     earlyCheck = False
     fileCheck = open("idclaims.txt", "r")
@@ -325,6 +334,7 @@ async def leaderboard(message, id_list):
         await client.send_message(message.channel, "Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. Ta kontakt med valfri admin.")
 
 
+# CHECKS MESSAGES, MAIN DRIVER
 def checkMessages(id_list):
     """Checks for messages, calls appropriate functions."""
     print("Checking for messages..")
@@ -334,10 +344,14 @@ def checkMessages(id_list):
 
         # Test if bot is still responsive
         if (message.content.upper().startswith('?TEST') and message.channel.id == id_list[0]):
-            await client.send_message(message.channel, "Ja, hej! Hallå! :sweat_smile:")
+            await client.send_message(message.channel, "Ja, hej %s! Hallå! :sweat_smile:" % message.author.mention)
 
         # Claim nick for your ID
-        if (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
+        elif (message.content.upper().startswith('?HELP') and message.channel.id == id_list[0]):
+            await help(message)
+
+        # Claim nick for your ID
+        elif (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
             await claim(message)
 
         # REFRESH, Format: ?refresh LEADERBOARD_TYPE
