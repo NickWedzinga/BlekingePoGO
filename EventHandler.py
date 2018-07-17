@@ -30,13 +30,19 @@ def startup():
 
 @client.event
 async def help(message):
-    
+    helpString = message.content.lower()
+    helpString = helpString[6:]  # remove "help? "
 
-    codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
-    codeMessage += "1. ?leaderboard poäng, Exempel: ?jogger 2320\n"
-    codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
-    codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. Exempel: ?help jogger\n"
-    await client.send_message(message.channel, codeMessage)
+    if helpString == "ranks":
+        await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
+    elif helpString == "jogger" or helpString == "pikachu":
+        await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?%s 250*" % (helpString,helpString))
+    else:
+        codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
+        codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
+        codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
+        codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
+        await client.send_message(message.channel, codeMessage)
 
 # Refresh function
 @client.event
@@ -83,18 +89,14 @@ async def claim(message):
         # Read for ID in file
         claimFile = open("idclaims.txt", "r")
         for item in claimedIDs:
-            print(item)
             if float(item[1]) == float(message.author.id):
                 await client.send_message(message.channel, ":no_entry: Du har redan claimat ditt användarnamn %s, om du har bytt användarnamn kontakta en valfri admin." % message.author.mention)
                 found = True
         claimFile.close()
-        print(tempID)
-        print(claimedIDs)
         # Write to file
         if not found:
             # Add to list
             claimedIDs.insert(0, tempID)
-            print(claimedIDs)
             # Add ID to file
             print("Adding new user")
             claimFile = open("idclaims.txt", "w")
@@ -179,7 +181,6 @@ async def leaderboard(message, id_list):
             except ValueError:
                 await client.send_message(message.channel, "Poäng endast i siffror. *Format: ?LEADERBOARD_TYPE POÄNG*")
                 floatError = True
-
         if not floatError or sneaselRefresh:
             # if Sneasel is not refreshing, check name for illegal characters
             if not sneaselRefresh:
@@ -207,10 +208,13 @@ async def leaderboard(message, id_list):
                     # Cast entry number to float
                     if tempScore > upperLimit:
                         await client.send_message(message.channel, "Poäng högre än tillåtet.")
+                        checkFailed = True
                     elif tempScore < 1 and not sneaselRefresh:
                         await client.send_message(message.channel, "Poäng lägre än tillåtet.")
+                        checkFailed = True
                     elif floatError and not sneaselRefresh:
                         await client.send_message(message.channel, "Poäng får inte innehålla annat än siffror.")
+                        checkFailed = True
                 if not checkFailed:
                     with open("%s.txt" % leaderboard_type) as file:
                         leaderboardList = [line.split(" ") for line in file]

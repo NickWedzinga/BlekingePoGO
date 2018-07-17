@@ -22,7 +22,7 @@ EventHandler.client.close()
 
 
 # LEADERBOARDS---------------------------------------------
-# Lägg till Battle Girl, gitignore, skapa .txt filer på PI
+# Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help
 
 
 # DELETE-----------------------------------------------------
@@ -44,10 +44,6 @@ EventHandler.client.close()
 
 # ?HELP
 # ----------------------------------------------------
-# ?delete. Format: ?delete leaderboard_type,name. Exempel: ?delete jogger, momo
-# ?leadererboard type, score. Exempel: ?jogger, 3000
-# ?ranks to list your score in each leaderboard
-# ändra else invalid command till invalid command type ?help for commands
 
 
 # IMPORTERING
