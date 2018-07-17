@@ -6,6 +6,7 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 Client = discord.Client()
 client = commands.Bot(command_prefix="?")
@@ -41,6 +42,59 @@ async def refresh(message, id_list):
         await client.send_message(message.channel, "%s leaderboard existerar inte." % leaderboard_type.capitalize())
 
 
+# Claim function, assigns claim role, adds user ID to a list
+@client.event
+async def claim(message):
+    """Claim function, assigns claim role, adds user ID to a list."""
+    claimMsg = message
+    claimedIDs = []
+
+    #Add information of user to temporary list
+    tempID = []
+    tempID.append(message.author.display_name)
+    tempID.append(message.author.id + "\n")
+
+    found = False
+    # delete msg
+    async for x in client.logs_from(message.channel, 1):
+        try:
+            await client.delete_message(x)
+        except:
+            print("Somehow failed to delete CLAIM message.")
+
+    with open("idclaims.txt") as file:
+        claimedIDs = [line.split(" ") for line in file]
+
+    # Read for ID in file
+    claimFile = open("idclaims.txt", "r")
+    for item in claimedIDs:
+        print(item)
+        if float(item[1]) == float(message.author.id):
+            await client.send_message(message.channel, ":no_entry: Du har redan claimat ditt användarnamn %s, om du har bytt användarnamn kontakta en valfri admin." % message.author.mention)
+            found = True
+    claimFile.close()
+    print(tempID)
+    print(claimedIDs)
+    # Write to file
+    if not found:
+        #Add to list
+        claimedIDs.insert(0, tempID)
+        print(claimedIDs)
+        # Add ID to file
+        print("Adding new user")
+        claimFile = open("idclaims.txt", "w")
+        for item in claimedIDs:
+            claimFile.write(item[0])
+            claimFile.write(" ")
+            claimFile.write(item[1])
+
+        claimFile.close()
+        claimedRole = get(message.author.server.roles, name="claimed")
+        await client.add_roles(message.author, claimedRole)
+        # assign role is not claimed yet, send PM with help info
+        await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
+        await client.send_message(message.author, "Tjena, läget")
+
 # Leaderboard function
 @client.event
 async def leaderboard(message, id_list):
@@ -65,7 +119,7 @@ async def leaderboard(message, id_list):
         tempScore = message.content.lower().split(" ", 1)[1]
     except IndexError:  # User only typed ?LEADERBOARD_TYPE
         await client.send_message(message.channel,
-                                  "Korrekt sätt att skicka in dina poäng är ?%s 'SCORE'. \n*Example: ?jogger 2500*" %
+                                  "Korrekt sätt att skicka in dina poäng är ?%s 'POÄNG. \n*Exempel: ?jogger 2500*" %
                                   (leaderboard_type))
 
     # Replace possible commas with dots
@@ -262,6 +316,11 @@ def checkMessages(id_list):
         # Test if bot is still responsive
         if (message.content.upper().startswith('?TEST') and message.channel.id == id_list[0]):
             await client.send_message(message.channel, "Ja, hej! Hallå! :sweat_smile:")
+
+        # Claim nick for your ID
+        if (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
+            await claim(message)
+
 
         # REFRESH, Format: ?refresh LEADERBOARD_TYPE
         elif(message.content.upper().startswith('?REFRESH') and message.channel.id == id_list[0]):

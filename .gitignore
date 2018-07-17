@@ -6,6 +6,10 @@ __pycache__/
 apitoken.txt
 jogger.txt
 pikachu.txt
+idclaims.txt
+idclaims - Copy.txt
+jogger - Copy.txt
+pikachu - Copy.txt
 
 # C extensions
 *.so

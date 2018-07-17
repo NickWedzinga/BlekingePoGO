@@ -6,9 +6,9 @@ EventHandler.startup()
 
 # Sneasel List
 id_list = []
-# Dev list: command channel, jogger, pikachu,
+# Dev list: command channel, jogger, pikachu, claim channel,
 # if EventHandler.client.display_name.lower() == "dev bot":
-id_list = ['466563505462575106', '466913214656020493', '467754615413407745']
+id_list = ['466563505462575106', '466913214656020493', '467754615413407745', '468760503125147648']
 
 EventHandler.checkMessages(id_list)
 # Infinite blocking loop
@@ -19,8 +19,7 @@ EventHandler.client.close()
 
 # TODO:?jogger 2
 # GENERAL-----------------------------------------------------
-# Change icon bot
-
+# Change icon bot again?
 # Ikoner till embeds lokalt istället för url
 
 
@@ -38,9 +37,16 @@ EventHandler.client.close()
 
 
 # CLAIM----------------------------------------------
+# om claim i fel kanal, du har redan claimat, fråga admin
+
+# om annan kommando än claim så säg claim
+
 # claim nick, koppla till user.ID. DÅ kan folk med user.ID som inte matchar
 # nick inte posta som denna nick.
 
+# skriv pm
+
+# skriver inte in nya i filen atm
 # du har redan claimat namnet: %s, be admin ändra namn åt dig
 
 # krävs 1h membership på server för name claim
@@ -65,3 +71,5 @@ EventHandler.client.close()
 # Ändra role ID för admin under DELETE command (skriv "\Admin"
 # för att få admin ID)
 # ctrl+f "message.channel", "message.channel.id", "46"
+# skapa claimed kanal, alla andra kanaler kräver claimed role för att se
+# claimedkanal får inte skrivas i av folk som är claimed
