@@ -27,7 +27,7 @@ EventHandler.client.close()
 
 
 # LEADERBOARDS---------------------------------------------
-# Lägg till Battle Girl
+# Lägg till Battle Girl, gitignore
 
 # rewrite error msgs svenska
 
