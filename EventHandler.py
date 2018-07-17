@@ -61,39 +61,43 @@ async def claim(message):
             await client.delete_message(x)
         except:
             print("Somehow failed to delete CLAIM message.")
+    stringPattern = r'[^\.A-Za-z0-9]'
+    # Check for illegal nickname symbols, + ensures min size == 1
+    if (re.search(stringPattern, message.author.display_name)):
+        await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar Pokémon Go användarnamnet.")
+    else:
+        with open("idclaims.txt") as file:
+            claimedIDs = [line.split(" ") for line in file]
 
-    with open("idclaims.txt") as file:
-        claimedIDs = [line.split(" ") for line in file]
-
-    # Read for ID in file
-    claimFile = open("idclaims.txt", "r")
-    for item in claimedIDs:
-        print(item)
-        if float(item[1]) == float(message.author.id):
-            await client.send_message(message.channel, ":no_entry: Du har redan claimat ditt användarnamn %s, om du har bytt användarnamn kontakta en valfri admin." % message.author.mention)
-            found = True
-    claimFile.close()
-    print(tempID)
-    print(claimedIDs)
-    # Write to file
-    if not found:
-        #Add to list
-        claimedIDs.insert(0, tempID)
-        print(claimedIDs)
-        # Add ID to file
-        print("Adding new user")
-        claimFile = open("idclaims.txt", "w")
+        # Read for ID in file
+        claimFile = open("idclaims.txt", "r")
         for item in claimedIDs:
-            claimFile.write(item[0])
-            claimFile.write(" ")
-            claimFile.write(item[1])
-
+            print(item)
+            if float(item[1]) == float(message.author.id):
+                await client.send_message(message.channel, ":no_entry: Du har redan claimat ditt användarnamn %s, om du har bytt användarnamn kontakta en valfri admin." % message.author.mention)
+                found = True
         claimFile.close()
-        claimedRole = get(message.author.server.roles, name="claimed")
-        await client.add_roles(message.author, claimedRole)
-        # assign role is not claimed yet, send PM with help info
-        await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
-        await client.send_message(message.author, "Tjena, läget")
+        print(tempID)
+        print(claimedIDs)
+        # Write to file
+        if not found:
+            #Add to list
+            claimedIDs.insert(0, tempID)
+            print(claimedIDs)
+            # Add ID to file
+            print("Adding new user")
+            claimFile = open("idclaims.txt", "w")
+            for item in claimedIDs:
+                claimFile.write(item[0])
+                claimFile.write(" ")
+                claimFile.write(item[1])
+
+            claimFile.close()
+            claimedRole = get(message.author.server.roles, name="claimed")
+            await client.add_roles(message.author, claimedRole)
+            # assign role is not claimed yet, send PM with help info
+            await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
+            await client.send_message(message.author, "Tjena, läget")
 
 # Leaderboard function
 @client.event
