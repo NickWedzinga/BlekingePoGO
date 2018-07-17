@@ -149,7 +149,7 @@ async def claim(message):
     stringPattern = r'[^\.A-Za-z0-9]'
     # Check if member too new, stops spamming new accounts and entering scores
     if int(memberTime.total_seconds()) < 600:
-        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge, försök igen om 10 minuter.")
+        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge %s, försök igen om 10 minuter." % message.author.mention)
     elif (re.search(stringPattern, message.author.display_name)):
         await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
     elif len(message.author.display_name) > 15:
