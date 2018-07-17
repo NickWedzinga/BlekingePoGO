@@ -44,6 +44,69 @@ async def help(message):
         codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
         await client.send_message(message.channel, codeMessage)
 
+
+# Format: ?admin_claim nickname userID
+@client.event
+async def admin_claim(message):
+    """Admins can use this to fix nicknames of people that missclaimed."""
+    claimString = message.content
+    claimString = claimString[13:]
+    claimString.replace(",", " ")
+
+    # Format claimList: nickname userID
+    tempList = []
+    tempList = claimString.split(" ")
+
+    if not ('435908470936698910' in [role.id for role in message.author.roles]):
+        await client.send_message(message.channel, "Detta kommando är till för admins endast. Om du behöver hjälp att ändra leaderboard användarnamn, fråga en valfri admin.")
+    elif len(tempList[0]) > 15:
+        await client.send_message(message.channel, "Namnet är för långt, max 15 tecken. *Format: ?admin_claim DESIRED_NAME USER_ID")
+    elif not int(tempList[1].isdigit()):
+        await client.send_message(message.channel, "USER_ID måste vara siffror endast. *Format: ?admin_claim DESIRED_NAME USER_ID")
+    elif len(claimString) < 2:
+        await client.send_message(message.channel, "Det saknas information. *Format: ?admin_claim DESIRED_NAME USER_ID")
+    else:
+        insertList = []
+        changedIndex = 0
+        changed = False
+
+        claimList = []
+        file = open("idclaims.txt", "r")
+        for index, item in enumerate(file):
+            item = item.split(" ")
+
+            # Put line in tempList to write back later
+            temp2 = []
+            temp2.append(item[0])
+            temp2.append(" ")
+            temp2.append(item[1])
+
+            # compare ID to list IDs
+            item[1] = item[1].replace("\n", "")
+            if str(item[1]) == str(tempList[1]):
+                changedIndex = index
+                changed = True
+                print(temp2[2])
+                print(tempList[0])
+                temp2[0] = tempList[0]
+                insertList = temp2
+            claimList.append(temp2)
+        file.close()
+
+        # if user ID was found, pop that entry
+        if changed:
+            claimList.pop(changedIndex)
+            claimList.insert(changedIndex, insertList)
+        print(claimList)
+        file = open("idclaims.txt", "w")
+        for item in claimList:
+            print(item)
+            file.write(item[0])
+            file.write(item[1])
+            file.write(item[2])
+        file.close()
+
+
 # Refresh function
 @client.event
 async def refresh(message, id_list):
@@ -64,6 +127,12 @@ async def claim(message):
     """Claim function, assigns claim role, adds user ID to a list."""
     claimedIDs = []
 
+    #does this work
+    memberTime = datetime.now()
+    memberTime = memberTime - message.author.joined_at
+
+    seconds = memberTime.total_seconds()
+
     # Add information of user to temporary list
     tempID = []
     tempID.append(message.author.display_name)
@@ -76,9 +145,12 @@ async def claim(message):
             await client.delete_message(x)
         except:
             print("Somehow failed to delete CLAIM message.")
-    stringPattern = r'[^\.A-Za-z0-9]'
     # Check for illegal nickname symbols, + ensures min size == 1
-    if (re.search(stringPattern, message.author.display_name)):
+    stringPattern = r'[^\.A-Za-z0-9]'
+    # Check if member too new, stops spamming new accounts and entering scores
+    if int(memberTime.total_seconds()) < 600:
+        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge, försök igen om 10 minuter.")
+    elif (re.search(stringPattern, message.author.display_name)):
         await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
     elif len(message.author.display_name) > 15:
         await client.send_message(message.channel, "Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
@@ -110,7 +182,13 @@ async def claim(message):
             await client.add_roles(message.author, claimedRole)
             # assign role is not claimed yet, send PM with help info
             await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
-            await client.send_message(message.author, "Tjena, läget")
+
+            # send PM with info
+            codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
+            codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
+            codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
+            codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
+            await client.send_message(message.author, codeMessage)
 
 
 # Leaderboard function
@@ -510,6 +588,9 @@ def checkMessages(id_list):
 
         elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
             await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
+
+        elif message.content.upper().startswith('?ADMIN_CLAIM') and message.channel.id == id_list[0]:
+            await admin_claim(message)
 
         elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
             await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)

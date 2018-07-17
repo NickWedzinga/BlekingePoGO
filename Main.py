@@ -18,7 +18,6 @@ EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
 # GENERAL-----------------------------------------------------
-# Ikoner till embeds lokalt istället för url
 
 
 # LEADERBOARDS---------------------------------------------
@@ -33,13 +32,11 @@ EventHandler.client.close()
 
 # RANKS-----------------------------------------------
 
-# CLAIM----------------------------------------------
-# skriv pm
 
-# krävs 1h membership på server för name claim
+# CLAIM----------------------------------------------
+
 
 # ADMIN_CLAIM----------------------------------------
-# ?admin_claim @mention nickname. Fetch user ID from mention, look for old nick, change
 
 
 # ?HELP
@@ -50,6 +47,7 @@ EventHandler.client.close()
 # ---------------------------------------------------
 # Ändra command channel ID i alla funktionskall
 # Ändra role ID för admin under DELETE command (skriv "\Admin"
+# Ändra role ID för admin function call för admin_claim command (skriv "\Admin")
 # för att få admin ID)
 # ctrl+f "message.channel", "message.channel.id", "46"
 # skapa claimed kanal, alla andra kanaler kräver claimed role för att se
