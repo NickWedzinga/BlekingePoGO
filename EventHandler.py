@@ -165,12 +165,12 @@ async def claim(message):
     claimedIDs = []
 
     #does this work
-    memberTime = datetime.now()
-    memberTime = memberTime - message.author.joined_at
+    #memberTime = datetime.now()
+    #memberTime = memberTime - message.author.joined_at
 
-    seconds = memberTime.total_seconds()
-    minutes = (seconds % 3600) // 60
-    minutesLeft = int(10 - minutes)
+    #seconds = memberTime.total_seconds()
+    #minutes = (seconds % 3600) // 60
+    #minutesLeft = int(10 - minutes)
 
     # Add information of user to temporary list
     tempID = []
@@ -187,9 +187,9 @@ async def claim(message):
     # Check for illegal nickname symbols, + ensures min size == 1
     stringPattern = r'[^\.A-Za-z0-9]'
     # Check if member too new, stops spamming new accounts and entering scores
-    if minutesLeft > 0:
-        await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge %s, försök igen om %i minuter." % (message.author.mention, minutesLeft))
-    elif (re.search(stringPattern, message.author.display_name)):
+    #if minutesLeft > 0:
+    #    await client.send_message(message.channel, "Du har inte varit medlem på denna Discord server tillräckligt länge %s, försök igen om %i minuter." % (message.author.mention, minutesLeft))
+    if (re.search(stringPattern, message.author.display_name)):
         await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
     elif len(message.author.display_name) > 15:
         await client.send_message(message.channel, "Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
@@ -236,6 +236,7 @@ async def leaderboard(message, id_list):
     """Leaderboard function, records, adds and presents leaderboards."""
     # Check if users display name is in claim list
     earlyCheck = False
+    tempScore = ""
     fileCheck = open("idclaims.txt", "r")
     for item in fileCheck:
         item = item.split(" ")
@@ -264,8 +265,7 @@ async def leaderboard(message, id_list):
             tempScore = message.content.lower().split(" ", 1)[1]
         except IndexError:  # User only typed ?LEADERBOARD_TYPE
             await client.send_message(message.channel,
-                                      "Korrekt sätt att skicka in dina poäng är ?%s 'POÄNG. \n*Exempel: ?jogger 2500*" %
-                                      (leaderboard_type))
+                                      "Korrekt sätt att skicka in dina poäng är ?%s POÄNG. \n*Exempel: ?%s 2500*" % (leaderboard_type, leaderboard_type))
 
         # Replace possible commas with dots
         tempScore = str(tempScore.replace(",", "."))

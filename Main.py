@@ -27,6 +27,7 @@ EventHandler.client.close()
 # DELETE-----------------------------------------------------
 # crash vid delete, kraschen är kring local leaderboardList i funktionen leaderboard
 
+
 # REFRESH----------------------------------------------------
 
 
@@ -36,9 +37,11 @@ EventHandler.client.close()
 # CLAIM----------------------------------------------
 # Gör så att om någon skriver vad som helst som inte är ?claim i claim så tip
 
+# Claimtiden buggar fortfarande, säger 1 minut kvar när man varit på
+# servern i flera dagar. Utkommenterat atm.
+
 
 # ADMIN_CLAIM----------------------------------------
-# refresh längst ner
 
 
 # ?HELP
