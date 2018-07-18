@@ -427,7 +427,7 @@ async def leaderboard(message, id_list):
                             insertedBool = False
                             for index, elem in enumerate(leaderboardList):
                                 if tempScore >= float(elem[1]) and not insertedBool:
-                                    if pikachuTrue:
+                                    if pikachuTrue or battlegirl:
                                         tempList[1] = int(tempList[1])
                                     insertedIndex = index
                                     leaderboardList.insert(index, tempList)
