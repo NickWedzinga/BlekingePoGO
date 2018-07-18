@@ -6,9 +6,9 @@ EventHandler.startup()
 
 # Sneasel List
 id_list = []
-# Dev list: command channel, jogger, pikachu, claim channel,
+# Dev list: command channel[0], jogger[1], pikachu[@], support[3], battlegirl[4],
 # if EventHandler.client.display_name.lower() == "dev bot":
-id_list = ['466563505462575106', '466913214656020493', '467754615413407745', '468760503125147648']
+id_list = ['466563505462575106', '466913214656020493', '467754615413407745', '468760503125147648', '469079191002939415']
 
 EventHandler.checkMessages(id_list)
 # Infinite blocking loop
@@ -26,13 +26,13 @@ EventHandler.client.close()
 #   Skapa .txt fil på PC
 #   Lägg till .txt i .gitignore + git push + git pull på PI
 #   Skapa .txt fil på Pi
-#   Lägg till i help
-#   Lägg till i file loopen i admin_claim
-#   Lägg till i delete list
-#   Lägg till i list funktionens kommandolista
-#   Lägg till enhet i leaderboards embeds
+#   Lägg till i checkMessage leaderboard_list
+#   Lägg till leaderboard_type i leaderboards
+#   Lägg till embed icon i leaderboards
+#   Lägg till channel ID i main.py, uppdatera channel2 under embeds
 #   Lägg till enhet i ranks
 
+# Leaderboards to add:
 
 
 # DELETE-----------------------------------------------------
@@ -43,7 +43,7 @@ EventHandler.client.close()
 
 
 # RANKS-----------------------------------------------
-
+# ?rank borde ge samma output
 
 # LIST ----------------------------------------------------
 

@@ -29,13 +29,13 @@ def startup():
 
 
 @client.event
-async def help(message):
+async def help(message, leaderboard_list):
     helpString = message.content.lower()
     helpString = helpString[6:]  # remove "help? "
 
     if helpString == "ranks":
         await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
-    elif helpString == "jogger" or helpString == "pikachu":
+    elif helpString in leaderboard_list:
         await client.send_message(message.channel, "Kommandot ?%s  används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
     elif helpString == "list":
         await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?list jogger*" % (helpString))
@@ -51,8 +51,8 @@ async def help(message):
 
 # List, sends complete list of leaderboard
 @client.event
-async def list(message):
-    leaderboard_list = ["jogger", "pikachu"]
+async def list(message, leaderboard_list):
+    #leaderboard_list = ["jogger", "pikachu"]
     leaderboard_type = message.content.lower()
     leaderboard_type = leaderboard_type[6:]
 
@@ -98,9 +98,9 @@ async def list(message):
 
 # Format: ?admin_claim nickname userID
 @client.event
-async def admin_claim(message):
+async def admin_claim(message, leaderboard_list):
     """Admins can use this to fix nicknames of people that missclaimed."""
-    leaderboard_list = ["jogger.txt", "pikachu.txt"]
+    #leaderboard_list = ["jogger.txt", "pikachu.txt"]
     claimString = message.content
     claimString = claimString[13:]
     claimString.replace(",", " ")
@@ -160,10 +160,10 @@ async def admin_claim(message):
             file.write(item[2])
         file.close()
 
+        leaderboard_list = [x+".txt" for x in leaderboard_list]
         # Loop through files and update to new nickname
         for leaderboard in leaderboard_list:
             fileList = []
-
             # Read from file and look for nickname to update
             file = open(leaderboard, "r")
             for item in file:
@@ -194,10 +194,10 @@ async def admin_claim(message):
 
 # Refresh function
 @client.event
-async def refresh(message, id_list):
+async def refresh(message, id_list, leaderboard_list):
     """Refresh function, parses and presents leaderboard of choosing."""
     leaderboard_type = message.content.lower().split(" ", 2)[1]
-    leaderboard_list = ["jogger", "pikachu"]
+    #leaderboard_list = ["jogger", "pikachu"]
 
     if leaderboard_type in leaderboard_list:
         await leaderboard(message, id_list)
@@ -278,6 +278,7 @@ async def leaderboard(message, id_list):
     # Check if users display name is in claim list
     earlyCheck = False
     tempScore = ""
+    unitString = ""
     fileCheck = open("idclaims.txt", "r")
     for item in fileCheck:
         item = item.split(" ")
@@ -288,6 +289,8 @@ async def leaderboard(message, id_list):
     if earlyCheck:
         joggerTrue = False
         pikachuTrue = False
+        battlegirlTrue = False
+
         sneaselRefresh = False
         leaderboardList = []
 
@@ -312,12 +315,17 @@ async def leaderboard(message, id_list):
         # Replace possible commas with dots
         tempScore = str(tempScore.replace(",", "."))
 
+        # set specific leaderboard values
         if leaderboard_type == "jogger":
             joggerTrue = True
             upperLimit = 20000
+            unitString = "km"
         elif leaderboard_type == "pikachu":
             pikachuTrue = True
             upperLimit = 5000
+        elif leaderboard_type == "battlegirl":
+            battlegirlTrue = True
+            upperLimit = 20000
 
         tempList = []
         notUpdated = True
@@ -442,20 +450,26 @@ async def leaderboard(message, id_list):
 
                 # Medal images: http://pokemongo.wikia.com/wiki/Medals
                 # https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png
-                unitString = ""
+                #unitString = ""
                 if joggerTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[1])
-                    unitString = "km"
+                    #unitString = "km"
                 elif pikachuTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[2])
+                elif battlegirlTrue:
+                    embed = discord.Embed(title="Leaderboard Karlskrona: Battle Girl \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/93/BattleGirl_Gold.png/revision/latest?cb=20161013235336")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[4])
 
                 currentRank = 0
                 currentScore = 0
@@ -471,8 +485,8 @@ async def leaderboard(message, id_list):
                         else:
                             currentRankList[index] = currentRank
 
-                        # Pikachu can't have decimals
-                        if pikachuTrue:
+                        # Upper case no decimals, lower case decimals
+                        if pikachuTrue or battlegirlTrue:
                             embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
                         else:
                             embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
@@ -501,9 +515,11 @@ async def leaderboard(message, id_list):
 def checkMessages(id_list):
     """Checks for messages, calls appropriate functions."""
     print("Checking for messages..")
+    leaderboard_list = ["jogger", "pikachu", "battlegirl"]
 
     @client.event
     async def on_message(message):
+        leaderboardString = message.content.lower()[1:].split(" ")
 
         # Test if bot is still responsive
         if (message.content.upper().startswith('?TEST') and message.channel.id == id_list[0]):
@@ -511,11 +527,11 @@ def checkMessages(id_list):
 
         # Claim nick for your ID
         elif (message.content.upper().startswith('?HELP') and message.channel.id == id_list[0]):
-            await help(message)
+            await help(message, leaderboard_list)
 
         # List top 5 and the two ahead of you
         elif (message.content.upper().startswith('?LIST') and message.channel.id == id_list[0]):
-            await list(message)
+            await list(message, leaderboard_list)
 
         # Claim nick for your ID in #support
         elif (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
@@ -523,10 +539,11 @@ def checkMessages(id_list):
 
         # REFRESH, Format: ?refresh LEADERBOARD_TYPE
         elif(message.content.upper().startswith('?REFRESH') and message.channel.id == id_list[0]):
-            await refresh(message, id_list)
+            await refresh(message, id_list, leaderboard_list)
 
         # LEADERBOARDS Format: ?LEADERBOARD_TYPE, SCORE
-        elif ((message.content.upper().startswith('?JOGGER') or message.content.upper().startswith('?PIKACHU')) and message.channel.id == id_list[0]):
+        elif ((leaderboardString[0] in leaderboard_list and message.channel.id == id_list[0])):
+        #elif ((message.content.upper().startswith('?JOGGER') or message.content.upper().startswith('?PIKACHU')) and message.channel.id == id_list[0]):
             await leaderboard(message, id_list)
 
         # List ranks across leaderboards
@@ -564,7 +581,7 @@ def checkMessages(id_list):
             else:
                 found = False
 
-                leaderboard_list = ["jogger", "pikachu"]
+                #leaderboard_list = ["jogger", "pikachu"]
                 unitString = ""
                 currentRank = 0
                 currentScore = 0
@@ -620,7 +637,7 @@ def checkMessages(id_list):
             deleteName = ""
             found = False
 
-            leaderboard_list = ["jogger", "pikachu"]
+            #leaderboard_list = ["jogger", "pikachu"]
 
             if "," in message2.content.lower():
                 await client.send_message(message.channel, "**(ENDAST ADMINS)** Inga kommatecken. *Format* ?delete LEADERBOARD_TYPE NAMN")
@@ -677,7 +694,7 @@ def checkMessages(id_list):
             await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
 
         elif message.content.upper().startswith('?ADMIN_CLAIM') and message.channel.id == id_list[0]:
-            await admin_claim(message)
+            await admin_claim(message, leaderboard_list)
 
         elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
             await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
