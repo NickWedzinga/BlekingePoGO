@@ -74,7 +74,7 @@ async def list(message, leaderboard_list):
             item2 = item.split(" ")
             tempList = []
             if not float(currentScore) == float(item2[1]):
-                float(currentScore) = float(item2[1])
+                currentScore = float(item2[1])
                 currentRank += 1
             if index < 5:
                 # found user among top 5
