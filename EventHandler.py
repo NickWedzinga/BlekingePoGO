@@ -42,10 +42,10 @@ async def help(message):
 
     else:
         codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
-        codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
+        codeMessage += "1. ?leaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. *Exempel: ?jogger 2320*\n"
         codeMessage += "2. ?list leaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempel: ?list jogger*\n"
-        codeMessage += "2. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
-        codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
+        codeMessage += "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
+        codeMessage += "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
         await client.send_message(message.channel, codeMessage)
 
 
