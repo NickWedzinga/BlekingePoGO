@@ -94,6 +94,9 @@ EventHandler.client.close()
 #Pilot
 #Total XP
 
+#   Insert efter inte innan om samma score
+
+
 # DELETE-----------------------------------------------------
 
 
@@ -104,6 +107,7 @@ EventHandler.client.close()
 
 
 # LIST ----------------------------------------------------
+# printar inte etta ifall delad etta osv
 
 
 # CLAIM----------------------------------------------
@@ -113,4 +117,3 @@ EventHandler.client.close()
 
 
 # ?HELP ----------------------------------------------------
-

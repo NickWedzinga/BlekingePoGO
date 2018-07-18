@@ -68,28 +68,33 @@ async def list(message, leaderboard_list):
         found = False
         file = open("%s.txt" % leaderboard_type, "r")
         index = 0
+        currentRank = 0
+        currentScore = 0
         for item in file:
             item2 = item.split(" ")
             tempList = []
+            if not float(currentScore) == float(item2[1]):
+                float(currentScore) = float(item2[1])
+                currentRank += 1
             if index < 5:
                 # found user among top 5
                 if item2[0].lower() == message.author.display_name.lower():
                     found = True
-                    messageOut += "**%i. %s %s**\n" % (index + 1, item2[0], item2[1])
+                    messageOut += "**%i. %s %s**\n" % (currentRank, item2[0], item2[1])
                 else:
-                    messageOut += "%i. %s %s\n" % (index + 1, item2[0], item2[1])
+                    messageOut += "%i. %s %s\n" % (currentRank, item2[0], item2[1])
                 tempList.append(item2[0])
                 tempList.append(item2[1])
-                lookUpList.append(tempList)                    
+                lookUpList.append(tempList)
             elif not found:
                 tempList.append(item2[0])
                 tempList.append(item2[1])
                 lookUpList.append(tempList)
                 # found user lower down
                 if item2[0].lower() == message.author.display_name.lower():
-                    messageOut += "-----------------\n%i. %s %s" % (index - 1, lookUpList[index-2][0], lookUpList[index-2][1])
-                    messageOut += "\n%i. %s %s" % (index, lookUpList[index-1][0], lookUpList[index-1][1])
-                    messageOut += "\n**%i. %s %s**" % (index + 1, item2[0], item2[1])
+                    messageOut += "-----------------\n%i. %s %s" % (currentRank - 2, lookUpList[index-2][0], lookUpList[index-2][1])
+                    messageOut += "\n%i. %s %s" % (currentRank-1, lookUpList[index-1][0], lookUpList[index-1][1])
+                    messageOut += "\n**%i. %s %s**" % (currentRank, item2[0], item2[1])
             index += 1
         #print(lookUpList)
         await client.send_message(message.channel, messageOut)
@@ -199,9 +204,9 @@ async def refresh(message, id_list, leaderboard_list):
     #leaderboard_list = ["jogger", "pikachu"]
 
     tempCheck = message.content.split(" ")
-    if len(tempCheck < 2):
+    if len(tempCheck) < 2:
         await client.send_message(message.channel, "Det saknas information. Format: ?refresh leaderboard.")
-    elif len(tempCheck > 2):
+    elif len(tempCheck) > 2:
         await client.send_message(message.channel, "För mycket information. Format: ?refresh leaderboard.")
     elif leaderboard_type in leaderboard_list:
         await leaderboard(message, id_list)
@@ -494,7 +499,7 @@ async def leaderboard(message, id_list):
                         if notUpdated and not skipUpdate and not sneaselRefresh:
                             insertedBool = False
                             for index, elem in enumerate(leaderboardList):
-                                if tempScore >= float(elem[1]) and not insertedBool:
+                                if tempScore > float(elem[1]) and not insertedBool:
                                     if not joggerTrue:
                                         tempList[1] = int(tempList[1])
                                     insertedIndex = index
