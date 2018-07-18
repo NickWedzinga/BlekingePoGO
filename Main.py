@@ -41,8 +41,14 @@ with open("apitoken.txt", "r") as apiFile:
 EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
+# BUG LIST ------------------------------------------
+
+
+
+
+
 # GENERAL-----------------------------------------------------
-# test sending backup txt from pi to pc
+# cp idclaims.txt idclaims2.txt
 
 
 # OVERALL-----------------------------------------------------
@@ -55,17 +61,17 @@ EventHandler.client.close()
 
 # LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
-#x   Skapa Discord kanal
-#x   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
-#x   Lägg till .txt i .gitignore + git push + git pull på PI
-#x   Skapa .txt fil på Pi
-#x   Lägg till i checkMessage leaderboard_list
-#x   Om decimaler, lägg till i if not joggerTrue or..: int()
-#x   Lägg till joggerTrue och if joggerTrue i leaderboards
-#x   Lägg till embed icon i leaderboards, samt ändra title
-#x   Lägg till channel ID i main.py, uppdatera channel2 under embeds
-#x   Lägg till enhet i ranks
-#x   Om decimaler, Lägg till i ranks if not item in "jogger", ...
+#   Skapa Discord kanal
+#   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
+#   Lägg till .txt i .gitignore + git push + git pull på PI
+#   Skapa .txt fil på Pi
+#   Lägg till i checkMessage leaderboard_list
+#   Om decimaler, lägg till i if not joggerTrue or..: int()
+#   Lägg till joggerTrue och if joggerTrue i leaderboards
+#   Lägg till embed icon i leaderboards, samt ändra title
+#   Lägg till channel ID i main.py, uppdatera channel2 under embeds
+#   Lägg till enhet i ranks
+#   Om decimaler, Lägg till i ranks if not item in "jogger", ...
 
 # Leaderboards to add:
 #Jogger

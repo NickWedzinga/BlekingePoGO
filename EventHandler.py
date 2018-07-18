@@ -112,7 +112,7 @@ async def admin_claim(message, leaderboard_list):
     tempList = []
     tempList = claimString.split(" ")
 
-    if not ('435908470936698910' in [role.id for role in message.author.roles]):
+    if not '435908470936698910' in [role.id for role in message.author.roles] and not '342771363884302339' in [role.id for role in message.author.roles]:
         await client.send_message(message.channel, "Detta kommando är till för admins endast. Om du behöver hjälp att ändra leaderboard användarnamn, fråga en valfri admin.")
     elif len(tempList[0]) > 15:
         await client.send_message(message.channel, "Namnet är för långt, max 15 tecken. *Format: ?admin_claim DESIRED_NAME USER_ID")
@@ -858,7 +858,7 @@ def checkMessages(id_list):
                 linesToKeepInFile = []
                 deleteIndex = 0
 
-                # Check if author is admin (TESTROLE)
+                # Check if author is admin or (TESTROLE)
                 if '435908470936698910' or '342771363884302339' in [role.id for role in message.author.roles]:
                     #Admin is trying to remove entry from Leaderboard
                     if leaderboard_type.lower() in leaderboard_list:
@@ -878,15 +878,15 @@ def checkMessages(id_list):
                             for elem in linesToKeepInFile:
                                 dltFile.write(elem)
                             dltFile.close()
-                            await refresh(message, id_list)
+                            await refresh(message, id_list, leaderboard_list)
                         else:
                             await client.send_message(message.channel, "%s kunde inte hittas i %s leaderboarden." % (deleteName,leaderboard_type))
                 else:
                     await client.send_message(message.channel, "Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
 
         # E U R E K A
-        elif message.content.upper().startswith('EUREKA'):
-            await client.send_message(message.channel, "We did it! :smile:")
+        elif message.content.upper().startswith('GODNATT') and message.author.id == '169688623699066880':
+            await client.send_message(message.channel, "Godnatt %s! :smile: :sleeping:" % message.author.mention)
 
         elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
             await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
