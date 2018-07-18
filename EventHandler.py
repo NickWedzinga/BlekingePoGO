@@ -471,7 +471,7 @@ async def leaderboard(message, id_list):
                                             break
                                         elif tempScore > float(elm[1]):
                                             # Insert updated score
-                                            if pikachuTrue:
+                                            if not joggerTrue:
                                                 tempList[1] = int(tempList[1])
                                             insertedIndex = idx
                                             leaderboardList.insert(idx, tempList)  # insert updated score
@@ -829,7 +829,7 @@ def checkMessages(id_list):
                     await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards. Du verkar inte registrerat några poäng ännu.")
 
         # DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
-        elif message.content.upper().startswith('?DELETE') and message.channel.id == '466563505462575106':
+        elif message.content.upper().startswith('?DELETE') and message.channel.id == id_list[0]:
             leaderboard_type = ""
             message2 = message
             deleteName = ""
