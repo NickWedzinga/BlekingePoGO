@@ -6,10 +6,18 @@ EventHandler.startup()
 
 # Sneasel List
 id_list = []
-# Dev list: command channel[0], jogger[1], pikachu[@], support[3], battlegirl[4],
-# if EventHandler.client.display_name.lower() == "dev bot":
-id_list = ['466563505462575106', '466913214656020493', '467754615413407745', '468760503125147648', '469079191002939415']
-
+with open("version.txt", "r") as versionFile:
+    version = versionFile.read()
+# Dev list: command channel[0], jogger[1], pikachu[@],
+#           support[3], battlegirl[4], collector[5],
+#
+if version == "1":
+    id_list = ['466563505462575106', '466913214656020493', '467754615413407745',
+               '468760503125147648', '469079191002939415']
+elif version == "0":
+    id_list = ['469095507759726603', '469095668137459712', '469095701947875338',
+               '342760722058706945', '469095719178076170']
+print("Version: %s" % version)
 EventHandler.checkMessages(id_list)
 # Infinite blocking loop
 with open("apitoken.txt", "r") as apiFile:
@@ -18,6 +26,7 @@ EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
 # GENERAL-----------------------------------------------------
+# test sending backup txt from pi to pc
 
 
 # LEADERBOARDS---------------------------------------------
@@ -48,7 +57,6 @@ EventHandler.client.close()
 # LIST ----------------------------------------------------
 
 
-
 # CLAIM----------------------------------------------
 # Claimtiden buggar fortfarande, säger 1 minut kvar när man varit på
 # servern i flera dagar. Utkommenterat atm.
@@ -58,7 +66,6 @@ EventHandler.client.close()
 
 
 # ?HELP ----------------------------------------------------
-
 
 
 # IMPORTERING
