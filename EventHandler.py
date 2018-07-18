@@ -11,7 +11,6 @@ from discord.utils import get
 Client = discord.Client()
 client = commands.Bot(command_prefix="?")
 leaderboardList = []
-commandChannel = client.get_channel('466563505462575106')
 
 
 # Start up
@@ -199,7 +198,12 @@ async def refresh(message, id_list, leaderboard_list):
     leaderboard_type = message.content.lower().split(" ", 2)[1]
     #leaderboard_list = ["jogger", "pikachu"]
 
-    if leaderboard_type in leaderboard_list:
+    tempCheck = message.content.split(" ")
+    if len(tempCheck < 2):
+        await client.send_message(message.channel, "Det saknas information. Format: ?refresh leaderboard.")
+    elif len(tempCheck > 2):
+        await client.send_message(message.channel, "För mycket information. Format: ?refresh leaderboard.")
+    elif leaderboard_type in leaderboard_list:
         await leaderboard(message, id_list)
         # await client.send_message(message.channel, "?%s 1" % leaderboard_type)
     else:
@@ -705,7 +709,7 @@ def checkMessages(id_list):
             await leaderboard(message, id_list)
 
         # List ranks across leaderboards
-        elif message.content.upper().startswith('?RANKS') and message.channel.id == id_list[0]:
+        elif (message.content.upper().startswith('?RANKS') or message.content.upper().startswith('?RANK')) and message.channel.id == id_list[0]:
             nickname = message.author.display_name
 
             # Check if users display name is in claim list--------------------------------

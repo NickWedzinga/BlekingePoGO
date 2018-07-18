@@ -98,18 +98,15 @@ EventHandler.client.close()
 
 
 # REFRESH----------------------------------------------------
-# ?refresh ger inget error
 
 
 # RANKS-----------------------------------------------
-# ?rank borde ge samma output
+
 
 # LIST ----------------------------------------------------
 
 
 # CLAIM----------------------------------------------
-# Claimtiden buggar fortfarande, säger 1 minut kvar när man varit på
-# servern i flera dagar. Utkommenterat atm.
 
 
 # ADMIN_CLAIM----------------------------------------
@@ -117,14 +114,3 @@ EventHandler.client.close()
 
 # ?HELP ----------------------------------------------------
 
-
-
-# IMPORTERING
-# ---------------------------------------------------
-# Ändra command channel ID i alla funktionskall
-# Ändra role ID för admin under DELETE command (skriv "\Admin"
-# Ändra role ID för admin function call för admin_claim command (skriv "\Admin")
-# för att få admin ID)
-# ctrl+f "message.channel", "message.channel.id", "46"
-# skapa claimed kanal, alla andra kanaler kräver claimed role för att se
-# claimedkanal får inte skrivas i av folk som är claimed
