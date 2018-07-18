@@ -21,8 +21,17 @@ EventHandler.client.close()
 
 
 # LEADERBOARDS---------------------------------------------
-# Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help, loop through new files in admin claim
-# lägg till i delete list, lägg till i list kommando listan
+# Lista på saker att fixa vid nya leaderboards:
+#   Skapa Discord kanal
+#   Skapa .txt fil på PC
+#   Lägg till .txt i .gitignore + git push + git pull på PI
+#   Skapa .txt fil på Pi
+#   Lägg till i help
+#   Lägg till i file loopen i admin_claim
+#   Lägg till i delete list
+#   Lägg till i list funktionens kommandolista
+#   Lägg till enhet i leaderboards embeds
+#   Lägg till enhet i ranks
 
 
 
@@ -30,6 +39,7 @@ EventHandler.client.close()
 
 
 # REFRESH----------------------------------------------------
+# ?refresh ger inget error
 
 
 # RANKS-----------------------------------------------
