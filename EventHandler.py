@@ -290,6 +290,22 @@ async def leaderboard(message, id_list):
         joggerTrue = False
         pikachuTrue = False
         battlegirlTrue = False
+        pokedexTrue = False
+        collectorTrue = False
+        scientistTrue = False
+        breederTrue = False
+        backpackerTrue = False
+        fishermanTrue = False
+        youngsterTrue = False
+        berrymasterTrue = False
+        gymleaderTrue = False
+        championTrue = False
+        battlelegendTrue = False
+        rangerTrue = False
+        unownTrue = False
+        gentlemanTrue = False
+        pilotTrue = False
+        totalxpTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -325,7 +341,55 @@ async def leaderboard(message, id_list):
             upperLimit = 5000
         elif leaderboard_type == "battlegirl":
             battlegirlTrue = True
+            upperLimit = 50000
+        elif leaderboard_type == "pokedex":
+            pokedexTrue = True
+            upperLimit = 600
+        elif leaderboard_type == "collector":
+            collectorTrue = True
+            upperLimit = 200000
+        elif leaderboard_type == "scientist":
+            scientistTrue = True
+            upperLimit = 40000
+        elif leaderboard_type == "breeder":
+            breederTrue = True
             upperLimit = 20000
+        elif leaderboard_type == "backpacker":
+            backpackerTrue = True
+            upperLimit = 200000
+        elif leaderboard_type == "fisherman":
+            fishermanTrue = True
+            upperLimit = 5000
+        elif leaderboard_type == "youngster":
+            youngsterTrue = True
+            upperLimit = 5000
+        elif leaderboard_type == "berrymaster":
+            berrymasterTrue = True
+            upperLimit = 100000
+        elif leaderboard_type == "gymleader":
+            gymleaderTrue = True
+            upperLimit = 100000
+        elif leaderboard_type == "champion":
+            championTrue = True
+            upperLimit = 5000
+        elif leaderboard_type == "battlelegend":
+            battlelegendTrue = True
+            upperLimit = 5000
+        elif leaderboard_type == "ranger":
+            rangerTrue = True
+            upperLimit = 5000
+        elif leaderboard_type == "unown":
+            unownTrue = True
+            upperLimit = 30
+        elif leaderboard_type == "gentleman":
+            gentlemanTrue = True
+            upperLimit = 10000
+        elif leaderboard_type == "pilot":
+            pilotTrue = True
+            upperLimit = 10000000
+        elif leaderboard_type == "totalxp":
+            totalxpTrue = True
+            upperLimit = 200000000
 
         tempList = []
         notUpdated = True
@@ -346,7 +410,7 @@ async def leaderboard(message, id_list):
             try:
                 float(tempScore)
             except ValueError:
-                await client.send_message(message.channel, "Poäng endast i siffror. *Format: ?LEADERBOARD_TYPE POÄNG*")
+                await client.send_message(message.channel, "Poäng endast i siffror. *Format: ?leaderboard poäng*")
                 floatError = True
         if not floatError or sneaselRefresh:
             # if Sneasel is not refreshing, check name for illegal characters
@@ -360,7 +424,7 @@ async def leaderboard(message, id_list):
                     await client.send_message(message.channel, "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar Pokémon Go användarnamnet.")
                 elif not p.match(str(tempScore)):
                     checkFailed = True
-                    await client.send_message(message.channel, "Error: Otillåtna tecken i poängen. *Format: ?LEADERBOARD_TYPE POÄNG*")
+                    await client.send_message(message.channel, "Error: Otillåtna tecken i poängen. *Format: ?leaderboard poäng*")
                 elif len(message.author.display_name) > 15:
                     checkFailed = True
                     await client.send_message(message.channel, "Error: Namn får vara max 15 tecken. Var god uppdatera ditt Discord användarnamn. Fråga admins om hjälp vid besvär.")
@@ -427,7 +491,7 @@ async def leaderboard(message, id_list):
                             insertedBool = False
                             for index, elem in enumerate(leaderboardList):
                                 if tempScore >= float(elem[1]) and not insertedBool:
-                                    if pikachuTrue or battlegirlTrue:
+                                    if not joggerTrue:
                                         tempList[1] = int(tempList[1])
                                     insertedIndex = index
                                     leaderboardList.insert(index, tempList)
@@ -448,26 +512,120 @@ async def leaderboard(message, id_list):
                             file.write("%s" % item2)
                     file.close()
 
-                #unitString = ""
                 if joggerTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[1])
-                    #unitString = "km"
                 elif pikachuTrue:
-                    embed = discord.Embed(title="Leaderboard Karlskrona: Pikachu \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pikach Fan \n", color=0xff9900)
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[2])
                 elif battlegirlTrue:
-                    embed = discord.Embed(title="Leaderboard Karlskrona: Battle Girl \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Girl \n", color=0xff9900)
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/93/BattleGirl_Gold.png/revision/latest?cb=20161013235336")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[4])
+                elif pokedexTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pokédex \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Kanto_Gold.png/revision/latest?cb=20161013235541")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[5])
+                elif collectorTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Collector \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/8/86/Collector_Gold.png/revision/latest?cb=20161014002520")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[6])
+                elif scientistTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Scientist \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/7/7c/Scientist_Gold.png/revision/latest?cb=20161013235610")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[7])
+                elif breederTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Breeder \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/b7/Breeder_Gold.png/revision/latest?cb=20161013235426")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[8])
+                elif backpackerTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Backpacker \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/bb/Backpacker_Gold.png/revision/latest?cb=20161013235335")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[9])
+                elif fishermanTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Fisherman \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/6/69/Fisherman_Gold.png/revision/latest?cb=20161013235429")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[10])
+                elif youngsterTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Youngster \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/Youngster_Gold.png/revision/latest?cb=20161013235612")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[11])
+                elif berrymasterTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Berry Master \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/92/BerryMaster_Gold.png/revision/latest?cb=20170623010756")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[12])
+                elif gymleaderTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Gym Leader \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/f/f9/GymLeader_Gold.png/revision/latest?cb=20170623010816")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[13])
+                elif championTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Champion \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/2/20/Champion_Gold.png/revision/latest?cb=20170623133823")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[14])
+                elif battlelegendTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Legend \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/6/61/BattleLegend_Gold.png/revision/latest?cb=20170623133841")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[15])
+                elif rangerTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pokémon Ranger \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/7/77/Researcher_Gold.png/revision/latest?cb=20180328115039")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[16])
+                elif unownTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Unown \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/1/1b/Unown_Gold.png/revision/latest?cb=20170217162806")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[17])
+                elif gentlemanTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Gentleman \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/f/f0/Gentleman_Gold.png/revision/latest?cb=20180621120608")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[18])
+                elif pilotTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pilot \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/4/4e/Pilot_Gold.png/revision/latest?cb=20180621120613")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[19])
+                elif totalxpTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Total XP \n", color=0xff9900)
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/bd/Pok%C3%A9mon_GO_Fest_Chicago_2017.png/revision/latest?cb=20170726115410")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[20])
 
                 currentRank = 0
                 currentScore = 0
@@ -484,7 +642,7 @@ async def leaderboard(message, id_list):
                             currentRankList[index] = currentRank
 
                         # Upper case no decimals, lower case decimals
-                        if pikachuTrue or battlegirlTrue:
+                        if not joggerTrue:
                             embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
                         else:
                             embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
@@ -513,7 +671,9 @@ async def leaderboard(message, id_list):
 def checkMessages(id_list):
     """Checks for messages, calls appropriate functions."""
     print("Checking for messages..")
-    leaderboard_list = ["jogger", "pikachu", "battlegirl"]
+    leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
+                        "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
+                        "pilot", "totalxp"]
 
     @client.event
     async def on_message(message):
@@ -589,16 +749,51 @@ def checkMessages(id_list):
                               6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
                               11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen',
                               15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
-
+                messageOut = ""
                 # Loop through leaderboard types
                 for item in leaderboard_list:
                     if item == "jogger":
                         unitString = "km"
                     elif item == "pikachu":
-                        unitString = "fångster"
+                        unitString = "Pikachu"
                     elif item == "battlegirl":
                         unitString = "battles"
+                    elif item == "pokedex":
+                        unitString = "Pokémon"
+                    elif item == "collector":
+                        unitString = "Pokémon"
+                    elif item == "scientist":
+                        unitString = "evolves"
+                    elif item == "breeder":
+                        unitString = "ägg"
+                    elif item == "backpacker":
+                        unitString = "Pokéstops"
+                    elif item == "fisherman":
+                        unitString = "Magikarp"
+                    elif item == "youngster":
+                        unitString = "Rattata"
+                    elif item == "berrymaster":
+                        unitString = "bär"
+                    elif item == "gymleader":
+                        unitString = "timmar"
+                    elif item == "champion":
+                        unitString = "raids"
+                    elif item == "battlelegend":
+                        unitString = "legendary raids"
+                    elif item == "ranger":
+                        unitString = "field research tasks"
+                    elif item == "unown":
+                        unitString = "Unown"
+                    elif item == "gentleman":
+                        unitString = "trades"
+                    elif item == "pilot":
+                        unitString = "km trades"
+                    elif item == "totalxp":
+                        unitString = "xp"
+                    #elif item == "idol":
+                    #    unitString = "Pokémon"
                     leaderboard_file = open("%s.txt" % item, "r")
+                    
                     # Loop through file
                     for index, line in enumerate(leaderboard_file):
                         line = line.split(" ")
@@ -611,22 +806,25 @@ def checkMessages(id_list):
                         if line[0].lower() == nickname.lower():
                             found = True
                             localScore = round(float(line[1]), 1)
-                            if item == "pikachu":
+                            if not item in ("jogger"):
                                 localScore = int(localScore)
                             if(currentRank == 1):
-                                await client.send_message(message.channel, ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 2):
-                                await client.send_message(message.channel, ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 3):
-                                await client.send_message(message.channel, ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 10):
-                                await client.send_message(message.channel, ":keycap_%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":keycap_%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank > 3 and currentRank < 11):
-                                await client.send_message(message.channel, ":%s: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif currentRank > 10:
-                                await client.send_message(message.channel, ":asterisk: %s is ranked \#%i in the %s leaderboards with a score of %s %s." % (message.author.mention, currentRank, item.capitalize(), localScore, unitString))
+                                messageOut += ":asterisk: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             else:
-                                await client.send_message(message.channel, "%s is not ranked in the %s leaderboards, submit a score by typing ?%s 'YOUR_SCORE'." % (message.author.mention, item.capitalize(), item))
+                                messageOut += "%s är inte placerad i någon %s leaderboard, skicka in dina poäng genom att skriva ?%s poäng.\n" % (message.author.mention, item.capitalize(), item)
+                if found:
+                    await client.send_message(message.author, messageOut)
+                    await client.send_message(message.channel, "Du har fått ett privatmeddelande med alla dina placeringar %s." % message.author.mention)
                 if not found:
                     await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards. Du verkar inte registrerat några poäng ännu.")
 

@@ -25,6 +25,7 @@ unown.txt
 idol.txt
 gentleman.txt
 pilot.txt
+totalxp.txt
 
 # C extensions
 *.so
