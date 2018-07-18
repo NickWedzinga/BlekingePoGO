@@ -96,6 +96,8 @@ EventHandler.client.close()
 
 #   Insert efter inte innan om samma score
 
+#   skriv under embed ?help
+
 
 # DELETE-----------------------------------------------------
 
@@ -107,7 +109,6 @@ EventHandler.client.close()
 
 
 # LIST ----------------------------------------------------
-# printar inte etta ifall delad etta osv
 
 
 # CLAIM----------------------------------------------

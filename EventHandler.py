@@ -41,8 +41,8 @@ async def help(message, leaderboard_list):
 
     else:
         codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
-        codeMessage += "1. ?leaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. *Exempel: ?jogger 2320*\n"
-        codeMessage += "2. ?list leaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempel: ?list jogger*\n"
+        codeMessage += "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. *Exempelanvändning 1: ?jogger 2320*, *Exempelanvändning 2: ?pikachu 463*\n"
+        codeMessage += "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempelanvändning: ?list jogger*\n"
         codeMessage += "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
         codeMessage += "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
         await client.send_message(message.channel, codeMessage)
@@ -279,6 +279,15 @@ async def claim(message, id_list):
             await client.add_roles(message.author, claimedRole)
             # assign role is not claimed yet, send PM with help info
             await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Skriv ?help i %s för hjälp med att komma igång." % (message.author.mention, message.author.display_name, channel2.mention))
+            codeMessage = "Välkommen till Blekinges leaderboards! \n\n"
+            codeMessage += "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
+            codeMessage += "*Alla kommandon skrivs i #leaderboards*\n\n"
+            codeMessage += "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. \n    *Exempelanvändning 1: '?jogger 2320'*, för att lägga in dina 2320km i Jogger leaderboarden. \n    *Exempelanvändning 2: '?pikachu 463'*, för att skicka in dina 463 Pikachu fångster i Pikachu Fan leaderboarden.\n"
+            codeMessage += "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempelanvändning: ?list jogger*\n"
+            codeMessage += "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
+            codeMessage += "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
+            await client.send_message(message.author, codeMessage)
+
 
 # Leaderboard function
 @client.event
@@ -522,115 +531,115 @@ async def leaderboard(message, id_list):
                     file.close()
 
                 if joggerTrue:
-                    embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[1])
                 elif pikachuTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Pikach Fan \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pikach Fan \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[2])
                 elif battlegirlTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Girl \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Girl \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/93/BattleGirl_Gold.png/revision/latest?cb=20161013235336")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[4])
                 elif pokedexTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Pokédex \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pokédex \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Kanto_Gold.png/revision/latest?cb=20161013235541")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[5])
                 elif collectorTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Collector \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Collector \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/8/86/Collector_Gold.png/revision/latest?cb=20161014002520")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[6])
                 elif scientistTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Scientist \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Scientist \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/7/7c/Scientist_Gold.png/revision/latest?cb=20161013235610")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[7])
                 elif breederTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Breeder \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Breeder \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/b7/Breeder_Gold.png/revision/latest?cb=20161013235426")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[8])
                 elif backpackerTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Backpacker \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Backpacker \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/bb/Backpacker_Gold.png/revision/latest?cb=20161013235335")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[9])
                 elif fishermanTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Fisherman \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Fisherman \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/6/69/Fisherman_Gold.png/revision/latest?cb=20161013235429")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[10])
                 elif youngsterTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Youngster \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Youngster \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/Youngster_Gold.png/revision/latest?cb=20161013235612")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[11])
                 elif berrymasterTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Berry Master \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Berry Master \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/92/BerryMaster_Gold.png/revision/latest?cb=20170623010756")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[12])
                 elif gymleaderTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Gym Leader \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Gym Leader \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/f/f9/GymLeader_Gold.png/revision/latest?cb=20170623010816")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[13])
                 elif championTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Champion \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Champion \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/2/20/Champion_Gold.png/revision/latest?cb=20170623133823")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[14])
                 elif battlelegendTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Legend \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Battle Legend \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/6/61/BattleLegend_Gold.png/revision/latest?cb=20170623133841")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[15])
                 elif rangerTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Pokémon Ranger \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pokémon Ranger \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/7/77/Researcher_Gold.png/revision/latest?cb=20180328115039")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[16])
                 elif unownTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Unown \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Unown \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/1/1b/Unown_Gold.png/revision/latest?cb=20170217162806")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[17])
                 elif gentlemanTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Gentleman \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Gentleman \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/f/f0/Gentleman_Gold.png/revision/latest?cb=20180621120608")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[18])
                 elif pilotTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Pilot \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pilot \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/4/4e/Pilot_Gold.png/revision/latest?cb=20180621120613")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[19])
                 elif totalxpTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Total XP \n", color=0xff9900)
+                    embed = discord.Embed(title="Leaderboard Blekinge: Total XP \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/b/bd/Pok%C3%A9mon_GO_Fest_Chicago_2017.png/revision/latest?cb=20170726115410")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
