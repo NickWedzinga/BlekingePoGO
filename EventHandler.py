@@ -859,7 +859,7 @@ def checkMessages(id_list):
                 deleteIndex = 0
 
                 # Check if author is admin (TESTROLE)
-                if '435908470936698910' in [role.id for role in message.author.roles]:
+                if '435908470936698910' or '342771363884302339' in [role.id for role in message.author.roles]:
                     #Admin is trying to remove entry from Leaderboard
                     if leaderboard_type.lower() in leaderboard_list:
                         print("Deleting %s from jogger leaderboard" % deleteName)
