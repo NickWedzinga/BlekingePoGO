@@ -27,7 +27,7 @@ EventHandler.client.close()
 #   Lägg till .txt i .gitignore + git push + git pull på PI
 #   Skapa .txt fil på Pi
 #   Lägg till i checkMessage leaderboard_list
-#   Lägg till leaderboard_type i leaderboards
+#   Lägg till joggerTrue och if joggerTrue i leaderboards
 #   Lägg till embed icon i leaderboards
 #   Lägg till channel ID i main.py, uppdatera channel2 under embeds
 #   Lägg till enhet i ranks
