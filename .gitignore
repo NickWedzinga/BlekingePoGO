@@ -16,7 +16,7 @@ breeder.txt
 backpacker.txt
 fisherman.txt
 youngster.txt
-berry.txt
+berrymaster.txt
 gymleader.txt
 champion.txt
 battlelegend.txt
@@ -25,9 +25,6 @@ unown.txt
 idol.txt
 gentleman.txt
 pilot.txt
-idclaims - Copy.txt
-jogger - Copy.txt
-pikachu - Copy.txt
 
 # C extensions
 *.so

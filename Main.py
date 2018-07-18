@@ -29,6 +29,14 @@ EventHandler.client.close()
 # test sending backup txt from pi to pc
 
 
+# OVERALL-----------------------------------------------------
+# Funkar bara när spelaren är rankad i samtliga leaderboards
+
+# När spelaren uppdaterar en leaderboard så uppdateras även overall
+
+# score = index i samtliga leaderboards / antal leaderboards
+
+
 # LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
 #   Skapa Discord kanal
@@ -43,6 +51,23 @@ EventHandler.client.close()
 #   Lägg till enhet i ranks
 
 # Leaderboards to add:
+#Pokedex
+#Collector
+#Scientist
+#Breeder
+#Backpacker
+#Fisherman
+#Battle Girl
+#Youngster
+#Berry Master
+#Gym Leader
+#Champion
+#Battle Legend
+#Pokémon Ranger
+#Unown
+#Idol
+#Gentleman
+#Pilot
 
 
 # DELETE-----------------------------------------------------

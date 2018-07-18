@@ -448,8 +448,6 @@ async def leaderboard(message, id_list):
                             file.write("%s" % item2)
                     file.close()
 
-                # Medal images: http://pokemongo.wikia.com/wiki/Medals
-                # https://pokemongo.gamepress.gg/sites/pokemongo/files/2018-02/Badge_Walking_GOLD_01.png
                 #unitString = ""
                 if joggerTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900)
