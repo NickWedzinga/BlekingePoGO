@@ -35,7 +35,7 @@ async def help(message, leaderboard_list):
     if helpString == "ranks":
         await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
     elif helpString in leaderboard_list:
-        await client.send_message(message.channel, "Kommandot ?%s  används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
+        await client.send_message(message.channel, "Kommandot ?%s används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
     elif helpString == "list":
         await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?list jogger*" % (helpString))
 
@@ -866,7 +866,7 @@ def checkMessages(id_list):
                 if '435908470936698910' or '342771363884302339' in [role.id for role in message.author.roles]:
                     #Admin is trying to remove entry from Leaderboard
                     if leaderboard_type.lower() in leaderboard_list:
-                        print("Deleting %s from jogger leaderboard" % deleteName)
+                        print("Deleting %s from %s leaderboard" % (deleteName, leaderboard_type))
                         dltFile = open("%s.txt"%leaderboard_type, "r")
                         for index, line in enumerate(dltFile):
                             splitLine = line.split(' ')
@@ -890,7 +890,7 @@ def checkMessages(id_list):
 
         # E U R E K A
         elif message.content.upper().startswith('GODNATT') and message.author.id == '169688623699066880':
-            await client.send_message(message.channel, "Godnatt %s! :smile: :sleeping:" % message.author.mention)
+            await client.send_message(message.channel, "Godnatt %s! :slight_smile: :sleeping:" % message.author.mention)
 
         elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
             await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
