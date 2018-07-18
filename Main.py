@@ -32,7 +32,7 @@ EventHandler.client.close()
 # LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
 #   Skapa Discord kanal
-#   Skapa .txt fil på PC
+#   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
 #   Lägg till .txt i .gitignore + git push + git pull på PI
 #   Skapa .txt fil på Pi
 #   Lägg till i checkMessage leaderboard_list

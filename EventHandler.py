@@ -598,6 +598,8 @@ def checkMessages(id_list):
                         unitString = "km"
                     elif item == "pikachu":
                         unitString = "fångster"
+                    elif item == "battlegirl":
+                        unitString = "battles"
                     leaderboard_file = open("%s.txt" % item, "r")
                     # Loop through file
                     for index, line in enumerate(leaderboard_file):
