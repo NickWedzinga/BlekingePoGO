@@ -36,13 +36,64 @@ async def help(message):
     if helpString == "ranks":
         await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
     elif helpString == "jogger" or helpString == "pikachu":
-        await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?%s 250*" % (helpString,helpString))
+        await client.send_message(message.channel, "Kommandot ?%s  används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
+    elif helpString == "list":
+        await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?list jogger*" % (helpString))
+
     else:
         codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
         codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
+        codeMessage += "2. ?list leaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempel: ?list jogger*\n"
         codeMessage += "2. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
         codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
         await client.send_message(message.channel, codeMessage)
+
+
+# List, sends complete list of leaderboard
+@client.event
+async def list(message):
+    leaderboard_list = ["jogger", "pikachu"]
+    leaderboard_type = message.content.lower()
+    leaderboard_type = leaderboard_type[6:]
+
+    lookUpList = []
+
+    messageOut = ""
+
+    lengthTest = message.content.split(" ")
+    if len(lengthTest) < 2:
+        await client.send_message(message.channel, "Det saknas information. *Format: ?list LEADERBOARD_TYPE*")
+    elif not leaderboard_type in leaderboard_list:
+        await client.send_message(message.channel, "%s leaderboarden existerar inte." % leaderboard_type.capitalize())
+    else:
+        found = False
+        file = open("%s.txt" % leaderboard_type, "r")
+        index = 0
+        for item in file:
+            item2 = item.split(" ")
+            tempList = []
+            if index < 5:
+                # found user among top 5
+                if item2[0].lower() == message.author.display_name.lower():
+                    found = True
+                    messageOut += "**%i. %s %s**\n" % (index + 1, item2[0], item2[1])
+                else:
+                    messageOut += "%i. %s %s\n" % (index + 1, item2[0], item2[1])
+                tempList.append(item2[0])
+                tempList.append(item2[1])
+                lookUpList.append(tempList)                    
+            elif not found:
+                tempList.append(item2[0])
+                tempList.append(item2[1])
+                lookUpList.append(tempList)
+                # found user lower down
+                if item2[0].lower() == message.author.display_name.lower():
+                    messageOut += "-----------------\n%i. %s %s" % (index - 1, lookUpList[index-2][0], lookUpList[index-2][1])
+                    messageOut += "\n%i. %s %s" % (index, lookUpList[index-1][0], lookUpList[index-1][1])
+                    messageOut += "\n**%i. %s %s**" % (index + 1, item2[0], item2[1])
+            index += 1
+        #print(lookUpList)
+        await client.send_message(message.channel, messageOut)
 
 
 # Format: ?admin_claim nickname userID
@@ -140,9 +191,6 @@ async def admin_claim(message):
                 file.write(item[4])
             file.close()
 
-            #refresh list
-            #refresh(message)
-
 
 # Refresh function
 @client.event
@@ -160,7 +208,7 @@ async def refresh(message, id_list):
 
 # Claim function, assigns claim role, adds user ID to a list
 @client.event
-async def claim(message):
+async def claim(message, id_list):
     """Claim function, assigns claim role, adds user ID to a list."""
     claimedIDs = []
 
@@ -215,20 +263,13 @@ async def claim(message):
                 claimFile.write(item[0])
                 claimFile.write(" ")
                 claimFile.write(item[1])
-
             claimFile.close()
+
+            channel2 = client.get_channel(id_list[0])
             claimedRole = get(message.author.server.roles, name="claimed")
             await client.add_roles(message.author, claimedRole)
             # assign role is not claimed yet, send PM with help info
-            await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Du kommer få ett privatmeddelande alldeles strax med mer info." % (message.author.mention, message.author.display_name))
-
-            # send PM with info
-            codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
-            codeMessage += "1. ?leaderboard poäng, *Exempel: ?jogger 2320*\n"
-            codeMessage += "2. ?ranks, används för att vissa hur du rankas mot övriga medlemmar.\n"
-            codeMessage += "3. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
-            await client.send_message(message.author, codeMessage)
-
+            await client.send_message(message.channel, ":white_check_mark: %s du har claimat användarnamnet %s. Skriv ?help i %s för hjälp med att komma igång." % (message.author.mention, message.author.display_name, channel2.mention))
 
 # Leaderboard function
 @client.event
@@ -390,7 +431,6 @@ async def leaderboard(message, id_list):
                                     # New score is among top three
                                     if index < 3:
                                         topThree = True
-
                     file = open("%s.txt" % leaderboard_type, "w")
                     for item in leaderboardList:
                         item2 = ' '.join(str(x) for x in item)
@@ -445,12 +485,13 @@ async def leaderboard(message, id_list):
 
                 await asyncio.sleep(1)
                 if newTopOne:
-                    await client.send_message(message.channel, ":crown: :first_place: GRATULERAT %s, du har nått #%i i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
+                    await client.send_message(message.channel, ":crown: :first_place: GRATULERAR %s, du har nått #%i i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
                 elif topThree:
-                    await client.send_message(message.channel, ":crown: Gratulerat %s till din #%i placering i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
+                    await client.send_message(message.channel, ":crown: Gratulerar %s till din #%i placering i %s leaderboarden. \nVar god skicka in en in-game-screenshot till valfri admin för att bekräfta dina poäng." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize()))
                 elif scoreUpdated:
-                    await client.send_message(message.channel, "Gratulerat %s, du placerade #%i i %s leaderboarden. Kolla %s för att se top 10." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
-                await client.send_message(message.channel, "Leaderboarden har laddats om.")
+                    await client.send_message(message.channel, "Gratulerar %s, du är placerad #%i i %s leaderboarden. Kolla %s för att se top 10." % (message.author.mention, currentRankList[insertedIndex], leaderboard_type.capitalize(), channel2.mention))
+                if sneaselRefresh:
+                    await client.send_message(message.channel, "Leaderboarden har laddats om.")
                 await client.send_message(channel2, embed=embed)
     else:
         await client.send_message(message.channel, "Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. Ta kontakt med valfri admin.")
@@ -472,9 +513,13 @@ def checkMessages(id_list):
         elif (message.content.upper().startswith('?HELP') and message.channel.id == id_list[0]):
             await help(message)
 
-        # Claim nick for your ID
+        # List top 5 and the two ahead of you
+        elif (message.content.upper().startswith('?LIST') and message.channel.id == id_list[0]):
+            await list(message)
+
+        # Claim nick for your ID in #support
         elif (message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[3]):
-            await claim(message)
+            await claim(message, id_list)
 
         # REFRESH, Format: ?refresh LEADERBOARD_TYPE
         elif(message.content.upper().startswith('?REFRESH') and message.channel.id == id_list[0]):

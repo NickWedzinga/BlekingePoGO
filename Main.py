@@ -18,13 +18,12 @@ EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
 # GENERAL-----------------------------------------------------
-# botten randomly la av
+
 
 # LEADERBOARDS---------------------------------------------
 # Lägg till Battle Girl, gitignore, skapa .txt filer på PI, lägg till i help, loop through new files in admin claim
-# lägg till i delete list
+# lägg till i delete list, lägg till i list kommando listan
 
-# GRATULERAT, inte korrekt svenska?
 
 
 # DELETE-----------------------------------------------------
@@ -36,9 +35,11 @@ EventHandler.client.close()
 # RANKS-----------------------------------------------
 
 
-# CLAIM----------------------------------------------
-# Gör så att om någon skriver vad som helst som inte är ?claim i claim så tip
+# LIST ----------------------------------------------------
 
+
+
+# CLAIM----------------------------------------------
 # Claimtiden buggar fortfarande, säger 1 minut kvar när man varit på
 # servern i flera dagar. Utkommenterat atm.
 
@@ -46,8 +47,8 @@ EventHandler.client.close()
 # ADMIN_CLAIM----------------------------------------
 
 
-# ?HELP
-# ----------------------------------------------------
+# ?HELP ----------------------------------------------------
+
 
 
 # IMPORTERING
