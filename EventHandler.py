@@ -487,7 +487,7 @@ async def leaderboard(message, id_list):
                                     for idx, elm in enumerate(leaderboardList):
                                         if moved:
                                             break
-                                        elif tempScore > float(elm[1]):
+                                        elif tempScore > float(elm[1]) or (tempScore == 1 and float(elm[1]) == 1):
                                             # Insert updated score
                                             if not joggerTrue:
                                                 tempList[1] = int(tempList[1])
