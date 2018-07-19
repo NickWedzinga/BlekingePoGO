@@ -43,7 +43,7 @@ EventHandler.client.close()
 
 # BUG LIST ------------------------------------------
 
-
+# delete mcmomo jogger, skickar för många argument till refresh funktionen
 
 
 

@@ -508,7 +508,7 @@ async def leaderboard(message, id_list):
                         if notUpdated and not skipUpdate and not sneaselRefresh:
                             insertedBool = False
                             for index, elem in enumerate(leaderboardList):
-                                if tempScore > float(elem[1]) and not insertedBool:
+                                if (tempScore > float(elem[1]) or (tempScore == 1 and float(elem[1]) == 1)) and not insertedBool:
                                     if not joggerTrue:
                                         tempList[1] = int(tempList[1])
                                     insertedIndex = index
