@@ -41,14 +41,22 @@ with open("apitoken.txt", "r") as apiFile:
 EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
+
 # BUG LIST ------------------------------------------
 
-# delete mcmomo jogger, skickar för många argument till refresh funktionen
 
+
+# TODO: ---------------------------------------------
+# vid update skriv ut : Ny score: %i, gammal score %i
+# skriv tester som langar grönt, testa allt som kan gå sönder, kommando ?tester, måste vara admin
 
 
 # GENERAL-----------------------------------------------------
 # cp idclaims.txt idclaims2.txt
+
+
+# FINDPLAYER------------------------------ch--------------------
+# format: ?findplayer jogger mcmomo, returnar index på mcmomo i jogger
 
 
 # OVERALL-----------------------------------------------------

@@ -201,12 +201,11 @@ async def admin_claim(message, leaderboard_list):
 async def refresh(message, id_list, leaderboard_list):
     """Refresh function, parses and presents leaderboard of choosing."""
     leaderboard_type = message.content.lower().split(" ", 2)[1]
-    #leaderboard_list = ["jogger", "pikachu"]
 
     tempCheck = message.content.split(" ")
     if len(tempCheck) < 2:
         await client.send_message(message.channel, "Det saknas information. Format: ?refresh leaderboard.")
-    elif len(tempCheck) > 2:
+    elif (len(tempCheck) > 2 and not message.content.lower().split(" ", 1)[0] == "?delete"):
         await client.send_message(message.channel, "För mycket information. Format: ?refresh leaderboard.")
     elif leaderboard_type in leaderboard_list:
         await leaderboard(message, id_list)
@@ -718,8 +717,7 @@ def checkMessages(id_list):
             await refresh(message, id_list, leaderboard_list)
 
         # LEADERBOARDS Format: ?LEADERBOARD_TYPE, SCORE
-        elif ((leaderboardString[0] in leaderboard_list and message.channel.id == id_list[0])):
-        #elif ((message.content.upper().startswith('?JOGGER') or message.content.upper().startswith('?PIKACHU')) and message.channel.id == id_list[0]):
+        elif (leaderboardString[0] in leaderboard_list and message.channel.id == id_list[0] and message.content.lower().startswith('?')):
             await leaderboard(message, id_list)
 
         # List ranks across leaderboards
@@ -912,8 +910,8 @@ def checkMessages(id_list):
         elif message.content.upper().startswith('?ADMIN_CLAIM') and message.channel.id == id_list[0]:
             await admin_claim(message, leaderboard_list)
 
-        elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
-            await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
+        #elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
+        #    await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
 
         # Last if statement, invalid command
         elif message.content.upper().startswith('?') and message.channel.id == id_list[0]:
