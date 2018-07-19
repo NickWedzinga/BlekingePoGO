@@ -844,7 +844,7 @@ def checkMessages(id_list):
                     await client.send_message(message.author, messageOut)
                     await client.send_message(message.channel, "Du har fått ett privatmeddelande med alla dina placeringar %s." % message.author.mention)
                 if not found:
-                    await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards. Du verkar inte registrerat några poäng ännu.")
+                    await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards %s. Du verkar inte registrerat några poäng ännu." % message.author.mention)
 
         # DELETE, admins may delete leaderboard entries Format: ?delete leaderboard_type name_to_delete
         elif message.content.upper().startswith('?DELETE') and message.channel.id == id_list[0]:
@@ -917,4 +917,4 @@ def checkMessages(id_list):
 
         # Last if statement, invalid command
         elif message.content.upper().startswith('?') and message.channel.id == id_list[0]:
-            await client.send_message(message.channel, "Detta kommandot finns inte, skriv ?help för en lista på kommandon :sob:")
+            await client.send_message(message.channel, "Detta kommandot finns inte, skriv ?help för en lista på kommandon.")
