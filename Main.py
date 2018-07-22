@@ -43,13 +43,13 @@ EventHandler.client.close()
 
 
 # BUG LIST ------------------------------------------
-
+# ingen error decimaler pilot
 
 
 # TODO: ---------------------------------------------
 # vid update skriv ut : Ny score: %i, gammal score %i
 # skriv tester som langar grönt, testa allt som kan gå sönder, kommando ?tester, måste vara admin
-
+# Notify om man som top 3 knuffas ner en spot
 
 # GENERAL-----------------------------------------------------
 # cp idclaims.txt idclaims2.txt
@@ -80,6 +80,7 @@ EventHandler.client.close()
 #   Lägg till channel ID i main.py, uppdatera channel2 under embeds
 #   Lägg till enhet i ranks
 #   Om decimaler, Lägg till i ranks if not item in "jogger", ...
+#   Om decimaler, ändra if joggertrue tempscore replace , med . i leaderboards
 
 # Leaderboards to add:
 #Jogger

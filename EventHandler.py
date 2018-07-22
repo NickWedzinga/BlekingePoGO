@@ -345,9 +345,6 @@ async def leaderboard(message, id_list):
             await client.send_message(message.channel,
                                       "Korrekt sätt att skicka in dina poäng är ?%s POÄNG. \n*Exempel: ?%s 2500*" % (leaderboard_type, leaderboard_type))
 
-        # Replace possible commas with dots
-        tempScore = str(tempScore.replace(",", "."))
-
         # set specific leaderboard values
         if leaderboard_type == "jogger":
             joggerTrue = True
@@ -407,6 +404,10 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "totalxp":
             totalxpTrue = True
             upperLimit = 200000000
+
+        # Replace possible commas with dots
+        if joggerTrue:
+            tempScore = str(tempScore.replace(",", "."))
 
         tempList = []
         notUpdated = True
@@ -536,7 +537,7 @@ async def leaderboard(message, id_list):
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[1])
                 elif pikachuTrue:
-                    embed = discord.Embed(title="Leaderboard Blekinge: Pikach Fan \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed = discord.Embed(title="Leaderboard Blekinge: Pikachu Fan \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/94/PikachuFan_Gold.png/revision/latest?cb=20161013235542")
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
