@@ -41,9 +41,18 @@ with open("apitoken.txt", "r") as apiFile:
 EventHandler.client.run(apitoken)
 EventHandler.client.close()
 
-
 # BUG LIST ------------------------------------------
 # ingen error decimaler pilot
+
+# detached, solution: screen -r -d "PID". EX: screen -r -d 615
+
+# unclosed client session, tyder på annan error händer ibland, stänger ner
+# och loggar ut Sneasel.
+#   - Hänt när DrottningRosa försökt uppdatera 36.6m xp till 36.8m båda hamnar plats 7 så inget shift i rank
+#   - Hänt när Nomis uppdaterar gymleader badge
+#   - Hänt när DrottningRosa försökt uppdatera xp till 40m, ingen platsskifte
+#   - Hänt när Bubbelinho skrev ?test
+#   - Verkar timea ut sig själv randomly ibland
 
 
 # TODO: ---------------------------------------------
