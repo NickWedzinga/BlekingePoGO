@@ -26,6 +26,7 @@ idol.txt
 gentleman.txt
 pilot.txt
 totalxp.txt
+goldgyms.txt
 
 # C extensions
 *.so
