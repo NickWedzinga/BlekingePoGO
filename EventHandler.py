@@ -323,6 +323,7 @@ async def leaderboard(message, id_list):
         gentlemanTrue = False
         pilotTrue = False
         totalxpTrue = False
+        goldgymsTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -404,6 +405,9 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "totalxp":
             totalxpTrue = True
             upperLimit = 200000000
+        elif leaderboard_type == "goldgyms":
+            goldgymsTrue = True
+            upperLimit = 500
 
         # Replace possible commas with dots
         if joggerTrue:
@@ -530,6 +534,7 @@ async def leaderboard(message, id_list):
                             file.write("%s" % item2)
                     file.close()
 
+                # http://pokemongo.wikia.com/wiki/Medals
                 if joggerTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
@@ -644,6 +649,12 @@ async def leaderboard(message, id_list):
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[20])
+                elif goldgymsTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Gold Gyms \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Gym_Badge_Tier_Gold.png/revision/latest?cb=20170620224940")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[21])
 
                 currentRank = 0
                 currentScore = 0
@@ -664,11 +675,10 @@ async def leaderboard(message, id_list):
                             embed.add_field(name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
                         else:
                             embed.add_field(name="%i. %s - %.1f %s" % (int(currentRank), elem[0], float(elem[1]), unitString), value="Updated: %s" % (elem[2]), inline=True)
-
-                async for x in client.logs_from(channel2, 10):
-                    try:
+                try:
+                    async for x in client.logs_from(channel2, 10):
                         await client.delete_message(x)
-                    except:
+                except:
                         print("somehow failed to delete message")
 
                 await asyncio.sleep(1)
@@ -691,7 +701,7 @@ def checkMessages(id_list):
     print("Checking for messages..")
     leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
                         "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
-                        "pilot", "totalxp"]
+                        "pilot", "totalxp", "goldgyms"]
 
     @client.event
     async def on_message(message):
@@ -807,10 +817,12 @@ def checkMessages(id_list):
                         unitString = "km trades"
                     elif item == "totalxp":
                         unitString = "xp"
+                    elif item == "goldgyms":
+                        item == "gyms"
                     #elif item == "idol":
                     #    unitString = "Pokémon"
                     leaderboard_file = open("%s.txt" % item, "r")
-                    
+
                     # Loop through file
                     for index, line in enumerate(leaderboard_file):
                         line = line.split(" ")
