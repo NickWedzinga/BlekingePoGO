@@ -41,14 +41,14 @@ youngster2.txt
 berrymaster2.txt
 gymleader2.txt
 champion2.txt
-battlelegend.txt
-ranger.txt
-unown.txt
-idol.txt
-gentleman.txt
-pilot.txt
-totalxp.txt
-goldgyms.txt
+battlelegend2.txt
+ranger2.txt
+unown2.txt
+idol2.txt
+gentleman2.txt
+pilot2.txt
+totalxp2.txt
+goldgyms2.txt
 
 # C extensions
 *.so
