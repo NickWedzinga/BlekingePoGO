@@ -139,3 +139,90 @@ EventHandler.client.close()
 
 
 # ?HELP ----------------------------------------------------
+
+
+"""
+Traceback (most recent call last):
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/gateway.py", line 430, in poll_event
+    msg = yield from self.recv()
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py", line 319, in recv
+    raise ConnectionClosed(self.close_code, self.close_reason)
+websockets.exceptions.ConnectionClosed: WebSocket connection is closed: code = 1006, no reason.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/client.py", line 448, in connect
+    yield from self.ws.poll_event()
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/gateway.py", line 435, in poll_event
+    raise ResumeWebSocket() from e
+discord.gateway.ResumeWebSocket
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "Main.py", line 44, in <module>
+    EventHandler.client.run(apitoken)
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/client.py", line 519, in run
+    self.loop.run_until_complete(self.start(*args, **kwargs))
+  File "/usr/lib/python3.5/asyncio/base_events.py", line 466, in run_until_complete
+    return future.result()
+  File "/usr/lib/python3.5/asyncio/futures.py", line 293, in result
+    raise self._exception
+  File "/usr/lib/python3.5/asyncio/tasks.py", line 239, in _step
+    result = coro.send(None)
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/client.py", line 491, in start
+    yield from self.connect()
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/client.py", line 452, in connect
+    self.ws = yield from DiscordWebSocket.from_client(self, resume=resume)
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/gateway.py", line 207, in from_client
+    timeout=60, loop=client.loop)
+  File "/usr/lib/python3.5/asyncio/tasks.py", line 400, in wait_for
+    return fut.result()
+  File "/usr/lib/python3.5/asyncio/futures.py", line 293, in result
+    raise self._exception
+  File "/usr/lib/python3.5/asyncio/tasks.py", line 239, in _step
+    result = coro.send(None)
+  File "/home/pi/.local/lib/python3.5/site-packages/discord/gateway.py", line 65, in _ensure_coroutine_connect
+    ws = yield from websockets.connect(gateway, loop=loop, klass=klass)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/py35/client.py", line 19, in __await__
+    return (yield from self.client)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/client.py", line 215, in connect
+    extra_headers=extra_headers)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/client.py", line 125, in handshake
+    raise InvalidStatusCode(status_code)
+websockets.exceptions.InvalidStatusCode: Status code not 101: 520
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x75e179b0>
+Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x75e3c3b0>
+Task exception was never retrieved
+future: <Task finished coro=<WebSocketCommonProtocol.run() done, defined at /home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py:428> exception=ConnectionResetError(104, 'Connection reset by peer')>
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/asyncio/tasks.py", line 241, in _step
+    result = coro.throw(exc)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py", line 434, in run
+    msg = yield from self.read_message()
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py", line 456, in read_message
+    frame = yield from self.read_data_frame(max_size=self.max_size)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py", line 511, in read_data_frame
+    frame = yield from self.read_frame(max_size)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/protocol.py", line 546, in read_frame
+    self.reader.readexactly, is_masked, max_size=max_size)
+  File "/home/pi/.local/lib/python3.5/site-packages/websockets/framing.py", line 86, in read_frame
+    data = yield from reader(2)
+  File "/usr/lib/python3.5/asyncio/streams.py", line 668, in readexactly
+    yield from self._wait_for_data('readexactly')
+  File "/usr/lib/python3.5/asyncio/streams.py", line 458, in _wait_for_data
+    yield from self._waiter
+  File "/usr/lib/python3.5/asyncio/futures.py", line 380, in __iter__
+    yield self  # This tells Task to wait for completion.
+  File "/usr/lib/python3.5/asyncio/tasks.py", line 304, in _wakeup
+    future.result()
+  File "/usr/lib/python3.5/asyncio/futures.py", line 293, in result
+    raise self._exception
+  File "/usr/lib/python3.5/asyncio/selector_events.py", line 723, in _read_ready
+    data = self._sock.recv(self.max_size)
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+"""
