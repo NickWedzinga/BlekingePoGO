@@ -926,7 +926,7 @@ def checkMessages(id_list):
         # elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
         #    await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
 
-        elif '@EVERYONE' in message.content.upper():
+        elif '@EVERYONE' in message.content.upper() and not ('342771363884302339' in [role.id for role in message.author.roles]):
             # Weavile Bot
             for role in message.server.roles:
                 if '435908470936698910' in role.id:
