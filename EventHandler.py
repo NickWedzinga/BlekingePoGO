@@ -818,7 +818,7 @@ def checkMessages(id_list):
                     elif item == "totalxp":
                         unitString = "xp"
                     elif item == "goldgyms":
-                        item == "gyms"
+                        unitString = "gyms"
                     #elif item == "idol":
                     #    unitString = "Pokémon"
                     leaderboard_file = open("%s.txt" % item, "r")
