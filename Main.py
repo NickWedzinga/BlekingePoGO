@@ -24,7 +24,7 @@ if version == "1":
                '469121687506518037', '469121703348273152', '469121718271868928',
                '469121735795539988', '469121769639378944', '469121782473949186',
                '469121809162174495', '469121836651642911', '469122055439384577',
-               '478886996064993280']
+               '478886996064993280', '493847327925075968']
 # pi
 elif version == "0":
     id_list = ['469095507759726603', '469095668137459712', '469095701947875338',
@@ -34,7 +34,7 @@ elif version == "0":
                '469150955372412928', '469150979200385025', '469150995268632576',
                '469151014302384128', '469151036188262420', '469151049828007946',
                '469151070137090048', '469151084124962816', '469150770881888266',
-               '478894031678603266']
+               '478894031678603266', '493848833932001301']
 
 print("Version: %s" % version)
 EventHandler.checkMessages(id_list)
@@ -82,6 +82,7 @@ EventHandler.client.close()
 # LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
 #   Skapa Discord kanal
+#   Lägg till kanal id i id_list
 #   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
 #   Lägg till .txt i .gitignore + git push + git pull på PI
 #   Skapa .txt fil på Pi
@@ -89,7 +90,7 @@ EventHandler.client.close()
 #   Om decimaler, lägg till i if not joggerTrue or..: int()
 #   Lägg till joggerTrue och if joggerTrue i leaderboards
 #   Lägg till embed icon i leaderboards, samt ändra title
-#   Lägg till channel ID i main.py, uppdatera channel2 under embeds
+#   Uppdatera channel2 under embeds
 #   Lägg till enhet i ranks
 #   Om decimaler, Lägg till i ranks if not item in "jogger", ...
 #   Om decimaler, ändra if joggertrue tempscore replace , med . i leaderboards

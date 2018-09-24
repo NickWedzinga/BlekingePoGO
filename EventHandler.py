@@ -324,6 +324,7 @@ async def leaderboard(message, id_list):
         pilotTrue = False
         totalxpTrue = False
         goldgymsTrue = False
+        idolTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -408,6 +409,9 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "goldgyms":
             goldgymsTrue = True
             upperLimit = 500
+        elif leaderboard_type == "idol":
+            idolTrue = True
+            upperLimit = 200
 
         # Replace possible commas with dots
         if joggerTrue:
@@ -655,6 +659,12 @@ async def leaderboard(message, id_list):
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[21])
+                elif idolTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Idol \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/9b/Idol_Gold.png/revision/latest?cb=20180621120611")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[22])
 
                 currentRank = 0
                 currentScore = 0
@@ -701,7 +711,7 @@ def checkMessages(id_list):
     print("Checking for messages..")
     leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
                         "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
-                        "pilot", "totalxp", "goldgyms"]
+                        "pilot", "totalxp", "goldgyms", "idol"]
 
     @client.event
     async def on_message(message):
@@ -819,8 +829,9 @@ def checkMessages(id_list):
                         unitString = "xp"
                     elif item == "goldgyms":
                         unitString = "gyms"
-                    #elif item == "idol":
-                    #    unitString = "Pokémon"
+                    elif item == "idol":
+                        unitString = "best friends"
+
                     leaderboard_file = open("%s.txt" % item, "r")
 
                     # Loop through file
