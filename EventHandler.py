@@ -357,52 +357,52 @@ async def leaderboard(message, id_list):
             upperLimit = 5000
         elif leaderboard_type == "battlegirl":
             battlegirlTrue = True
-            upperLimit = 50000
+            upperLimit = 100000
         elif leaderboard_type == "pokedex":
             pokedexTrue = True
             upperLimit = 600
         elif leaderboard_type == "collector":
             collectorTrue = True
-            upperLimit = 200000
+            upperLimit = 500000
         elif leaderboard_type == "scientist":
             scientistTrue = True
             upperLimit = 40000
         elif leaderboard_type == "breeder":
             breederTrue = True
-            upperLimit = 20000
+            upperLimit = 50000
         elif leaderboard_type == "backpacker":
             backpackerTrue = True
-            upperLimit = 200000
+            upperLimit = 500000
         elif leaderboard_type == "fisherman":
             fishermanTrue = True
-            upperLimit = 5000
+            upperLimit = 10000
         elif leaderboard_type == "youngster":
             youngsterTrue = True
-            upperLimit = 5000
+            upperLimit = 10000
         elif leaderboard_type == "berrymaster":
             berrymasterTrue = True
-            upperLimit = 100000
+            upperLimit = 500000
         elif leaderboard_type == "gymleader":
             gymleaderTrue = True
-            upperLimit = 100000
+            upperLimit = 500000
         elif leaderboard_type == "champion":
             championTrue = True
-            upperLimit = 5000
+            upperLimit = 10000
         elif leaderboard_type == "battlelegend":
             battlelegendTrue = True
-            upperLimit = 5000
+            upperLimit = 10000
         elif leaderboard_type == "ranger":
             rangerTrue = True
-            upperLimit = 5000
+            upperLimit = 10000
         elif leaderboard_type == "unown":
             unownTrue = True
             upperLimit = 30
         elif leaderboard_type == "gentleman":
             gentlemanTrue = True
-            upperLimit = 10000
+            upperLimit = 50000
         elif leaderboard_type == "pilot":
             pilotTrue = True
-            upperLimit = 10000000
+            upperLimit = 200000000
         elif leaderboard_type == "totalxp":
             totalxpTrue = True
             upperLimit = 200000000
