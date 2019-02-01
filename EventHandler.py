@@ -325,6 +325,9 @@ async def leaderboard(message, id_list):
         totalxpTrue = False
         goldgymsTrue = False
         idolTrue = False
+        greatleagueTrue = False
+        ultraleagueTrue = False
+        masterleagueTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -412,6 +415,15 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "idol":
             idolTrue = True
             upperLimit = 200
+        elif leaderboard_type == "greatleague":
+            greatleagueTrue = True
+            upperLimit = 50000
+        elif leaderboard_type == "ultraleague":
+            ultraleagueTrue = True
+            upperLimit = 50000
+        elif leaderboard_type == "masterleague":
+            masterleagueTrue = True
+            upperLimit = 50000
 
         # Replace possible commas with dots
         if joggerTrue:
@@ -665,6 +677,24 @@ async def leaderboard(message, id_list):
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[22])
+                elif greatleagueTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Great League Veteran \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/2/28/GreatLeague_Gold.png/revision/latest?cb=20190113004308")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[23])
+                elif ultraleagueTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Ultra League Veteran \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/5/5e/UltraLeague_Gold.png/revision/latest?cb=20190113004309")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[24])
+                elif masterleagueTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Master League Veteran \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/d/d7/MasterLeague_Gold.png/revision/latest?cb=20190113004311")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[25])
 
                 currentRank = 0
                 currentScore = 0
@@ -711,7 +741,7 @@ def checkMessages(id_list):
     print("Checking for messages..")
     leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
                         "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
-                        "pilot", "totalxp", "goldgyms", "idol"]
+                        "pilot", "totalxp", "goldgyms", "idol", "greatleague", "ultraleague", "masterleague"]
 
     @client.event
     async def on_message(message):
@@ -831,6 +861,12 @@ def checkMessages(id_list):
                         unitString = "gyms"
                     elif item == "idol":
                         unitString = "best friends"
+                    elif item == "greatleague":
+                        unitString = "battles"
+                    elif item == "ultraleague":
+                        unitString = "battles"
+                    elif item == "masterleague":
+                        unitString = "battles"
 
                     leaderboard_file = open("%s.txt" % item, "r")
 

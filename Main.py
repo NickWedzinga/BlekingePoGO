@@ -24,7 +24,8 @@ if version == "1":
                '469121687506518037', '469121703348273152', '469121718271868928',
                '469121735795539988', '469121769639378944', '469121782473949186',
                '469121809162174495', '469121836651642911', '469122055439384577',
-               '478886996064993280', '493847327925075968']
+               '478886996064993280', '493847327925075968', '540876695264034834',
+               '540876711202652160', '540876727698718721']
 # pi
 elif version == "0":
     id_list = ['469095507759726603', '469095668137459712', '469095701947875338',
@@ -34,7 +35,8 @@ elif version == "0":
                '469150955372412928', '469150979200385025', '469150995268632576',
                '469151014302384128', '469151036188262420', '469151049828007946',
                '469151070137090048', '469151084124962816', '469150770881888266',
-               '478894031678603266', '493848833932001301']
+               '478894031678603266', '493848833932001301', '540882217845522432',
+               '540882231816617986', '540882247142604810']
 
 print("Version: %s" % version)
 EventHandler.checkMessages(id_list)
@@ -79,46 +81,21 @@ EventHandler.client.close()
 # score = index i samtliga leaderboards / antal leaderboards
 
 
-# LEADERBOARDS---------------------------------------------
+# CREATING NEW LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
 #   Skapa Discord kanal
 #   Lägg till kanal id i id_list
 #   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
-#   Lägg till .txt i .gitignore + git push + git pull på PI
-#   Skapa .txt fil på Pi
+#   Lägg till .txt i .gitignoreB
 #   Lägg till i checkMessage leaderboard_list
 #   Om decimaler, lägg till i if not joggerTrue or..: int()
 #   Lägg till joggerTrue och if joggerTrue i leaderboards
-#   Lägg till embed icon i leaderboards, samt ändra title
-#   Uppdatera channel2 under embeds
-#   Lägg till enhet i ranks
+#   Lägg till embed, ändra icon i leaderboards, samt ändra title, samt channel2 index
+#   Lägg till enhet i checkmessages() -> ?RANKS
 #   Om decimaler, Lägg till i ranks if not item in "jogger", ...
 #   Om decimaler, ändra if joggertrue tempscore replace , med . i leaderboards
-
-# Leaderboards to add:
-#Jogger
-#Pikachu Fan
-#Battle Girl
-#Pokedex
-#Collector
-#Scientist
-#Breeder
-#Backpacker
-#Fisherman
-#Youngster
-#Berry Master
-#Gym Leader
-#Champion
-#Battle Legend
-#Pokémon Ranger
-#Unown
-#Gentleman
-#Pilot
-#Total XP
-
-#   Insert efter inte innan om samma score
-
-#   skriv under embed ?help
+#   git push PC + git pull på PI
+#   Skapa .txt fil på Pi, skapa 2.txt fil på PI
 
 
 # DELETE-----------------------------------------------------
