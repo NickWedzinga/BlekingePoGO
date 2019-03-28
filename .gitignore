@@ -52,6 +52,8 @@ goldgyms2.txt
 greatleague.txt
 ultraleague.txt
 masterleague.txt
+acetrainer.txt
+cameraman.txt
 
 # C extensions
 *.so

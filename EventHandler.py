@@ -328,6 +328,8 @@ async def leaderboard(message, id_list):
         greatleagueTrue = False
         ultraleagueTrue = False
         masterleagueTrue = False
+        acetrainerTrue = False
+        cameramanTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -424,6 +426,12 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "masterleague":
             masterleagueTrue = True
             upperLimit = 50000
+        elif leaderboard_type == "acetrainer":
+            acetrainerTrue = True
+            upperLimit = 50000
+        elif leaderboard_type == "cameraman":
+            cameramanTrue = True
+            upperLimit = 1000
 
         # Replace possible commas with dots
         if joggerTrue:
@@ -695,6 +703,18 @@ async def leaderboard(message, id_list):
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[25])
+                elif acetrainerTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Ace Trainer\n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/9c/AceTrainer_Gold.png/revision/latest?cb=20161013235333")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[26])
+                elif cameramanTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Cameraman\n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/1/19/Cameraman_Gold.png/revision/latest?cb=20190220234724")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[27])
 
                 currentRank = 0
                 currentScore = 0
@@ -741,7 +761,8 @@ def checkMessages(id_list):
     print("Checking for messages..")
     leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
                         "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
-                        "pilot", "totalxp", "goldgyms", "idol", "greatleague", "ultraleague", "masterleague"]
+                        "pilot", "totalxp", "goldgyms", "idol", "greatleague", "ultraleague", "masterleague", "acetrainer",
+                        "cameraman"]
 
     @client.event
     async def on_message(message):
@@ -867,6 +888,10 @@ def checkMessages(id_list):
                         unitString = "battles"
                     elif item == "masterleague":
                         unitString = "battles"
+                    elif item == "acetrainer":
+                        unitString = "battles"
+                    elif item == "cameraman":
+                        unitString = "photos"
 
                     leaderboard_file = open("%s.txt" % item, "r")
 
