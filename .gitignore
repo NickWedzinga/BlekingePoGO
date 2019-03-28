@@ -54,6 +54,11 @@ ultraleague.txt
 masterleague.txt
 acetrainer.txt
 cameraman.txt
+greatleague2.txt
+ultraleague2.txt
+masterleague2.txt
+acetrainer2.txt
+cameraman2.txt
 
 # C extensions
 *.so
