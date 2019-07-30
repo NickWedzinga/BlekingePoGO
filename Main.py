@@ -15,7 +15,7 @@ with open("version.txt", "r") as versionFile:
 #           berrymaster[12], gymleader[13], champion[14],
 #           battlelegend[15], ranger[16], unown[17],
 #           gentleman[18], pilot[19], totalxp[20]...
-# pc
+# Weavile - pc
 if version == "1":
     id_list = ['466563505462575106', '466913214656020493', '467754615413407745',
                '468760503125147648', '469079191002939415', '469121554488360971',
@@ -26,8 +26,8 @@ if version == "1":
                '469121809162174495', '469121836651642911', '469122055439384577',
                '478886996064993280', '493847327925075968', '540876695264034834',
                '540876711202652160', '540876727698718721', '560905350405029888',
-               '560905402825310209']
-# pi
+               '560905402825310209', '605836493218643988', '605836537019760640']
+# Sneasel - pi
 elif version == "0":
     id_list = ['469095507759726603', '469095668137459712', '469095701947875338',
                '342760722058706945', '469095719178076170', '469117787076296705',
@@ -38,7 +38,7 @@ elif version == "0":
                '469151070137090048', '469151084124962816', '469150770881888266',
                '478894031678603266', '493848833932001301', '540882217845522432',
                '540882231816617986', '540882247142604810', '560906125026000897',
-               '560906243258974231']
+               '560906243258974231', '605837275061944355', '605837367764320284']
 
 print("Version: %s" % version)
 EventHandler.checkMessages(id_list)
@@ -56,6 +56,11 @@ EventHandler.client.close()
 # unclosed client session, tyder på annan error händer ibland, stänger ner
 # och loggar ut Sneasel.
 
+# ?admin_claim does not work anymore, weird asyncio behavior
+# takes too long to find, copy and write to file?
+# rewrite function, must be easier.
+# if x in line, file.write(line.replace(oldname, newname))
+# tempfix: sed -i 's/oldText/newText/g' idclaims.txt
 
 
 # TODO: ---------------------------------------------

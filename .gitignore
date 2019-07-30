@@ -59,6 +59,10 @@ ultraleague2.txt
 masterleague2.txt
 acetrainer2.txt
 cameraman2.txt
+hero.txt
+hero2.txt
+purifier.txt
+purifier2.txt
 
 # C extensions
 *.so
