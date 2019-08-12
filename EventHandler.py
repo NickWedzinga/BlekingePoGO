@@ -858,6 +858,8 @@ def checkMessages(id_list):
                               11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen',
                               15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
                 messageOut = ""
+                messageOut2 = ""   # "needed" because message too long
+                loops = True
                 # Loop through leaderboard types
                 for item in leaderboard_list:
                     if item == "jogger":
@@ -921,6 +923,7 @@ def checkMessages(id_list):
                     leaderboard_file = open("%s.txt" % item, "r")
 
                     # Loop through file
+                    
                     for index, line in enumerate(leaderboard_file):
                         line = line.split(" ")
 
@@ -931,25 +934,34 @@ def checkMessages(id_list):
 
                         if line[0].lower() == nickname.lower():
                             found = True
+                            tempMsg = ""
                             localScore = round(float(line[1]), 1)
                             if not item in ("jogger"):
                                 localScore = int(localScore)
                             if(currentRank == 1):
-                                messageOut += ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":first_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 2):
-                                messageOut += ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":second_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 3):
-                                messageOut += ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":third_place: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank == 10):
-                                messageOut += ":keycap_%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":keycap_%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif(currentRank > 3 and currentRank < 11):
-                                messageOut += ":%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":%s: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (num2words1[currentRank].lower(), message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             elif currentRank > 10:
-                                messageOut += ":asterisk: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
+                                tempMsg = ":asterisk: %s är placerad \#%i i %s leaderboarden med %s %s.\n" % (message.author.mention, currentRank, item.capitalize(), localScore, unitString)
                             else:
-                                messageOut += "%s är inte placerad i någon %s leaderboard, skicka in dina poäng genom att skriva ?%s poäng.\n" % (message.author.mention, item.capitalize(), item)
+                                tempMsg = "%s är inte placerad i någon %s leaderboard, skicka in dina poäng genom att skriva ?%s poäng.\n" % (message.author.mention, item.capitalize(), item)
+
+                            if (loops):
+                                messageOut += tempMsg
+                                loops = False
+                            else:
+                                messageOut2 += tempMsg
+                                loops = True
                 if found:
                     await client.send_message(message.author, messageOut)
+                    await client.send_message(message.author, messageOut2)
                     await client.send_message(message.channel, "Du har fått ett privatmeddelande med alla dina placeringar %s." % message.author.mention)
                 if not found:
                     await client.send_message(message.channel, "Vi lyckades inte hitta dig bland några leaderboards %s. Du verkar inte registrerat några poäng ännu." % message.author.mention)

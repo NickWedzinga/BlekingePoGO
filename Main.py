@@ -86,7 +86,7 @@ EventHandler.client.close()
 
 # CREATING NEW LEADERBOARDS---------------------------------------------
 # Lista på saker att fixa vid nya leaderboards:
-#   Skapa Discord kanal
+#   Skapa Discord kanal, no send permission, admin priv
 #   Lägg till kanal id i id_list här i main.py
 #   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
 #   Lägg till .txt i .gitignore
