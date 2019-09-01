@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 
 import discord
+import logging
 from discord.ext import commands
 from discord.utils import get
 
@@ -15,9 +16,16 @@ leaderboardList = []
 
 # Start up
 def startup():
-    """Start up function, ready to run after dashes."""
     print("Starting..")
 
+    # Setting up DEBUG logger
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
+
+    # Printing client info
     @client.event
     async def on_ready():
         print('Logged in as')
@@ -96,7 +104,6 @@ async def list(message, leaderboard_list):
                     messageOut += "\n%i. %s %s" % (currentRank-1, lookUpList[index-1][0], lookUpList[index-1][1])
                     messageOut += "\n**%i. %s %s**" % (currentRank, item2[0], item2[1])
             index += 1
-        #print(lookUpList)
         await client.send_message(message.channel, messageOut)
 
 

@@ -45,7 +45,11 @@ EventHandler.checkMessages(id_list)
 # Infinite blocking loop
 with open("apitoken.txt", "r") as apiFile:
     apitoken = apiFile.read()
-EventHandler.client.run(apitoken)
+
+while True:
+    try:
+        EventHandler.client.loop.run_until_complete(EventHandler.client.start(apitoken))
+    except BaseException
 EventHandler.client.close()
 
 # BUG LIST ------------------------------------------
