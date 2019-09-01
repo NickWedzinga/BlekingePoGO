@@ -796,7 +796,6 @@ def checkMessages(id_list):
 
     @client.event
     async def on_message(message):
-        print("msg")
         leaderboardString = message.content.lower()[1:].split(" ")
 
         # Test if bot is still responsive
