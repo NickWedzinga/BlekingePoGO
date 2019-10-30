@@ -410,7 +410,7 @@ async def leaderboard(message, id_list):
             upperLimit = 10000
         elif leaderboard_type == "ranger":
             rangerTrue = True
-            upperLimit = 10000
+            upperLimit = 50000
         elif leaderboard_type == "unown":
             unownTrue = True
             upperLimit = 30
