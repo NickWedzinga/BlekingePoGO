@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 
 import discord
+import logging
 from discord.ext import commands
 from discord.utils import get
 
@@ -15,9 +16,16 @@ leaderboardList = []
 
 # Start up
 def startup():
-    """Start up function, ready to run after dashes."""
     print("Starting..")
 
+    # Setting up DEBUG logger
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
+
+    # Printing client info
     @client.event
     async def on_ready():
         print('Logged in as')
@@ -96,7 +104,6 @@ async def list(message, leaderboard_list):
                     messageOut += "\n%i. %s %s" % (currentRank-1, lookUpList[index-1][0], lookUpList[index-1][1])
                     messageOut += "\n**%i. %s %s**" % (currentRank, item2[0], item2[1])
             index += 1
-        #print(lookUpList)
         await client.send_message(message.channel, messageOut)
 
 
@@ -156,44 +163,47 @@ async def admin_claim(message, leaderboard_list):
         if changed:
             claimList.pop(changedIndex)
             claimList.insert(changedIndex, insertList)
-            await client.send_message(message.channel, "Användarnamnet har uppdaterats från %s till %s" % (replacedNick, newNick))
-        file = open("idclaims.txt", "w")
-        for item in claimList:
-            file.write(item[0])
-            file.write(item[1])
-            file.write(item[2])
-        file.close()
 
-        leaderboard_list = [x+".txt" for x in leaderboard_list]
-        # Loop through files and update to new nickname
-        for leaderboard in leaderboard_list:
-            fileList = []
-            # Read from file and look for nickname to update
-            file = open(leaderboard, "r")
-            for item in file:
-                item = item.split(" ")
-                # if name in file matches old name
-                if item[0].lower() == replacedNick.lower():
-                    item[0] = newNick
-                temp = []
-                temp.append(item[0])
-                temp.append(" ")
-                temp.append(item[1])
-                temp.append(" ")
-                temp.append(item[2])
-                fileList.append(temp)
-            file.close()
-
-            # Write back to file with updated nickname
-            file = open(leaderboard, "w")
-            for item in fileList:
-                # if name in file matches old name
+            file = open("idclaims.txt", "w")
+            for item in claimList:
                 file.write(item[0])
-                file.write(" ")
+                file.write(item[1])
                 file.write(item[2])
-                file.write(" ")
-                file.write(item[4])
             file.close()
+
+            leaderboard_list = [x+".txt" for x in leaderboard_list]
+            # Loop through files and update to new nickname
+            for leaderboard in leaderboard_list:
+                fileList = []
+                # Read from file and look for nickname to update
+                file = open(leaderboard, "r")
+                for item in file:
+                    item = item.split(" ")
+                    # if name in file matches old name
+                    if item[0].lower() == replacedNick.lower():
+                        item[0] = newNick
+                    temp = []
+                    temp.append(item[0])
+                    temp.append(" ")
+                    temp.append(item[1])
+                    temp.append(" ")
+                    temp.append(item[2])
+                    fileList.append(temp)
+                file.close()
+
+                # Write back to file with updated nickname
+                file = open(leaderboard, "w")
+                for item in fileList:
+                    # if name in file matches old name
+                    file.write(item[0])
+                    file.write(" ")
+                    file.write(item[2])
+                    file.write(" ")
+                    file.write(item[4])
+                file.close()
+                await client.send_message(message.channel, "Användarnamnet har uppdaterats från %s till %s" % (replacedNick, newNick))
+        else:
+            await client.send_message(message.channel, "Jag kunde inte hitta spelaren, felaktig ID eller aldrig claimat.")
 
 
 # Refresh function
@@ -400,7 +410,7 @@ async def leaderboard(message, id_list):
             upperLimit = 10000
         elif leaderboard_type == "ranger":
             rangerTrue = True
-            upperLimit = 10000
+            upperLimit = 50000
         elif leaderboard_type == "unown":
             unownTrue = True
             upperLimit = 30

@@ -1,5 +1,5 @@
 import EventHandler
-
+import time
 # Start the bot
 EventHandler.startup()
 # Read message every loop,  act accordingly
@@ -41,11 +41,17 @@ elif version == "0":
                '560906243258974231', '605837275061944355', '605837367764320284']
 
 print("Version: %s" % version)
-EventHandler.checkMessages(id_list)
-# Infinite blocking loop
 with open("apitoken.txt", "r") as apiFile:
     apitoken = apiFile.read()
-EventHandler.client.run(apitoken)
+
+while True:
+    try:
+        EventHandler.checkMessages(id_list)
+        EventHandler.client.loop.run_until_complete(EventHandler.client.start(apitoken))
+    except BaseException:
+        print("Sneasel went offline..")
+        time.sleep(5)
+
 EventHandler.client.close()
 
 # BUG LIST ------------------------------------------
