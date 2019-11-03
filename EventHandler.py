@@ -11,49 +11,45 @@ from discord.utils import get
 
 Client = discord.Client()
 client = commands.Bot(command_prefix="?")
-leaderboardList = []
-
 
 # Start up
-def startup():
-    print("Starting..")
-
-    # Setting up DEBUG logger
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
-    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-    logger.addHandler(handler)
-
-    # Printing client info
-    @client.event
-    async def on_ready():
-        print('Logged in as')
-        print(client.user.name)
-        print(client.user.id)
-        print("Ready for action")
-        print('------')
+# def startup():
+#     print("Starting..")
+#
+#     # Setting up DEBUG logger
+#     logger = logging.getLogger('discord')
+#     logger.setLevel(logging.DEBUG)
+#     handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+#     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+#     logger.addHandler(handler)
+#
+#     # Printing client info
+#     @client.event
+#     async def on_ready():
+#         print('Logged in as: ' + client.user.display_name)
+#         print("Ready for action")
+#         print('------')
 
 
-@client.event
-async def help(message, leaderboard_list):
-    helpString = message.content.lower()
-    helpString = helpString[6:]  # remove "help? "
-
-    if helpString == "ranks":
-        await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
-    elif helpString in leaderboard_list:
-        await client.send_message(message.channel, "Kommandot ?%s används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
-    elif helpString == "list":
-        await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?list jogger*" % (helpString))
-
-    else:
-        codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
-        codeMessage += "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. *Exempelanvändning 1: ?jogger 2320*, *Exempelanvändning 2: ?pikachu 463*\n"
-        codeMessage += "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempelanvändning: ?list jogger*\n"
-        codeMessage += "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
-        codeMessage += "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
-        await client.send_message(message.channel, codeMessage)
+# @client.event
+# async def help(message, leaderboard_list):
+#     helpString = message.content.lower()
+#     helpString = helpString[6:]  # remove "help? "
+#
+#     if helpString == "ranks":
+#         await client.send_message(message.channel, "Kommandot ?ranks används för att skriva ut en lista med dina placeringar i de olika leaderboards.\n*Exempel: ?ranks*")
+#     elif helpString in leaderboard_list:
+#         await client.send_message(message.channel, "Kommandot ?%s används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter.\n*Exempel: ?%s 250*" % (helpString,helpString))
+#     elif helpString == "list":
+#         await client.send_message(message.channel, "Kommandot ?%s används för att skriva in dina poäng i de olika leaderboards.\n*Exempel: ?list jogger*" % (helpString))
+#
+#     else:
+#         codeMessage = "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
+#         codeMessage += "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. *Exempelanvändning 1: ?jogger 2320*, *Exempelanvändning 2: ?pikachu 463*\n"
+#         codeMessage += "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. *Exempelanvändning: ?list jogger*\n"
+#         codeMessage += "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n"
+#         codeMessage += "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
+#         await client.send_message(message.channel, codeMessage)
 
 
 # List, sends complete list of leaderboard
@@ -795,12 +791,17 @@ def checkMessages(id_list):
                         "cameraman", "hero", "purifier"]
 
     @client.event
-    async def on_message(message):
+    async def on_message(self, message):
+        print("got a message")
         leaderboardString = message.content.lower()[1:].split(" ")
 
-        # Test if bot is still responsive
-        if (message.content.upper().startswith('?TEST') and message.channel.id == id_list[0]):
-            await client.send_message(message.channel, "Ja, hej %s! Hallå! :sweat_smile:" % message.author.mention)
+        if message.author == self.user:
+            return
+
+        # # Test if bot is still responsive
+        # if message.content.upper().startswith('?TEST') and message.channel.id == id_list[0]:
+        #     print("test command was called")
+        #     await message.channel.send("Ja, hej %s! Hallå! :sweat_smile:" % message.author.mention)
 
         # Claim nick for your ID
         elif (message.content.upper().startswith('?HELP') and message.channel.id == id_list[0]):
