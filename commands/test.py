@@ -1,5 +1,6 @@
 from discord.ext import commands
-import Includes
+import Common
+
 
 class Testing(commands.Cog):
     def __init__(self, bot):
@@ -11,7 +12,7 @@ class Testing(commands.Cog):
 
     @test.error
     async def test_on_error(self, ctx, error):
-        for dev in Includes.developers:
+        for dev in Common.developers:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in TEST command: {error}""")
 
