@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# leaderboard files
+# Text files and directories
+leaderboards/
+textfiles/
 *.txt
 
 # C extensions
