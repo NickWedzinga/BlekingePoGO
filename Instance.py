@@ -12,8 +12,16 @@ for extension in initial_extensions:
 # global check that applies to all commands
 # checks if commands was sent from an expected channel
 @bot.check
-async def global_channel_check(ctx):
-    return str(ctx.message.channel) in Common.channel_list
+async def global_channel_check(ctx):  # TODO: Can this be one-lined without losing readability?
+    # reads as, message was sent in a command channel and a command, other than claim, was not sent in support channel
+    if str(ctx.message.channel) not in Common.command_channel_list:
+        return False
+    elif (str(ctx.invoked_with) != "claim"):
+        if (str(ctx.message.channel) == Common.command_channel_list[2]):
+            return False
+        return True
+    else:
+        return True
 
 
 @bot.event
