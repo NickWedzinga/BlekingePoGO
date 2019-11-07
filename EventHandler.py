@@ -1029,22 +1029,22 @@ async def claim(message, id_list):
         # elif message.content.upper().startswith('GODNATT') and message.author.id == '169688623699066880':
         #     await client.send_message(message.channel, "Godnatt %s! :slight_smile: :sleeping:" % message.author.mention)
 
-        elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
-            await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
+        # elif message.content.upper().startswith('?CLAIM') and message.channel.id == id_list[0]:
+        #     await client.send_message(message.channel, "Du har redan claimat ditt användarnamn %s, kontakta admins om du bytt användarnamn." % message.author.mention)
 
-        elif message.content.upper().startswith('?ADMIN_CLAIM') and message.channel.id == id_list[0]:
-            await admin_claim(message, leaderboard_list)
+        # elif message.content.upper().startswith('?ADMIN_CLAIM') and message.channel.id == id_list[0]:
+        #     await admin_claim(message, leaderboard_list)
 
         # elif message.content.upper().startswith('?') and message.channel.id == id_list[3]:
         #    await client.send_message(message.channel, "Denna kanal är endast till för att få tillgång till leaderboards %s. Se till att ditt Discord användarnamn matchar det i Pokémon Go och skriv ?claim för att börja." % message.author.mention)
 
-        elif '@EVERYONE' in message.content.upper() and not ('342771363884302339' in [role.id for role in message.author.roles]):
-            # Weavile Bot
-            for role in message.server.roles:
-                if '435908470936698910' in role.id:
-                    await client.send_message(message.channel, "Ping! %s" % role.mention)
-                elif '342771363884302339' in role.id:
-                    await client.send_message(message.channel, "Ping! %s" % role.mention)
+        # elif '@EVERYONE' in message.content.upper() and not ('342771363884302339' in [role.id for role in message.author.roles]):
+        #     # Weavile Bot
+        #     for role in message.server.roles:
+        #         if '435908470936698910' in role.id:
+        #             await client.send_message(message.channel, "Ping! %s" % role.mention)
+        #         elif '342771363884302339' in role.id:
+        #             await client.send_message(message.channel, "Ping! %s" % role.mention)
 
         # Last if statement, invalid command
         elif message.content.upper().startswith('?') and message.channel.id == id_list[0]:
