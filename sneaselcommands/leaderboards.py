@@ -603,19 +603,19 @@ class Leaderboards(commands.Cog):
                         print(f"Failed to delete {invoked} embed with error: {e}")
 
                     await asyncio.sleep(1)
-                    if newTopOne:
+                    if newTopOne and not Common.unittesting:
                         await ctx.send(":crown: :first_place: GRATULERAR %s, du har nått #%i i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif topThree:
+                    elif topThree and not Common.unittesting:
                         await ctx.send(":crown: Gratulerar %s till din #%i placering i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif scoreUpdated:
+                    elif scoreUpdated and not Common.unittesting:
                         await ctx.send("Gratulerar %s, du är placerad #%i i %s leaderboarden. "
                                        "Kolla %s för att se top 10." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],

@@ -9,6 +9,7 @@ from Instance import bot
 
 async def leaderboard_test(ctx):
     try:
+        await ctx.send(f"Sending results to {Common.test_results_channel.mention}. This may take a while :sweat_smile:")
         for leaderboard in Common.leaderboard_list[1:]:
             leaderboard_command = bot.get_command(leaderboard)
 
