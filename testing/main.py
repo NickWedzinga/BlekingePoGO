@@ -4,6 +4,7 @@ from discord.ext import commands
 
 import Common
 from testing import tests
+from datetime import datetime
 
 
 class Testing(commands.Cog):
@@ -26,6 +27,8 @@ class Testing(commands.Cog):
         if ctx.message.author.id in Common.developers and str(ctx.message.channel) == Common.command_channel_list[1]:
             try:
                 Common.test_results_channel = self.bot.get_channel(640964820732084233)
+                await Common.test_results_channel.send(f"---**UNIT-TESTS - STARTED: {datetime.now}**---")
+                await tests.leaderboard_test(ctx)
                 await tests.list_test(ctx)
                 await ctx.send(f""":white_check_mark: All unit-tests are a-okay {ctx.message.author.mention}!""")
             except Exception as e:

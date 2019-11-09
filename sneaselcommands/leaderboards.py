@@ -14,6 +14,16 @@ class Leaderboards(commands.Cog):
     @commands.command(aliases=Common.leaderboard_list, pass_context=True, help="This command adds an entry to a given"
                                                                                " leaderboard.\nExample: ?jogger 507")
     async def leaderboard(self, ctx, score):
+
+        # needed for unit-test invoke, because invoked_with returns ?test
+        # instead of ?leaderboard_type, attempts float cast to check
+        invoked = ctx.invoked_with
+        try:
+            float(score)
+        except:
+            invoked = score
+            score = "3.0"
+
         # Check if users display name is in claim list
         earlyCheck = False
         tempScore = score
@@ -61,7 +71,7 @@ class Leaderboards(commands.Cog):
             upperLimit = 0
 
             # Which leaderboard the user is updating
-            leaderboard_type = ctx.invoked_with
+            leaderboard_type = invoked
 
             # Sneasel is trying to refresh, set true and set leaderboard type
             if leaderboard_type.lower() == "refresh":
@@ -160,7 +170,7 @@ class Leaderboards(commands.Cog):
                 tempScore = str(tempScore.replace(",", "."))
 
             tempList = []
-            channel2 = ""
+            channel2 = []
             notUpdated = True
             skipUpdate = False
             current_dt = datetime.now()
@@ -210,13 +220,13 @@ class Leaderboards(commands.Cog):
                     if not sneaselRefresh:
                         # Cast entry number to float
                         if tempScore > upperLimit:
-                            await ctx.send("Poäng högre än tillåtet.")
+                            await ctx.send(f"Poäng [{tempScore}] högre än tillåtet [{upperLimit}] i {leaderboard_type}.")
                             checkFailed = True
                         elif tempScore < 1 and not sneaselRefresh:
-                            await ctx.send("Poäng lägre än tillåtet.")
+                            await ctx.send(f"Poäng [{tempScore}] lägre än tillåtet [{1}] i {leaderboard_type}.")
                             checkFailed = True
                         elif floatError and not sneaselRefresh:
-                            await ctx.send("Poäng får inte innehålla annat än siffror.")
+                            await ctx.send(f"Poäng [{tempScore}] får inte innehålla annat än siffror.")
                             checkFailed = True
                     if not checkFailed:
                         with open("leaderboards/%s.txt" % leaderboard_type) as file:
@@ -296,7 +306,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(466913214656020493)
+                        channel2 = bot.get_channel(Common.leaderboard_channels[1])
                     elif pikachuTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Pikachu Fan \n", color=0xff9900,
                                               description=(
@@ -590,7 +600,7 @@ class Leaderboards(commands.Cog):
                     try:
                         await channel2.purge(limit=5)
                     except Exception as e:
-                        print(f"Failed to delete {ctx.invoked_with} embed with error: {e}")
+                        print(f"Failed to delete {invoked} embed with error: {e}")
 
                     await asyncio.sleep(1)
                     if newTopOne:
