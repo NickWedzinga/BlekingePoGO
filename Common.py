@@ -9,7 +9,7 @@ from Instance import bot
 command_channel_list = ["leaderboards", "sneasel_commands", "support"]
 
 # channel to send unit-test results to
-test_results_channel = []#bot.get_channel(640964820732084233)
+test_results_channel = []
 
 # list of all leaderboards
 leaderboard_list = ['refresh', 'jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
