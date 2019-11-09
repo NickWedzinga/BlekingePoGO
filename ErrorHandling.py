@@ -1,4 +1,3 @@
-from Instance import bot
 from discord.ext import commands
 import Common
 
@@ -26,9 +25,10 @@ class ErrorHandling(commands.Cog):
 
     # global check that applies to all commands
     # checks if commands was sent from an expected channel
+    # reads as, message was sent in a command channel and a command, other than claim, was not sent in support channel
     @commands.Cog.listener()
     async def global_channel_check(self, ctx):  # TODO: Can this be one-lined without losing readability?
-        # reads as, message was sent in a command channel and a command, other than claim, was not sent in support channel
+
         if str(ctx.message.channel) not in Common.command_channel_list:
             return False
         elif str(ctx.invoked_with) != "claim":
