@@ -1,3 +1,5 @@
+import traceback
+
 from discord.ext import commands
 
 import Common
@@ -14,7 +16,7 @@ class Information(commands.Cog):
         leaderboard_type = leaderboard_type.lower()
 
         lookUpList = []
-        messageOut = ""
+        messageOut = f"**---{leaderboard_type.capitalize()} list:---\n**"
 
         if not leaderboard_type in Common.leaderboard_list:
             await ctx.send("%s leaderboarden existerar inte." % leaderboard_type.capitalize())
@@ -51,11 +53,16 @@ class Information(commands.Cog):
                         messageOut += "\n%i. %s %s" % (
                             currentRank - 1, lookUpList[index - 1][0], lookUpList[index - 1][1])
                         messageOut += "\n**%i. %s %s**" % (currentRank, item2[0], item2[1])
+                        found = True
                 index += 1
-            await ctx.send(messageOut)
+            if found:
+                await ctx.send(messageOut)
+            else:
+                await ctx.send(f"Could not find {ctx.message.author.mention} in {leaderboard_type}")
 
     @list.error
     async def list_on_error(self, ctx, error):
+        traceback.print_exc()
         for dev in Common.developers:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in LIST command: {error}""")
@@ -113,7 +120,7 @@ class Information(commands.Cog):
             messageOut2 = ""  # "needed" because message too long
             loops = True
             # Loop through leaderboard types
-            for item in Common.leaderboard_list:
+            for item in Common.leaderboard_list[1:]:
                 if item == "jogger":
                     unitString = "km"
                 elif item == "pikachu":
