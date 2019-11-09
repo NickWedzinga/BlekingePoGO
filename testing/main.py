@@ -27,7 +27,7 @@ class Testing(commands.Cog):
         if ctx.message.author.id in Common.developers and str(ctx.message.channel) == Common.command_channel_list[1]:
             try:
                 Common.test_results_channel = self.bot.get_channel(640964820732084233)
-                await Common.test_results_channel.send(f"---**UNIT-TESTS - STARTED: {datetime.now}**---")
+                await Common.test_results_channel.send(f"""---**UNIT-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
                 await tests.leaderboard_test(ctx)
                 await tests.list_test(ctx)
                 await ctx.send(f""":white_check_mark: All unit-tests are a-okay {ctx.message.author.mention}!""")
@@ -40,6 +40,7 @@ class Testing(commands.Cog):
         for dev in Common.developers:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in TEST command: {error}""")
+
 
 def setup(bot):
     bot.add_cog(Testing(bot))

@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands as discordcommands
 
 # list of all cogs to add
-initial_extensions = ['testing.main', 'sneaselcommands.information', 'sneaselcommands.support',
-                      'sneaselcommands.leaderboards', 'ErrorHandling']
+initial_extensions = ['ErrorHandling', 'testing.main', 'sneaselcommands.information',
+                      'sneaselcommands.support', 'sneaselcommands.leaderboards']
 
 bot = discordcommands.Bot(command_prefix="?")
 for extension in initial_extensions:
