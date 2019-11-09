@@ -245,7 +245,7 @@ class Leaderboards(commands.Cog):
                                                     tempScore == 1 and float(elm[1]) == 1):
                                                 # Insert updated score
                                                 if not joggerTrue:
-                                                    tempList[1] = int(tempList[1])
+                                                    tempList[1] = float(tempList[1])
                                                 insertedIndex = idx
                                                 leaderboardList.insert(idx, tempList)  # insert updated score
                                                 moved = True
@@ -266,7 +266,7 @@ class Leaderboards(commands.Cog):
                                     if (tempScore > float(elem[1]) or (
                                             tempScore == 1 and float(elem[1]) == 1)) and not insertedBool:
                                         if not joggerTrue:
-                                            tempList[1] = int(tempList[1])
+                                            tempList[1] = float(tempList[1])
                                         insertedIndex = index
                                         leaderboardList.insert(index, tempList)
                                         insertedBool = True
@@ -581,11 +581,11 @@ class Leaderboards(commands.Cog):
                             # Upper case no decimals, lower case decimals
                             if not joggerTrue:
                                 embed.add_field(
-                                    name="%i. %s - %i %s" % (int(currentRank), elem[0], int(elem[1]), unitString),
+                                    name="%i. %s - %i %s" % (float(currentRank), elem[0], float(elem[1]), unitString),
                                     value="Updated: %s" % (elem[2]), inline=True)
                             else:
                                 embed.add_field(name="%i. %s - %.1f %s" % (
-                                int(currentRank), elem[0], float(elem[1]), unitString),
+                                float(currentRank), elem[0], float(elem[1]), unitString),
                                                 value="Updated: %s" % (elem[2]), inline=True)
                     try:
                         await channel2.purge(limit=5)

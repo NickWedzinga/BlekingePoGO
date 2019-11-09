@@ -173,6 +173,76 @@ class Support(commands.Cog):
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in RENAME command: {error}""")
 
+    @commands.group()
+    async def delete(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Invalid delete command, options: delete user, delete from_leaderboard")
+
+    @delete.command(help="Deletes user from all leaderboards. Usage: ?delete user USER_ID")
+    async def user(self, ctx, user_name):
+        found = False
+        foundAtLeastOnce = False
+
+        if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
+            # Admin is trying to remove entry from Leaderboard
+            for leaderboard in Common.leaderboard_list[1:]:
+                found = False
+                linesToKeepInFile = []
+                dltFile = open("leaderboards/%s.txt" % leaderboard, "r")
+                for index, line in enumerate(dltFile):
+                    splitLine = line.split(' ')
+                    # Found name trying to delete from file in file
+                    if splitLine[0].lower() == user_name.lower():
+                        found = True
+                        foundAtLeastOnce = True
+                    else:
+                        linesToKeepInFile.append(line)
+                if found:
+                    # Write back lines with the exception of the deleted element
+                    dltFile = open("leaderboards/%s.txt" % leaderboard, "w")
+                    for elem in linesToKeepInFile:
+                        dltFile.write(elem)
+                    dltFile.close()
+            if foundAtLeastOnce:
+                await ctx.send("%s hittades, %s tas bort från alla leaderboards." % (
+                    user_name, user_name))
+        else:
+            await ctx.send(
+                "Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
+
+    @delete.command(help="Delete a user from a given leaderboard. "
+                         "Usage: ?delete from_leaderboard LEADERBOARD_TYPE USER_NAME")
+    async def from_leaderboard(self, ctx, leaderboard_type, user_name):
+        found = False
+
+        # beautiful variable name
+        linesToKeepInFile = []
+
+        if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
+            # Admin is trying to remove entry from Leaderboard
+            if leaderboard_type.lower() in Common.leaderboard_list:
+                dltFile = open("leaderboards/%s.txt" % leaderboard_type, "r")
+                for index, line in enumerate(dltFile):
+                    splitLine = line.split(' ')
+                    # Found name trying to delete from file in file
+                    if splitLine[0].lower() == user_name.lower():
+                        found = True
+                        await ctx.send("%s hittades, %s tas bort från %s leaderboarden." % (
+                                                  user_name, user_name, leaderboard_type))
+                    else:
+                        linesToKeepInFile.append(line)
+                if found:
+                    # Write back lines with the exception of the deleted element
+                    dltFile = open("leaderboards/%s.txt" % leaderboard_type, "w")
+                    for elem in linesToKeepInFile:
+                        dltFile.write(elem)
+                    dltFile.close()
+                else:
+                    await ctx.send("%s kunde inte hittas i %s leaderboarden." % (
+                    user_name, leaderboard_type))
+        else:
+            await ctx.send("Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
+
 
 def setup(bot):
     bot.add_cog(Support(bot))
