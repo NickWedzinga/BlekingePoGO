@@ -3,8 +3,6 @@ import time
 import Common
 Instance.startup()
 
-# Sneasel List
-id_list = []
 with open("textfiles/version.txt", "r") as versionFile:
     version = versionFile.read()
     print("Version: %s" % version)

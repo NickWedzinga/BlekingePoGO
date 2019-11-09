@@ -23,8 +23,8 @@ class ErrorHandling(commands.Cog):
             user = ctx.bot.get_user(dev)
             await user.send(f"""GENERIC error in command: {error}""")
 
-    # global check that applies to all commands
-    # checks if commands was sent from an expected channel
+    # global check that applies to all sneaselcommands
+    # checks if sneaselcommands was sent from an expected channel
     # reads as, message was sent in a command channel and a command, other than claim, was not sent in support channel
     @commands.Cog.listener()
     async def global_channel_check(self, ctx):  # TODO: Can this be one-lined without losing readability?
