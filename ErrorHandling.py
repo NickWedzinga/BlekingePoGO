@@ -31,6 +31,7 @@ def setup(bot):
 # TODO: Somehow place this under ErrorHandling cog without losing global check
 @bot.check
 async def global_channel_check(ctx):  # TODO: Can this be one-lined without losing readability?
+    Common.unittesting = False
     if str(ctx.message.channel) not in Common.command_channel_list:
         return False
     elif str(ctx.invoked_with) == "test":

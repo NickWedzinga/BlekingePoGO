@@ -21,8 +21,9 @@ class Leaderboards(commands.Cog):
         try:
             float(score)
         except:
-            invoked = score
-            score = "3.0"
+            if not invoked == "refresh":
+                invoked = score
+                score = "3.0"
 
         # Check if users display name is in claim list
         earlyCheck = False
@@ -192,7 +193,8 @@ class Leaderboards(commands.Cog):
                     await ctx.send("Poäng endast i siffror. *Format: ?leaderboard poäng*")
                     floatError = True
 
-            if not floatError or sneaselRefresh:
+            # if unittesting, only update totalxp embed
+            if (not floatError and not Common.unittesting) or sneaselRefresh or (Common.unittesting and totalxpTrue):
                 # if Sneasel is not refreshing, check name for illegal characters
                 if not sneaselRefresh:
                     tempScore = float(tempScore)
@@ -600,7 +602,10 @@ class Leaderboards(commands.Cog):
                     try:
                         await channel2.purge(limit=5)
                     except Exception as e:
-                        print(f"Failed to delete {invoked} embed with error: {e}")
+                        for dev in Common.developers:
+                            user = ctx.bot.get_user(dev)
+                            await user.send(f"""Error in LEADERBOARD command: 
+                                                Failed to delete {invoked} embed with error: {e}""")
 
                     await asyncio.sleep(1)
                     if newTopOne and not Common.unittesting:
@@ -626,6 +631,7 @@ class Leaderboards(commands.Cog):
         else:
             await ctx.send("Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. "
                            "Ta kontakt med valfri admin.")
+            raise AssertionError("Error: Member tried to submit to leaderboard with changed nickname.")
 
     @leaderboard.error
     async def leaderboard_on_error(self, ctx, error):
