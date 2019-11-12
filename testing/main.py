@@ -28,6 +28,7 @@ class Testing(commands.Cog):
             try:
                 Common.test_results_channel = self.bot.get_channel(640964820732084233)
                 await Common.test_results_channel.send(f"""---**UNIT-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
+                await ctx.send(f"Sending results to {Common.test_results_channel.mention}. This may take a while :sweat_smile:")
                 await tests.leaderboard_test(ctx)
                 await tests.list_test(ctx)
                 await ctx.send(f""":white_check_mark: All unit-tests are a-okay {ctx.message.author.mention}!""")
