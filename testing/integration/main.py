@@ -3,7 +3,7 @@ import traceback
 from discord.ext import commands
 
 import Common
-from testing.integration import tests
+from testing.integration import leaderboard_tests, list_tests
 from datetime import datetime
 
 
@@ -29,8 +29,8 @@ class Testing(commands.Cog):
                 Common.test_results_channel = self.bot.get_channel(640964820732084233)
                 await Common.test_results_channel.send(f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
                 await ctx.send(f"Sending results to {Common.test_results_channel.mention}. This may take a while :sweat_smile:")
-                await tests.leaderboard_test(ctx)
-                await tests.list_test(ctx)
+                await leaderboard_tests.run_tests(ctx)
+                await list_tests.run_tests(ctx)
                 await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
             except Exception as e:
                 await ctx.send(f""":no_entry: At least one error found: {e}!""")
