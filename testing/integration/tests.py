@@ -22,15 +22,16 @@ async def add_to_leaderboard(ctx, leaderboard):
     os.remove(copied_file)
     await ctx.invoke(leaderboard_command, leaderboard)
 
+
 async def leaderboard_test(ctx):
     # test submit entries to all leaderboards
-    # try:
-    #     for leaderboard in Common.leaderboard_list[1:]:
-    #         await add_to_leaderboard(ctx, leaderboard)
-    #     await Common.test_results_channel.send(f":white_check_mark: LEADERBOARD command unit-tests passed successfully!")
-    # except Exception as e:
-    #     traceback.print_exc()
-    #     await Common.test_results_channel.send(f":no_entry: Error during list unit tests: {e}")
+    try:
+        for leaderboard in Common.leaderboard_list[1:]:
+            await add_to_leaderboard(ctx, leaderboard)
+        await Common.test_results_channel.send(f":white_check_mark: LEADERBOARD command integration-tests passed successfully!")
+    except Exception as e:
+        traceback.print_exc()
+        await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")
 
     # renamed member should throw Exception
     try:
@@ -69,7 +70,7 @@ async def list_test(ctx):
             os.remove(copied_file)
 
             await ctx.invoke(list_command, leaderboard)
-        await Common.test_results_channel.send(f":white_check_mark: LIST command unit-tests passed successfully!")
+        await Common.test_results_channel.send(f":white_check_mark: LIST command integration-tests passed successfully!")
     except Exception as e:
         traceback.print_exc()
-        await Common.test_results_channel.send(f":no_entry: Error during list unit tests: {e}")
+        await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")

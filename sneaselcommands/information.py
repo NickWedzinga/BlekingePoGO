@@ -56,7 +56,7 @@ class Information(commands.Cog):
                         found = True
                 index += 1
             if found:
-                if not Common.unittesting:
+                if not Common.integrationtesting:
                     await ctx.send(messageOut)
             else:
                 await ctx.send(f"Could not find {ctx.message.author.mention} in {leaderboard_type}")

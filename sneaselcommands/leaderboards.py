@@ -15,7 +15,7 @@ class Leaderboards(commands.Cog):
                                                                                " leaderboard.\nExample: ?jogger 507")
     async def leaderboard(self, ctx, score):
 
-        # needed for unit-test invoke, because invoked_with returns ?test
+        # needed for integration-test invoke, because invoked_with returns ?test
         # instead of ?leaderboard_type, attempts float cast to check
         invoked = ctx.invoked_with
         try:
@@ -193,8 +193,8 @@ class Leaderboards(commands.Cog):
                     await ctx.send("Poäng endast i siffror. *Format: ?leaderboard poäng*")
                     floatError = True
 
-            # if unittesting, only update totalxp embed
-            if (not floatError and not Common.unittesting) or sneaselRefresh or (Common.unittesting and totalxpTrue):
+            # if integration-testing, only update totalxp embed
+            if (not floatError and not Common.integrationtesting) or sneaselRefresh or (Common.integrationtesting and totalxpTrue):
                 # if Sneasel is not refreshing, check name for illegal characters
                 if not sneaselRefresh:
                     tempScore = float(tempScore)
@@ -608,19 +608,19 @@ class Leaderboards(commands.Cog):
                                                 Failed to delete {invoked} embed with error: {e}""")
 
                     await asyncio.sleep(1)
-                    if newTopOne and not Common.unittesting:
+                    if newTopOne and not Common.integrationtesting:
                         await ctx.send(":crown: :first_place: GRATULERAR %s, du har nått #%i i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif topThree and not Common.unittesting:
+                    elif topThree and not Common.integrationtesting:
                         await ctx.send(":crown: Gratulerar %s till din #%i placering i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif scoreUpdated and not Common.unittesting:
+                    elif scoreUpdated and not Common.integrationtesting:
                         await ctx.send("Gratulerar %s, du är placerad #%i i %s leaderboarden. "
                                        "Kolla %s för att se top 10." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
@@ -629,7 +629,8 @@ class Leaderboards(commands.Cog):
                         await ctx.send("Leaderboarden har laddats om.")
                     await channel2.send(embed=embed)
         else:
-            await ctx.send("Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. "
+            if not Common.integrationtesting:
+                await ctx.send("Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. "
                            "Ta kontakt med valfri admin.")
             raise AssertionError("Error: Member tried to submit to leaderboard with changed nickname.")
 
