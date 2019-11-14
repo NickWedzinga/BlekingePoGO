@@ -5,7 +5,6 @@ import traceback
 
 import Common
 from Instance import bot
-from discord.utils import get
 
 
 async def add_to_leaderboard(ctx, leaderboard):
@@ -23,8 +22,7 @@ async def add_to_leaderboard(ctx, leaderboard):
     await ctx.invoke(leaderboard_command, leaderboard)
 
 
-async def leaderboard_test(ctx):
-    # test submit entries to all leaderboards
+async def add_to_leaderboards_test(ctx):
     try:
         for leaderboard in Common.leaderboard_list[1:]:
             await add_to_leaderboard(ctx, leaderboard)
@@ -33,7 +31,8 @@ async def leaderboard_test(ctx):
         traceback.print_exc()
         await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")
 
-    # renamed member should throw Exception
+
+async def renamed_member_test(ctx):
     try:
         filename = "textfiles/idclaims.txt"
         with open(filename) as f:
@@ -55,22 +54,6 @@ async def leaderboard_test(ctx):
                                                "add to a leaderboard with a changed nickname.")
 
 
-async def list_test(ctx):
-    try:
-        list_command = bot.get_command("list")
-        for leaderboard in Common.leaderboard_list[1:]:
-            orgl_file = f"leaderboards/{leaderboard}.txt"
-            copied_file = f"leaderboards/{leaderboard}2.txt"
-
-            shutil.copy(orgl_file, copied_file)
-            if not filecmp.cmp(orgl_file, copied_file):
-                await ctx.send(":no_entry: Contents changed, see traceback.")
-                traceback.print_exc()
-                raise ValueError(f"Comparison Error: {orgl_file} contents were changed during list function call.")
-            os.remove(copied_file)
-
-            await ctx.invoke(list_command, leaderboard)
-        await Common.test_results_channel.send(f":white_check_mark: LIST command integration-tests passed successfully!")
-    except Exception as e:
-        traceback.print_exc()
-        await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")
+async def run_tests(ctx):
+    await add_to_leaderboards_test(ctx)
+    await renamed_member_test(ctx)
