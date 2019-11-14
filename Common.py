@@ -5,7 +5,7 @@ Contains common code
 # list of channels in which Sneasel can trigger sneaselcommands
 command_channel_list = ["leaderboards", "sneasel_commands", "support"]
 
-# channel to send unit-test results to
+# channel to send test results to
 test_results_channel = []
 
 # list of all leaderboards
@@ -21,4 +21,4 @@ leaderboard_channels = []
 developers = [169688623699066880]
 
 # used in global check to mute bot from spamming during tests
-unittesting = False
+integrationtesting = False
