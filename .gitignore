@@ -3,66 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-apitoken.txt
-version.txt
-jogger.txt
-pikachu.txt
-idclaims.txt
-battlegirl.txt
-pokedex.txt
-collector.txt
-scientist.txt
-breeder.txt
-backpacker.txt
-fisherman.txt
-youngster.txt
-berrymaster.txt
-gymleader.txt
-champion.txt
-battlelegend.txt
-ranger.txt
-unown.txt
-idol.txt
-gentleman.txt
-pilot.txt
-totalxp.txt
-goldgyms.txt
-jogger2.txt
-pikachu2.txt
-idclaims2.txt
-battlegirl2.txt
-pokedex2.txt
-collector2.txt
-scientist2.txt
-breeder2.txt
-backpacker2.txt
-fisherman2.txt
-youngster2.txt
-berrymaster2.txt
-gymleader2.txt
-champion2.txt
-battlelegend2.txt
-ranger2.txt
-unown2.txt
-idol2.txt
-gentleman2.txt
-pilot2.txt
-totalxp2.txt
-goldgyms2.txt
-greatleague.txt
-ultraleague.txt
-masterleague.txt
-acetrainer.txt
-cameraman.txt
-greatleague2.txt
-ultraleague2.txt
-masterleague2.txt
-acetrainer2.txt
-cameraman2.txt
-hero.txt
-hero2.txt
-purifier.txt
-purifier2.txt
+# Text files and directories
+leaderboards/
+textfiles/
+*.txt
 
 # C extensions
 *.so
@@ -85,6 +29,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.idea/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
