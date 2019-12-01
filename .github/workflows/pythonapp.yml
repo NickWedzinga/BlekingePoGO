@@ -18,7 +18,6 @@ jobs:
         python -m pip install --upgrade pip
         cd .github/workflows
         pip install -r requirements.txt
-        cd ../..
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -29,4 +28,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest
+        pytest test_placeholder.py
