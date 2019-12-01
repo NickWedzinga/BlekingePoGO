@@ -3,7 +3,7 @@ from discord.ext import commands as discordcommands
 
 # list of all cogs to add
 initial_extensions = ['ErrorHandling', 'testing.integration.main', 'sneaselcommands.information',
-                      'sneaselcommands.support', 'sneaselcommands.leaderboards']
+                      'sneaselcommands.support', 'sneaselcommands.leaderboards', 'sneaselcommands.ranks']
 
 bot = discordcommands.Bot(command_prefix="?")
 for extension in initial_extensions:
