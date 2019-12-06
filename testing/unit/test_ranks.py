@@ -1,4 +1,5 @@
 import unittest
+from discord.ext import commands  # testing discord lib install for unittests
 
 
 class MyTestCase(unittest.TestCase):
