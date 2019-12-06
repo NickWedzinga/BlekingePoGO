@@ -1,7 +1,7 @@
-import Instance
+import instance
 import time
-import Common
-Instance.startup()
+import common
+instance.startup()
 
 with open("textfiles/version.txt", "r") as versionFile:
     version = versionFile.read()
@@ -11,7 +11,7 @@ with open("textfiles/apitoken.txt", "r") as apiFile:
 
 # Weavile - PC
 if version == "1":  # [0] is command channel
-    Common.leaderboard_channels = [466563505462575106, 466913214656020493, 467754615413407745,
+    common.LEADERBOARD_CHANNELS = [466563505462575106, 466913214656020493, 467754615413407745,
                                    468760503125147648, 469079191002939415, 469121554488360971,
                                    469121572523737098, 469121587807780864, 469121601267433493,
                                    469121615838576640, 469121630829019136, 469121663905300490,
@@ -23,7 +23,7 @@ if version == "1":  # [0] is command channel
                                    560905402825310209, 605836493218643988, 605836537019760640]
 # Sneasel - PI
 elif version == "0":  # [0] is command channel
-    Common.leaderboard_channels = [469095507759726603, 469095668137459712, 469095701947875338,
+    common.LEADERBOARD_CHANNELS = [469095507759726603, 469095668137459712, 469095701947875338,
                                    342760722058706945, 469095719178076170, 469117787076296705,
                                    469150849642266624, 469150873776553994, 469150888150433802,
                                    469150905384828939, 469150918139576320, 469150935663378442,
@@ -36,7 +36,7 @@ elif version == "0":  # [0] is command channel
 
 while True:
     try:
-        Instance.bot.loop.run_until_complete(Instance.bot.start(apitoken))
+        instance.bot.loop.run_until_complete(instance.bot.start(apitoken))
     except BaseException:
         print("Sneasel went offline..")
         time.sleep(5)

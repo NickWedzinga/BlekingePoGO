@@ -3,14 +3,13 @@ import os
 import shutil
 import traceback
 
-import Common
-from Instance import bot
+import common
 
 
-async def call_all_lists_test(ctx):
+async def call_all_lists_test(ctx, bot):
     try:
         list_command = bot.get_command("list")
-        for leaderboard in Common.leaderboard_list[1:]:
+        for leaderboard in common.LEADERBOARD_LIST[1:]:
             original_file = f"leaderboards/{leaderboard}.txt"
             copied_file = f"leaderboards/{leaderboard}2.txt"
             shutil.copy(original_file, copied_file)
@@ -24,11 +23,11 @@ async def call_all_lists_test(ctx):
                 raise ValueError(f"Comparison Error: {original_file} contents were changed during list function call.")
             os.remove(copied_file)
 
-        await Common.test_results_channel.send(f":white_check_mark: LIST command integration-tests passed successfully!")
+        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: LIST command integration-tests passed successfully!")
     except Exception as e:
         traceback.print_exc()
-        await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")
+        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during list integration-tests: {e}")
 
 
-async def run_tests(ctx):
-    await call_all_lists_test(ctx)
+async def run_tests(ctx, bot):
+    await call_all_lists_test(ctx, bot)

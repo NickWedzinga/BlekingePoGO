@@ -2,12 +2,12 @@ import traceback
 
 from discord.ext import commands
 
-import Common
+import common
 
 
-def check_if_member_claimed(nickname, id):
+def _check_if_member_claimed(nickname, id):
     fileCheck = open("textfiles/idclaims.txt", "r")
-    nameButNotID=IDButNotName = False
+    nameButNotID = IDButNotName = False
 
     for item in fileCheck:
         item = item.split(" ")
@@ -27,15 +27,15 @@ def check_if_member_claimed(nickname, id):
     return nameButNotID, IDButNotName
 
 
-async def handle_missing_information(ctx, missing_id, missing_name):
+async def _handle_missing_information(ctx, missing_id, missing_name):
     if missing_id:
         await ctx.send("Ditt användarnamn matchar inte med det du registrerat tidigare, "
-                 "ändra tillbaka eller ta kontakt med valfri admin.")
+                       "ändra tillbaka eller ta kontakt med valfri admin.")
         raise Exception(
             "Member was missing from list of previously claimed members, assuming renamed member.")  # TODO: does this work?
     elif missing_name:
         await ctx.send("Ditt användarnamn matchar inte med det du registrerat tidigare, "
-                 "ändra tillbaka det eller ta kontakt med valfri admin.")
+                       "ändra tillbaka det eller ta kontakt med valfri admin.")
         raise Exception(
             "Member was missing from list of previously claimed members, assuming renamed member.")  # TODO: does this work?
 
@@ -49,9 +49,10 @@ class Ranks(commands.Cog):
                                                             "\nExempel: ?ranks")
     async def ranks(self, ctx):
         nickname = ctx.message.author.display_name.lower()
+        id_ = ctx.message.author.id
 
-        missing_id, missing_name = check_if_member_claimed(nickname, ctx.message.author.id)
-        await handle_missing_information(ctx, missing_id, missing_name)
+        missing_id, missing_name = _check_if_member_claimed(nickname, id_)
+        await _handle_missing_information(ctx, missing_id, missing_name)
 
         # Check if users display name is in claim list--------------------------------
         # fileCheck = open("textfiles/idclaims.txt", "r")
@@ -71,7 +72,6 @@ class Ranks(commands.Cog):
         #             IDButNotName = True
         # fileCheck.close()
 
-
         # ------------------------------------------------------------------------------
 
         # # Nickname exists, but not correct ID
@@ -85,7 +85,7 @@ class Ranks(commands.Cog):
         #     await ctx.send("Ditt användarnamn matchar inte med det du registrerat tidigare, "
         #                    "ändra tillbaka det eller ta kontakt med valfri admin.")
 
-        if True: # TODO: remove
+        if True:  # TODO: remove
             found = False
 
             unitString = ""
@@ -101,7 +101,7 @@ class Ranks(commands.Cog):
             messageOut2 = ""  # "needed" because message too long
             loops = True
             # Loop through leaderboard types
-            for item in Common.leaderboard_list[1:]:
+            for item in common.LEADERBOARD_LIST[1:]:
                 if item == "jogger":
                     unitString = "km"
                 elif item == "pikachu":
@@ -220,7 +220,7 @@ class Ranks(commands.Cog):
 
     @ranks.error
     async def ranks_on_error(self, ctx, error):
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             traceback.print_exc()
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in RANKS command: {error}""")

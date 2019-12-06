@@ -3,22 +3,22 @@ Contains common code
 """
 
 # list of channels in which Sneasel can trigger sneaselcommands
-command_channel_list = ["leaderboards", "sneasel_commands", "support"]
+COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support"]
 
 # channel to send test results to
-test_results_channel = []
+TEST_RESULTS_CHANNEL = []
 
 # list of all leaderboards
-leaderboard_list = ['refresh', 'jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
+LEADERBOARD_LIST = ['refresh', 'jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
                     'backpacker', 'fisherman', 'youngster', 'berrymaster', 'gymleader', 'champion', 'battlelegend',
                     'ranger', 'unown', 'gentleman', 'pilot', 'totalxp', 'goldgyms', 'idol', 'greatleague',
                     'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier']
 
 # list of channels that correspond to leaderboards
-leaderboard_channels = []
+LEADERBOARD_CHANNELS = []
 
 # Developers: McMomo,
-developers = [169688623699066880]
+DEVELOPERS = [169688623699066880]
 
 # used in global check to mute bot from spamming during tests
-integrationtesting = False
+INTEGRATION_TESTING = False

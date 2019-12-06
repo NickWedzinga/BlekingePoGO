@@ -1,6 +1,6 @@
 from discord.ext import commands
-from Instance import bot
-import Common
+from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
+import common
 
 
 class ErrorHandling(commands.Cog):
@@ -20,7 +20,7 @@ class ErrorHandling(commands.Cog):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             await ctx.send(f"Command [{ctx.invoked_with}] was not found.")
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""GENERIC error in command: {error}""")
 
@@ -31,14 +31,14 @@ def setup(bot):
 # TODO: Somehow place this under ErrorHandling cog without losing global check
 @bot.check
 async def global_channel_check(ctx):  # TODO: Can this be one-lined without losing readability?
-    Common.integrationtesting = False
-    if str(ctx.message.channel) not in Common.command_channel_list:
+    common.INTEGRATION_TESTING = False
+    if str(ctx.message.channel) not in common.COMMAND_CHANNEL_LIST:
         return False
     elif str(ctx.invoked_with) == "test":
-        Common.integrationtesting = True
+        common.INTEGRATION_TESTING = True
         return True
     elif str(ctx.invoked_with) != "claim":
-        if str(ctx.message.channel) == Common.command_channel_list[2]:
+        if str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[2]:
             return False
         return True
     else:
