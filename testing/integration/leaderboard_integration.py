@@ -3,11 +3,10 @@ import os
 import shutil
 import traceback
 
-import Common
-from Instance import bot
+import common
 
 
-async def add_to_leaderboard(ctx, leaderboard):
+async def add_to_leaderboard(ctx, bot, leaderboard):
     leaderboard_command = bot.get_command(leaderboard)
 
     orgl_file = f"leaderboards/{leaderboard}.txt"
@@ -22,17 +21,17 @@ async def add_to_leaderboard(ctx, leaderboard):
     await ctx.invoke(leaderboard_command, leaderboard)
 
 
-async def add_to_leaderboards_test(ctx):
+async def add_to_leaderboards_test(ctx, bot):
     try:
-        for leaderboard in Common.leaderboard_list[1:]:
-            await add_to_leaderboard(ctx, leaderboard)
-        await Common.test_results_channel.send(f":white_check_mark: LEADERBOARD command integration-tests passed successfully!")
+        for leaderboard in common.LEADERBOARD_LIST[1:]:
+            await add_to_leaderboard(ctx, bot, leaderboard)
+        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: LEADERBOARD command integration-tests passed successfully!")
     except Exception as e:
         traceback.print_exc()
-        await Common.test_results_channel.send(f":no_entry: Error during list integration-tests: {e}")
+        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during list integration-tests: {e}")
 
 
-async def renamed_member_test(ctx):
+async def renamed_member_test(ctx, bot):
     try:
         filename = "textfiles/idclaims.txt"
         with open(filename) as f:
@@ -40,8 +39,8 @@ async def renamed_member_test(ctx):
 
         with open(filename, "w") as f:
             f.write(newText)
-        await add_to_leaderboard(ctx, "totalxp")
-        await Common.test_results_channel.send(":no_entry: Leaderboard successfully added user with changed name,"
+        await add_to_leaderboard(ctx, bot, "totalxp")
+        await common.TEST_RESULTS_CHANNEL.send(":no_entry: Leaderboard successfully added user with changed name,"
                                                " should have thrown Exception.")
     except AssertionError as e:
         filename = "textfiles/idclaims.txt"
@@ -50,10 +49,10 @@ async def renamed_member_test(ctx):
 
         with open(filename, "w") as f:
             f.write(newText)
-        await Common.test_results_channel.send(":white_check_mark: Correctly thrown exception when attempting to"
+        await common.TEST_RESULTS_CHANNEL.send(":white_check_mark: Correctly thrown exception when attempting to "
                                                "add to a leaderboard with a changed nickname.")
 
 
-async def run_tests(ctx):
-    await add_to_leaderboards_test(ctx)
-    await renamed_member_test(ctx)
+async def run_tests(ctx, bot):
+    await add_to_leaderboards_test(ctx, bot)
+    await renamed_member_test(ctx, bot)

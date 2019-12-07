@@ -1,8 +1,8 @@
 import re
 
 from discord.ext import commands
-from Instance import bot
-import Common
+from instance import bot
+import common
 import discord.utils
 
 
@@ -56,7 +56,7 @@ class Support(commands.Cog):
                     claimFile.write(item[1])
                 claimFile.close()
 
-                channel2 = bot.get_channel(Common.leaderboard_channels[0])
+                channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[0])
                 claimedRole = discord.utils.get(ctx.message.author.server.roles, name="claimed")
                 await bot.add_roles(ctx.message.author, claimedRole)
                 # assign role is not claimed yet, send PM with help info
@@ -73,7 +73,7 @@ class Support(commands.Cog):
 
     @claim.error
     async def claim_on_error(self, ctx, error):
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in CLAIM command: {error}""")
 
@@ -132,7 +132,7 @@ class Support(commands.Cog):
                     file.write(item[2])
                 file.close()
 
-                leaderboard_list = ["leaderboards/" + x + ".txt" for x in Common.leaderboard_list]
+                leaderboard_list = ["leaderboards/" + x + ".txt" for x in common.LEADERBOARD_LIST]
                 # Loop through files and update to new nickname
                 for leaderboard in leaderboard_list[1:]:
                     fileList = []
@@ -169,7 +169,7 @@ class Support(commands.Cog):
 
     @rename.error
     async def rename_on_error(self, ctx, error):
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in RENAME command: {error}""")
 
@@ -185,7 +185,7 @@ class Support(commands.Cog):
 
         if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
             # Admin is trying to remove entry from Leaderboard
-            for leaderboard in Common.leaderboard_list[1:]:
+            for leaderboard in common.LEADERBOARD_LIST[1:]:
                 found = False
                 linesToKeepInFile = []
                 dltFile = open("leaderboards/%s.txt" % leaderboard, "r")
@@ -220,7 +220,7 @@ class Support(commands.Cog):
 
         if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
             # Admin is trying to remove entry from Leaderboard
-            if leaderboard_type.lower() in Common.leaderboard_list:
+            if leaderboard_type.lower() in common.LEADERBOARD_LIST:
                 dltFile = open("leaderboards/%s.txt" % leaderboard_type, "r")
                 for index, line in enumerate(dltFile):
                     splitLine = line.split(' ')

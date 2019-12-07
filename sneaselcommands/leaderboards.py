@@ -2,16 +2,16 @@ import asyncio
 import re
 import discord
 from discord.ext import commands
-import Common
+import common
 from datetime import datetime
-from Instance import bot
+from instance import bot
 
 
 class Leaderboards(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=Common.leaderboard_list, pass_context=True, help="This command adds an entry to a given"
+    @commands.command(aliases=common.LEADERBOARD_LIST, pass_context=True, help="This command adds an entry to a given"
                                                                                " leaderboard.\nExample: ?jogger 507")
     async def leaderboard(self, ctx, score):
 
@@ -194,7 +194,7 @@ class Leaderboards(commands.Cog):
                     floatError = True
 
             # if integration-testing, only update totalxp embed
-            if (not floatError and not Common.integrationtesting) or sneaselRefresh or (Common.integrationtesting and totalxpTrue):
+            if (not floatError and not common.INTEGRATION_TESTING) or sneaselRefresh or (common.INTEGRATION_TESTING and totalxpTrue):
                 # if Sneasel is not refreshing, check name for illegal characters
                 if not sneaselRefresh:
                     tempScore = float(tempScore)
@@ -308,7 +308,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[1])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[1])
                     elif pikachuTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Pikachu Fan \n", color=0xff9900,
                                               description=(
@@ -318,7 +318,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[2])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[2])
                     elif battlegirlTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Battle Girl \n", color=0xff9900,
                                               description=(
@@ -328,7 +328,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[4])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[4])
                     elif pokedexTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Pokédex \n", color=0xff9900,
                                               description=(
@@ -338,7 +338,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[5])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[5])
                     elif collectorTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Collector \n", color=0xff9900,
                                               description=(
@@ -348,7 +348,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[6])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[6])
                     elif scientistTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Scientist \n", color=0xff9900,
                                               description=(
@@ -358,7 +358,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[7])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[7])
                     elif breederTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Breeder \n", color=0xff9900,
                                               description=(
@@ -368,7 +368,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[8])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[8])
                     elif backpackerTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Backpacker \n", color=0xff9900,
                                               description=(
@@ -378,7 +378,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[9])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[9])
                     elif fishermanTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Fisherman \n", color=0xff9900,
                                               description=(
@@ -388,7 +388,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[10])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[10])
                     elif youngsterTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Youngster \n", color=0xff9900,
                                               description=(
@@ -398,7 +398,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[11])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[11])
                     elif berrymasterTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Berry Master \n", color=0xff9900,
                                               description=(
@@ -408,7 +408,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[12])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[12])
                     elif gymleaderTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Gym Leader \n", color=0xff9900,
                                               description=(
@@ -418,7 +418,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[13])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[13])
                     elif championTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Champion \n", color=0xff9900,
                                               description=(
@@ -428,7 +428,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[14])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[14])
                     elif battlelegendTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Battle Legend \n", color=0xff9900,
                                               description=(
@@ -438,7 +438,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[15])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[15])
                     elif rangerTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Pokémon Ranger \n", color=0xff9900,
                                               description=(
@@ -448,7 +448,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[16])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[16])
                     elif unownTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Unown \n", color=0xff9900, description=(
                                     "Skriv '?%s poäng' i #leaderboards för att bli tillagd" % leaderboard_type))
@@ -457,7 +457,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[17])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[17])
                     elif gentlemanTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Gentleman \n", color=0xff9900,
                                               description=(
@@ -467,7 +467,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[18])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[18])
                     elif pilotTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Pilot \n", color=0xff9900, description=(
                                     "Skriv '?%s poäng' i #leaderboards för att bli tillagd" % leaderboard_type))
@@ -476,7 +476,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[19])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[19])
                     elif totalxpTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Total XP \n", color=0xff9900,
                                               description=(
@@ -486,7 +486,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[20])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[20])
                     elif goldgymsTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Gold Gyms \n", color=0xff9900,
                                               description=(
@@ -496,7 +496,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[21])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[21])
                     elif idolTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Idol \n", color=0xff9900, description=(
                                     "Skriv '?%s poäng' i #leaderboards för att bli tillagd" % leaderboard_type))
@@ -505,7 +505,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[22])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[22])
                     elif greatleagueTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Great League Veteran \n", color=0xff9900,
                                               description=(
@@ -515,7 +515,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[23])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[23])
                     elif ultraleagueTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Ultra League Veteran \n", color=0xff9900,
                                               description=(
@@ -525,7 +525,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[24])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[24])
                     elif masterleagueTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Master League Veteran \n",
                                               color=0xff9900, description=(
@@ -535,7 +535,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[25])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[25])
                     elif acetrainerTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Ace Trainer\n", color=0xff9900,
                                               description=(
@@ -545,7 +545,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[26])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[26])
                     elif cameramanTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Cameraman\n", color=0xff9900,
                                               description=(
@@ -555,7 +555,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[27])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[27])
                     elif heroTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Hero\n", color=0xff9900, description=(
                                     "Skriv '?%s poäng' i #leaderboards för att bli tillagd" % leaderboard_type))
@@ -564,7 +564,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[28])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[28])
                     elif purifierTrue:
                         embed = discord.Embed(title="Leaderboard Blekinge: Purifier\n", color=0xff9900,
                                               description=(
@@ -574,7 +574,7 @@ class Leaderboards(commands.Cog):
                         embed.set_footer(
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
-                        channel2 = bot.get_channel(Common.leaderboard_channels[29])
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[29])
 
                     currentRank = 0
                     currentScore = 0
@@ -602,25 +602,25 @@ class Leaderboards(commands.Cog):
                     try:
                         await channel2.purge(limit=5)
                     except Exception as e:
-                        for dev in Common.developers:
+                        for dev in common.DEVELOPERS:
                             user = ctx.bot.get_user(dev)
                             await user.send(f"""Error in LEADERBOARD command: 
                                                 Failed to delete {invoked} embed with error: {e}""")
 
                     await asyncio.sleep(1)
-                    if newTopOne and not Common.integrationtesting:
+                    if newTopOne and not common.INTEGRATION_TESTING:
                         await ctx.send(":crown: :first_place: GRATULERAR %s, du har nått #%i i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif topThree and not Common.integrationtesting:
+                    elif topThree and not common.INTEGRATION_TESTING:
                         await ctx.send(":crown: Gratulerar %s till din #%i placering i %s leaderboarden. "
                                        "\nVar god skicka in en in-game-screenshot till valfri admin för att "
                                        "bekräfta dina poäng." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
                                                   leaderboard_type.capitalize()))
-                    elif scoreUpdated and not Common.integrationtesting:
+                    elif scoreUpdated and not common.INTEGRATION_TESTING:
                         await ctx.send("Gratulerar %s, du är placerad #%i i %s leaderboarden. "
                                        "Kolla %s för att se top 10." % (
                                                   ctx.message.author.mention, currentRankList[insertedIndex],
@@ -629,14 +629,14 @@ class Leaderboards(commands.Cog):
                         await ctx.send("Leaderboarden har laddats om.")
                     await channel2.send(embed=embed)
         else:
-            if not Common.integrationtesting:
+            if not common.INTEGRATION_TESTING:
                 await ctx.send("Dina poäng har inte skickats vidare då ditt användarnamn inte matchar det tidigare satta. "
                            "Ta kontakt med valfri admin.")
             raise AssertionError("Error: Member tried to submit to leaderboard with changed nickname.")
 
     @leaderboard.error
     async def leaderboard_on_error(self, ctx, error):
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in LEADERBOARD command: {error}""")
 

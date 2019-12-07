@@ -2,7 +2,7 @@ import traceback
 
 from discord.ext import commands
 
-import Common
+import common
 
 
 class Information(commands.Cog):
@@ -18,7 +18,7 @@ class Information(commands.Cog):
         lookUpList = []
         messageOut = f"**---{leaderboard_type.capitalize()} list:---\n**"
 
-        if not leaderboard_type in Common.leaderboard_list:
+        if not leaderboard_type in common.LEADERBOARD_LIST:
             await ctx.send("%s leaderboarden existerar inte." % leaderboard_type.capitalize())
         else:
             found = False
@@ -56,7 +56,7 @@ class Information(commands.Cog):
                         found = True
                 index += 1
             if found:
-                if not Common.integrationtesting:
+                if not common.INTEGRATION_TESTING:
                     await ctx.send(messageOut)
             else:
                 await ctx.send(f"Could not find {ctx.message.author.mention} in {leaderboard_type}")
@@ -64,7 +64,7 @@ class Information(commands.Cog):
     @list.error
     async def list_on_error(self, ctx, error):
         traceback.print_exc()
-        for dev in Common.developers:
+        for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in LIST command: {error}""")
 
