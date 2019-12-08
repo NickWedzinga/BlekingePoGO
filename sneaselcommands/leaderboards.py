@@ -194,7 +194,7 @@ class Leaderboards(commands.Cog):
                     floatError = True
 
             # if integration-testing, only update totalxp embed
-            if (not floatError and not common.INTEGRATION_TESTING) or sneaselRefresh or (common.INTEGRATION_TESTING and totalxpTrue):
+            if (not floatError and not common.INTEGRATION_TESTING) or sneaselRefresh or (common.INTEGRATION_TESTING and totalxpTrue): # need to skip with integration test because otherwise leaderboards test takes ages
                 # if Sneasel is not refreshing, check name for illegal characters
                 if not sneaselRefresh:
                     tempScore = float(tempScore)

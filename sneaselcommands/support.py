@@ -6,6 +6,33 @@ import common
 import discord.utils
 
 
+def _remove_user_from_file(file_name, user_name):
+    """
+    :param file_name: Name of the file to iterate
+    :param user_name: Name of the user to remove
+    :return: Checks if user_name is in the provided file and removes it if found, returns boolean if user was found
+    """
+    found = False
+    with open(file_name, "r") as leaderboard_file:
+        lines = leaderboard_file.readlines()
+
+    with open(file_name, "w") as leaderboard_file:
+        for line in lines:
+            if user_name.lower() not in line.lower():
+                leaderboard_file.write(line)
+            else:
+                found = True
+    return found
+
+
+async def _inform_user(ctx, found, user_name, leaderboard_type):
+    if found and str(ctx.invoked_with) == "from_leaderboard":
+        await ctx.send("%s was found, removing %s from the %s leaderboard." % (
+            user_name, user_name, leaderboard_type))
+    elif not found and str(ctx.invoked_with) == "from_leaderboard":
+        await ctx.send(f"{user_name} could not be found in the {leaderboard_type} leaderboard.")
+
+
 class Support(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -172,6 +199,7 @@ class Support(commands.Cog):
 
     @rename.error
     async def rename_on_error(self, ctx, error):
+        """Catches errors with rename command"""
         for dev in common.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in RENAME command: {error}""")
@@ -179,12 +207,18 @@ class Support(commands.Cog):
     @commands.group()
     @commands.has_role("Admin")
     async def delete(self, ctx):
+        """Delete base function"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Invalid delete command, options: delete user, delete from_leaderboard")
 
     @delete.command(help="Deletes user from all leaderboards. Usage: ?delete user USER_ID")
     @commands.has_role("Admin")
     async def user(self, ctx, user_name):
+        """
+        :param ctx: The message's context
+        :param user_name: The user to remove from all leaderboards
+        :return: Removes the user from all leaderboards they have entered
+        """
         for leaderboard in common.LEADERBOARD_LIST[1:]:
             cmd = bot.get_command("delete from_leaderboard")
             await ctx.invoke(cmd, leaderboard, user_name)
@@ -194,23 +228,24 @@ class Support(commands.Cog):
                          "Usage: ?delete from_leaderboard LEADERBOARD_TYPE USER_NAME")
     @commands.has_role("Admin")
     async def from_leaderboard(self, ctx, leaderboard_type, user_name):
-        found = False
-
+        """
+        :param ctx: The message's context
+        :param leaderboard_type: Which leaderboard to iterate
+        :param user_name: The user to remove
+        :return: Removes a user from a provided leaderboard, if found
+        """
         if leaderboard_type.lower() in common.LEADERBOARD_LIST:
-            with open("leaderboards/%s.txt" % leaderboard_type, "r") as leaderboard_file:
-                lines = leaderboard_file.readlines()
+            found = _remove_user_from_file(
+                file_name=f"leaderboards/{leaderboard_type}.txt",
+                user_name=user_name)
+            await _inform_user(ctx, found, user_name, leaderboard_type)
 
-            with open("leaderboards/%s.txt" % leaderboard_type, "w") as leaderboard_file:
-                for line in lines:
-                    if user_name.lower() not in line.lower():
-                        leaderboard_file.write(line)
-                    else:
-                        found = True
-                        if str(ctx.invoked_with) == "from_leaderboard":
-                            await ctx.send("%s was found, removing %s from the %s leaderboard." % (
-                                user_name, user_name, leaderboard_type))
-            if not found and str(ctx.invoked_with) == "from_leaderboard":
-                await ctx.send(f"{user_name} could not be found in the {leaderboard_type} leaderboard.")
+    @delete.error
+    async def delete_on_error(self, ctx, error):
+        """Catches errors with delete command"""
+        for dev in common.DEVELOPERS:
+            user = ctx.bot.get_user(dev)
+            await user.send(f"""Error in DELETE command: {error}""")
 
 
 def setup(bot):
