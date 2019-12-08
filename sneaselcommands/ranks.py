@@ -5,37 +5,38 @@ from discord.ext import commands
 import common
 
 
-# TODO: refactor
-def _check_if_member_claimed(nickname, id):
-    fileCheck = open("textfiles/idclaims.txt", "r")
-    nameButNotID = IDButNotName = False
-
-    for item in fileCheck:
-        item = item.split(" ")
-        item[0] = item[0].replace("\n", "")
-        item[1] = item[1].replace("\n", "")
-        # Check if previously claimed, nickname matches
-        if str(item[0].lower()) == str(nickname):
-            # Check if previously claimed, id matches
-            if not (str(item[1]) == str(id)):
-                nameButNotID = True
-        # Check if previously claimed, id matches
-        if str(item[1]) == str(id):
-            # Check if previously claimed, nickname matches
-            if not (str(item[0].lower()) == str(nickname)):
-                IDButNotName = True
-    fileCheck.close()
-    return nameButNotID, IDButNotName
+async def _check_if_member_claimed(ctx, nickname, id):
+    """
+    :param nickname: Nickname of the member
+    :param id: Id of the member
+    :return: Checks if the member's nickname and id match the previously collected information
+    """
+    missing_id = missing_name = False
+    with open("textfiles/idclaims.txt") as file:
+        for entry in file:
+            if nickname in entry.lower():
+                if id not in entry.lower():
+                    missing_id = True
+            if id in entry.lower():
+                if nickname not in entry.lower():
+                    missing_name = True
+    await _handle_missing_information(ctx, missing_id, missing_name)
 
 
 async def _handle_missing_information(ctx, missing_id, missing_name):
+    """
+    :param ctx:
+    :param missing_id:
+    :param missing_name:
+    :return:
+    """
     if missing_id:
-        await ctx.send("Ditt användarnamn matchar inte med det du registrerat tidigare, "
-                 "ändra tillbaka eller ta kontakt med valfri admin.")
+        await ctx.send("Ditt användarnamn matchar inte det du registrerat tidigare, "
+                 "har du skapat ett nytt Discord-konto med samma namn? Ta kontakt med valfri admin.")
         raise Exception(
-            "Member was missing from list of previously claimed members, assuming renamed member.")
+            "Member was missing from list of previously claimed members, assuming new Discord user with same name.")
     elif missing_name:
-        await ctx.send("Ditt användarnamn matchar inte med det du registrerat tidigare, "
+        await ctx.send("Ditt användarnamn matchar inte det du registrerat tidigare, "
                  "ändra tillbaka det eller ta kontakt med valfri admin.")
         raise Exception(
             "Member was missing from list of previously claimed members, assuming renamed member.")
@@ -51,8 +52,18 @@ def _create_rank_string(rank, name, leaderboard_type, score):
     """
     num2words1 = {1: ':first_place:', 2: ':second_place:', 3: ':third_place:', 4: ':keycap_four:', 5: ':keycap_five:',
                   6: ':keycap_six:', 7: ':keycap_seven:', 8: ':keycap_eight:', 9: ':keycap_nine:', 10: ':keycap_ten:'}
-    return """%s %s är placerad #%i i %s leaderboarden med %s poäng.\n""" % (
+    return """%s %s is ranked #%i in the %s leaderboard with a score of %s.""" % (
         num2words1.get(rank, ":asterisk:"), name, rank, leaderboard_type.capitalize(), score)
+
+
+def _build_rank_message(message_list, from_, to_):
+    """
+    :param message_list: Concatenated list of all detailed rank messages
+    :param from_: Index in the list to start at
+    :param to_: Index in the list to end at
+    :return: Takes a list of strings and returns a joined string with a newline denominator
+    """
+    return "\n".join(message_list[from_:to_+1])
 
 
 def _extract_score(leaderboard_entry):
@@ -63,30 +74,31 @@ def _extract_score(leaderboard_entry):
     return leaderboard_entry.split(" ")[1]
 
 
+def _every_fifteenth_or_last(number, last):
+    """
+    :param number: Current index in iteration of leaderboard list
+    :param last: Index of last iteration of leaderboard list
+    :return: Returns True every 15th index and for the last index
+    """
+    if (number != 0 and number % 15 == 0) or number == last:
+        return True
+    return False
+
+
 # TODO: maybe send as embed?
 # TODO: send list of ranks ordered from highest to lowest
-# TODO: refactor
-async def _send_ranks(ctx, leaderboard_number, concat_message):
+async def _send_ranks(ctx, concat_message):
     """
     :param ctx: The member's sent message context
-    :param leaderboard_number: Number of the current leaderboard in the leaderboard list, used for splitting message
     :param concat_message: The message to send to the member, contains details on rank and score for each leaderboard
-    :return:
+    :return: Sends message with leaderboard details to the member that requested them
     """
-    if leaderboard_number % 15 == 0 and concat_message != "": # TODO: check if mod 15, else check if last leaderboard
-        await ctx.message.author.send(concat_message)
-        return ""
-    elif leaderboard_number == len(common.LEADERBOARD_LIST)-1:
-        if concat_message != "":
-            await ctx.message.author.send(concat_message)
-            await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s."
-                           % ctx.message.author.mention)
-            return ""
-        else:
-            await ctx.send("Vi lyckades inte hitta dig bland några leaderboards %s. "
-                           "Du verkar inte registrerat några poäng ännu." % ctx.message.author.mention)
-    else:
-        return concat_message
+    previously_sent = 0
+    for num, msg in enumerate(concat_message):
+        if _every_fifteenth_or_last(num, len(concat_message) - 1):
+            await ctx.message.author.send(_build_rank_message(concat_message, previously_sent, num))
+            previously_sent += 16
+    await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s." % ctx.message.author.mention)
 
 
 class Ranks(commands.Cog):
@@ -98,18 +110,24 @@ class Ranks(commands.Cog):
                                                             "\nExempel: ?ranks")
     async def ranks(self, ctx):
         nickname = ctx.message.author.display_name.lower()
-        id_ = ctx.message.author.id
-        concat_message = ""
+        id_ = str(ctx.message.author.id)
+        concat_message = []
 
-        missing_id, missing_name = _check_if_member_claimed(nickname, id_)
-        await _handle_missing_information(ctx, missing_id, missing_name)
+        await _check_if_member_claimed(ctx, nickname, id_)
 
         for leaderboard_number, leaderboard in enumerate(common.LEADERBOARD_LIST[1:], 1):
             with open("leaderboards/%s.txt" % leaderboard) as leaderboard_file:
                 for rank, line in enumerate(leaderboard_file, 1):
                     if nickname in line.lower():
-                        concat_message += _create_rank_string(rank, ctx.message.author.mention, leaderboard, _extract_score(line))
-                        concat_message = await _send_ranks(ctx, leaderboard_number, concat_message)
+                        concat_message.append(
+                            _create_rank_string(
+                                rank=rank,
+                                name=ctx.message.author.mention,
+                                leaderboard_type=leaderboard,
+                                score=_extract_score(line)
+                            )
+                        )
+        await _send_ranks(ctx, concat_message)
 
     @ranks.error
     async def ranks_on_error(self, ctx, error):
