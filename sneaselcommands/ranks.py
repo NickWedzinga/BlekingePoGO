@@ -4,6 +4,7 @@ from discord.ext import commands
 
 import common
 
+
 # TODO: refactor
 def _check_if_member_claimed(nickname, id):
     fileCheck = open("textfiles/idclaims.txt", "r")
@@ -64,15 +65,28 @@ def _extract_score(leaderboard_entry):
 
 # TODO: maybe send as embed?
 # TODO: send list of ranks ordered from highest to lowest
-async def _send_ranks(ctx, first_message, second_message):
-    if first_message != "":
-        await ctx.message.author.send(first_message)
-        await ctx.message.author.send(second_message)
-        await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s."
-                 % ctx.message.author.mention)
+# TODO: refactor
+async def _send_ranks(ctx, leaderboard_number, concat_message):
+    """
+    :param ctx: The member's sent message context
+    :param leaderboard_number: Number of the current leaderboard in the leaderboard list, used for splitting message
+    :param concat_message: The message to send to the member, contains details on rank and score for each leaderboard
+    :return:
+    """
+    if leaderboard_number % 15 == 0 and concat_message != "": # TODO: check if mod 15, else check if last leaderboard
+        await ctx.message.author.send(concat_message)
+        return ""
+    elif leaderboard_number == len(common.LEADERBOARD_LIST)-1:
+        if concat_message != "":
+            await ctx.message.author.send(concat_message)
+            await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s."
+                           % ctx.message.author.mention)
+            return ""
+        else:
+            await ctx.send("Vi lyckades inte hitta dig bland några leaderboards %s. "
+                           "Du verkar inte registrerat några poäng ännu." % ctx.message.author.mention)
     else:
-        await ctx.send("Vi lyckades inte hitta dig bland några leaderboards %s. "
-                 "Du verkar inte registrerat några poäng ännu." % ctx.message.author.mention)
+        return concat_message
 
 
 class Ranks(commands.Cog):
@@ -83,101 +97,19 @@ class Ranks(commands.Cog):
                                                             "dina placeringar i de olika leaderboards."
                                                             "\nExempel: ?ranks")
     async def ranks(self, ctx):
-        nickname = ctx.message.author.display_name
+        nickname = ctx.message.author.display_name.lower()
         id_ = ctx.message.author.id
+        concat_message = ""
 
-        # TODO: fix permanent solution to chat limit, dynamically split and send more messages
-        # holds message to be sent to user, needs two separate messages due to Discord message restrictions
-        first_message = ""
-        second_message = ""
-
-        missing_id, missing_name = _check_if_member_claimed(nickname.lower(), id_)
+        missing_id, missing_name = _check_if_member_claimed(nickname, id_)
         await _handle_missing_information(ctx, missing_id, missing_name)
 
         for leaderboard_number, leaderboard in enumerate(common.LEADERBOARD_LIST[1:], 1):
             with open("leaderboards/%s.txt" % leaderboard) as leaderboard_file:
                 for rank, line in enumerate(leaderboard_file, 1):
-                    if nickname.lower() in line.lower():
-                        if leaderboard_number < 10:
-                            first_message += _create_rank_string(rank, nickname, leaderboard, _extract_score(line))
-                        else:
-                            second_message += _create_rank_string(rank, nickname, leaderboard, _extract_score(line))
-
-        await _send_ranks(ctx, first_message, second_message)
-
-        # found = False
-        # currentRank = 0
-        # currentScore = 0
-        # currentRankList = []
-        #
-        # num2words1 = {1: 'first_place', 2: 'second_place', 3: 'third_place', 4: 'four', 5: 'five',
-        #               6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
-        #               11: 'Eleven', 12: 'Twelve', 13: 'Thirteen', 14: 'Fourteen',
-        #               15: 'Fifteen', 16: 'Sixteen', 17: 'Seventeen', 18: 'Eighteen', 19: 'Nineteen'}
-        # messageOut = ""
-        # messageOut2 = ""  # "needed" because message too long
-        # loops = True
-        # # Loop through leaderboard types
-        # for leaderboard in common.LEADERBOARD_LIST[1:]:
-        #
-        #     leaderboard_file = open("leaderboards/%s.txt" % leaderboard, "r")
-        #
-        #     # Loop through file
-        #
-        #     for index, line in enumerate(leaderboard_file):
-        #         line = line.split(" ")
-        #
-        #         # If score not same as previous player, update rank
-        #         if not float(currentScore) == float(line[1]):
-        #             currentRank = index + 1
-        #             currentScore = float(line[1])
-        #
-        #         if line[0].lower() == nickname.lower():
-        #             found = True
-        #             tempMsg = ""
-        #             localScore = round(float(line[1]), 1)
-        #             if not leaderboard in "jogger":
-        #                 localScore = int(localScore)
-        #             if currentRank == 1:
-        #                 tempMsg = ":first_place: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     ctx.message.author.mention, currentRank, leaderboard.capitalize(), localScore)
-        #             elif currentRank == 2:
-        #                 tempMsg = ":second_place: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     ctx.message.author.mention, currentRank, leaderboard.capitalize(), localScore)
-        #             elif currentRank == 3:
-        #                 tempMsg = ":third_place: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     ctx.message.author.mention, currentRank, leaderboard.capitalize(), localScore)
-        #             elif currentRank == 10:
-        #                 tempMsg = ":keycap_%s: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     num2words1[currentRank].lower(), ctx.message.author.mention, currentRank,
-        #                     leaderboard.capitalize(),
-        #                     localScore)
-        #             elif currentRank > 3 and currentRank < 11:
-        #                 tempMsg = ":%s: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     num2words1[currentRank].lower(), ctx.message.author.mention, currentRank,
-        #                     leaderboard.capitalize(),
-        #                     localScore)
-        #             elif currentRank > 10:
-        #                 tempMsg = ":asterisk: %s är placerad \#%i i %s leaderboarden med %s poäng.\n" % (
-        #                     ctx.message.author.mention, currentRank, leaderboard.capitalize(), localScore)
-        #             else:
-        #                 tempMsg = "%s är inte placerad i någon %s leaderboard, skicka in dina poäng genom att skriva ?%s poäng.\n" % (
-        #                     ctx.message.author.mention, leaderboard.capitalize(), leaderboard)
-        #
-        #             if loops:
-        #                 messageOut += tempMsg
-        #                 loops = False
-        #             else:
-        #                 messageOut2 += tempMsg
-        #                 loops = True
-        # if found:
-        #     await ctx.message.author.send(messageOut)
-        #     await ctx.message.author.send(messageOut2)
-        #     await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s."
-        #                    % ctx.message.author.mention)
-        # if not found:
-        #     await ctx.send("Vi lyckades inte hitta dig bland några leaderboards %s. "
-        #                    "Du verkar inte registrerat några poäng ännu." % ctx.message.author.mention)
+                    if nickname in line.lower():
+                        concat_message += _create_rank_string(rank, ctx.message.author.mention, leaderboard, _extract_score(line))
+                        concat_message = await _send_ranks(ctx, leaderboard_number, concat_message)
 
     @ranks.error
     async def ranks_on_error(self, ctx, error):
