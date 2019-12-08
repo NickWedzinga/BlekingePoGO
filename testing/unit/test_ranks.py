@@ -4,8 +4,6 @@ from sneaselcommands.ranks import _create_rank_string, _build_rank_message, _ext
 
 
 class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, True)
 
     def test_create_rank_string_top_10(self):
         """Testing creating a detailed rank string for a top ten submission"""

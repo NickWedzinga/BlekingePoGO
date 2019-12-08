@@ -28,9 +28,11 @@ class Support(commands.Cog):
         # Check for illegal nickname symbols, + ensures min size == 1
         stringPattern = r'[^\.A-Za-z0-9]'
         if (re.search(stringPattern, ctx.message.author.display_name)):
-            await ctx.send("Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
+            await ctx.send(
+                "Ditt Discord användarnamn innehåller otillåtna tecken, var god ändra ditt användarnamn så att det matchar det i Pokémon Go.")
         elif len(ctx.message.author.display_name) > 15:
-            await ctx.send("Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
+            await ctx.send(
+                "Ditt Discord användarnamn får inte överstiga 15 tecken, var god ändra ditt namn så det matchar det i Pokémon Go.")
         else:
             with open("textfiles/idclaims.txt") as file:
                 claimedIDs = [line.split(" ") for line in file]
@@ -60,8 +62,9 @@ class Support(commands.Cog):
                 claimedRole = discord.utils.get(ctx.message.author.server.roles, name="claimed")
                 await bot.add_roles(ctx.message.author, claimedRole)
                 # assign role is not claimed yet, send PM with help info
-                await ctx.send(":white_check_mark: %s du har claimat användarnamnet %s. Skriv ?help i %s för hjälp med att komma igång." % (
-                                          ctx.message.author.mention, ctx.message.author.display_name, channel2.mention))
+                await ctx.send(
+                    ":white_check_mark: %s du har claimat användarnamnet %s. Skriv ?help i %s för hjälp med att komma igång." % (
+                        ctx.message.author.mention, ctx.message.author.display_name, channel2.mention))
                 codeMessage = "Välkommen till Blekinges leaderboards! \n\n"
                 codeMessage += "**__KOMMANDON TILLGÄNGLIGA__**\n\n"
                 codeMessage += "*Alla kommandon skrivs i #leaderboards*\n\n"
@@ -174,74 +177,40 @@ class Support(commands.Cog):
             await user.send(f"""Error in RENAME command: {error}""")
 
     @commands.group()
+    @commands.has_role("Admin")
     async def delete(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("Invalid delete command, options: delete user, delete from_leaderboard")
 
     @delete.command(help="Deletes user from all leaderboards. Usage: ?delete user USER_ID")
+    @commands.has_role("Admin")
     async def user(self, ctx, user_name):
-        found = False
-        foundAtLeastOnce = False
-
-        if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
-            # Admin is trying to remove entry from Leaderboard
-            for leaderboard in common.LEADERBOARD_LIST[1:]:
-                found = False
-                linesToKeepInFile = []
-                dltFile = open("leaderboards/%s.txt" % leaderboard, "r")
-                for index, line in enumerate(dltFile):
-                    splitLine = line.split(' ')
-                    # Found name trying to delete from file in file
-                    if splitLine[0].lower() == user_name.lower():
-                        found = True
-                        foundAtLeastOnce = True
-                    else:
-                        linesToKeepInFile.append(line)
-                if found:
-                    # Write back lines with the exception of the deleted element
-                    dltFile = open("leaderboards/%s.txt" % leaderboard, "w")
-                    for elem in linesToKeepInFile:
-                        dltFile.write(elem)
-                    dltFile.close()
-            if foundAtLeastOnce:
-                await ctx.send("%s hittades, %s tas bort från alla leaderboards." % (
-                    user_name, user_name))
-        else:
-            await ctx.send(
-                "Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
+        for leaderboard in common.LEADERBOARD_LIST[1:]:
+            cmd = bot.get_command("delete from_leaderboard")
+            await ctx.invoke(cmd, leaderboard, user_name)
+        await ctx.send(f"{user_name} tas bort från alla leaderboards.")
 
     @delete.command(help="Delete a user from a given leaderboard. "
                          "Usage: ?delete from_leaderboard LEADERBOARD_TYPE USER_NAME")
+    @commands.has_role("Admin")
     async def from_leaderboard(self, ctx, leaderboard_type, user_name):
         found = False
 
-        # beautiful variable name
-        linesToKeepInFile = []
+        if leaderboard_type.lower() in common.LEADERBOARD_LIST:
+            with open("leaderboards/%s.txt" % leaderboard_type, "r") as leaderboard_file:
+                lines = leaderboard_file.readlines()
 
-        if 435908470936698910 or 342771363884302339 in [role.id for role in ctx.message.author.roles]:
-            # Admin is trying to remove entry from Leaderboard
-            if leaderboard_type.lower() in common.LEADERBOARD_LIST:
-                dltFile = open("leaderboards/%s.txt" % leaderboard_type, "r")
-                for index, line in enumerate(dltFile):
-                    splitLine = line.split(' ')
-                    # Found name trying to delete from file in file
-                    if splitLine[0].lower() == user_name.lower():
-                        found = True
-                        await ctx.send("%s hittades, %s tas bort från %s leaderboarden." % (
-                                                  user_name, user_name, leaderboard_type))
+            with open("leaderboards/%s.txt" % leaderboard_type, "w") as leaderboard_file:
+                for line in lines:
+                    if user_name.lower() not in line.lower():
+                        leaderboard_file.write(line)
                     else:
-                        linesToKeepInFile.append(line)
-                if found:
-                    # Write back lines with the exception of the deleted element
-                    dltFile = open("leaderboards/%s.txt" % leaderboard_type, "w")
-                    for elem in linesToKeepInFile:
-                        dltFile.write(elem)
-                    dltFile.close()
-                else:
-                    await ctx.send("%s kunde inte hittas i %s leaderboarden." % (
-                    user_name, leaderboard_type))
-        else:
-            await ctx.send("Endast admins är tillåtna att radera resultat från leaderboards, var god kontakta en admin.")
+                        found = True
+                        if str(ctx.invoked_with) == "from_leaderboard":
+                            await ctx.send("%s was found, removing %s from the %s leaderboard." % (
+                                user_name, user_name, leaderboard_type))
+            if not found and str(ctx.invoked_with) == "from_leaderboard":
+                await ctx.send(f"{user_name} could not be found in the {leaderboard_type} leaderboard.")
 
 
 def setup(bot):
