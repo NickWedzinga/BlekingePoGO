@@ -5,6 +5,17 @@ from instance import bot
 import common
 import discord.utils
 
+# TODO: refactor to not do both error checking and reporting
+async def _handle_rename_input_syntax_errors(ctx, name, id):
+    if len(name) > 15:
+        await ctx.send("Namnet är för långt, max 15 tecken. *Format: ?rename DESIRED_NAME USER_ID")
+        return False
+    elif not int(id.isdigit()):
+        await ctx.send("USER_ID måste vara siffror endast. *Format: ?rename DESIRED_NAME USER_ID")
+        return False
+    return True
+
+
 
 def _remove_user_from_file(file_name, user_name):
     """
@@ -109,26 +120,25 @@ class Support(commands.Cog):
 
     @commands.command(name="rename", pass_context=True, help="This command renames a given player."
                                                              "Example: ?rename McMouse 169688623699066880")
+    @commands.has_role("Admin")
     async def rename(self, ctx, new_name, user_id):
-        """Admins can use this to fix nicknames of people that missclaimed."""
+        """
+        :param ctx:
+        :param new_name:
+        :param user_id:
+        :return:
+        """
 
         replacedNick = ""
         newNick = ""
-        if 435908470936698910 not in [role.id for role in ctx.message.author.roles] and 342771363884302339 not in [
-            role.id for role in ctx.message.author.roles]:
-            await ctx.send(
-                "Detta kommando är till för admins endast. Om du behöver hjälp att ändra leaderboard användarnamn, "
-                "fråga en valfri admin.")
-        elif len(new_name) > 15:
-            await ctx.send("Namnet är för långt, max 15 tecken. *Format: ?admin_claim DESIRED_NAME USER_ID")
-        elif not int(user_id.isdigit()):
-            await ctx.send("USER_ID måste vara siffror endast. *Format: ?admin_claim DESIRED_NAME USER_ID")
-        else:
+
+        no_errors = await _handle_rename_input_syntax_errors(ctx, new_name, user_id)
+        if no_errors:
             insertList = []
             changedIndex = 0
             changed = False
-
             claimList = []
+
             file = open("textfiles/idclaims.txt", "r")
             for index, item in enumerate(file):
                 item = item.split(" ")
