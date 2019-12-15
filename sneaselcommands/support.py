@@ -5,8 +5,14 @@ from instance import bot
 import common
 import discord.utils
 
+
 # TODO: refactor to not do both error checking and reporting
 async def _handle_rename_input_syntax_errors(ctx, name, id):
+    """
+    :param ctx: The context of the user to rename
+    :param name: The name of the user to rename
+    :param id: The id of the user to rename
+    """
     if len(name) > 15:
         await ctx.send("Namnet är för långt, max 15 tecken. *Format: ?rename DESIRED_NAME USER_ID")
         return False
@@ -15,6 +21,17 @@ async def _handle_rename_input_syntax_errors(ctx, name, id):
         return False
     return True
 
+
+async def _check_if_name_updated(ctx, user_id, name_to_check):
+    """
+    :param ctx: The context of the user's message
+    :param user_id: The id of the user to rename
+    :param name_to_check: The user's new name
+    """
+    user = bot.get_user(int(user_id))
+
+    if user.display_name != name_to_check:
+        await ctx.send(f"Don't forget to change your name to {name_to_check} {user.mention}")
 
 
 def _remove_user_from_file(file_name, user_name):
@@ -34,6 +51,68 @@ def _remove_user_from_file(file_name, user_name):
             else:
                 found = True
     return found
+
+
+def _rename_user_in_file(new_name, user_id):
+    """
+    :param new_name: The new name to replace the previous name with
+    :param user_id: The id of the member to rename
+    :return: Returns bool if the user was found and the name that was replaced
+    """
+    changed = False
+    old_name = ""
+
+    with open("textfiles/idclaims.txt", "r") as file:
+        lines = file.readlines()
+
+    with open("textfiles/idclaims.txt", "w") as file:
+        for line in lines:
+            if user_id not in line:
+                file.write(line)
+            else:
+                changed = True
+                new_line = line.split(" ")
+                old_name = new_line[0]
+                new_line[0] = new_name
+                file.write(" ".join(new_line))
+    return changed, old_name
+
+
+def _update_leaderboards(old_name, new_name):
+    """
+    :param old_name: The name to replace
+    :param new_name: The new name to replace the old name with
+    """
+    leaderboard_list = ["leaderboards/" + x + ".txt" for x in common.LEADERBOARD_LIST]
+    # Loop through files and update to new nickname
+    for leaderboard in leaderboard_list[1:]:
+        fileList = []
+        # Read from file and look for nickname to update
+        file = open(leaderboard, "r")
+        for item in file:
+            item = item.split(" ")
+            # if name in file matches old name
+            if item[0].lower() == old_name.lower():
+                item[0] = new_name
+            temp = []
+            temp.append(item[0])
+            temp.append(" ")
+            temp.append(item[1])
+            temp.append(" ")
+            temp.append(item[2])
+            fileList.append(temp)
+        file.close()
+
+        # Write back to file with updated nickname
+        file = open(leaderboard, "w")
+        for item in fileList:
+            # if name in file matches old name
+            file.write(item[0])
+            file.write(" ")
+            file.write(item[2])
+            file.write(" ")
+            file.write(item[4])
+        file.close()
 
 
 async def _inform_user(ctx, found, user_name, leaderboard_type):
@@ -123,89 +202,24 @@ class Support(commands.Cog):
     @commands.has_role("Admin")
     async def rename(self, ctx, new_name, user_id):
         """
-        :param ctx:
-        :param new_name:
-        :param user_id:
-        :return:
+        :param ctx: The context of the user's message
+        :param new_name: The new name to replace the old name with
+        :param user_id: The id of the member to rename
+        :return: Updates the user data in the claim_id list and all leaderboards
         """
 
-        replacedNick = ""
-        newNick = ""
+        # TODO: check if name already the new name (that is already their name)
 
-        no_errors = await _handle_rename_input_syntax_errors(ctx, new_name, user_id)
+        no_errors = await _handle_rename_input_syntax_errors(ctx, new_name, user_id) # TODO: if we can remove the await here we can remove no_errors variable
+        await _check_if_name_updated(ctx, user_id, new_name)
         if no_errors:
-            insertList = []
-            changedIndex = 0
-            changed = False
-            claimList = []
-
-            file = open("textfiles/idclaims.txt", "r")
-            for index, item in enumerate(file):
-                item = item.split(" ")
-
-                # Put line in tempList to write back later
-                temp2 = []
-                temp2.append(item[0])
-                temp2.append(" ")
-                temp2.append(item[1])
-
-                # compare ID to list IDs
-                item[1] = item[1].replace("\n", "")
-                if str(item[1]) == str(user_id):
-                    changedIndex = index
-                    changed = True
-                    replacedNick = temp2[0]
-                    temp2[0] = new_name
-                    newNick = temp2[0]
-                    insertList = temp2
-                claimList.append(temp2)
-            file.close()
-            # if user ID was found, pop that entry
+            changed, old_name = _rename_user_in_file(new_name, user_id)
             if changed:
-                claimList.pop(changedIndex)
-                claimList.insert(changedIndex, insertList)
-
-                file = open("textfiles/idclaims.txt", "w")
-                for item in claimList:
-                    file.write(item[0])
-                    file.write(item[1])
-                    file.write(item[2])
-                file.close()
-
-                leaderboard_list = ["leaderboards/" + x + ".txt" for x in common.LEADERBOARD_LIST]
-                # Loop through files and update to new nickname
-                for leaderboard in leaderboard_list[1:]:
-                    fileList = []
-                    # Read from file and look for nickname to update
-                    file = open(leaderboard, "r")
-                    for item in file:
-                        item = item.split(" ")
-                        # if name in file matches old name
-                        if item[0].lower() == replacedNick.lower():
-                            item[0] = newNick
-                        temp = []
-                        temp.append(item[0])
-                        temp.append(" ")
-                        temp.append(item[1])
-                        temp.append(" ")
-                        temp.append(item[2])
-                        fileList.append(temp)
-                    file.close()
-
-                    # Write back to file with updated nickname
-                    file = open(leaderboard, "w")
-                    for item in fileList:
-                        # if name in file matches old name
-                        file.write(item[0])
-                        file.write(" ")
-                        file.write(item[2])
-                        file.write(" ")
-                        file.write(item[4])
-                    file.close()
+                _update_leaderboards(old_name, new_name)
                 await ctx.send("Användarnamnet har uppdaterats från %s till %s" % (
-                    replacedNick, newNick))
+                    old_name, new_name))
             else:
-                await ctx.send("Jag kunde inte hitta spelaren, felaktig ID eller aldrig claimat.")
+                await ctx.send(f"I could not find this user in the claimed id list. Incorrect id or the user has not claimed their name")
 
     @rename.error
     async def rename_on_error(self, ctx, error):
