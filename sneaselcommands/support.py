@@ -6,20 +6,46 @@ import common
 import discord.utils
 
 
-# TODO: refactor to not do both error checking and reporting
-async def _handle_rename_input_syntax_errors(ctx, name, id):
+def _handle_rename_input_syntax_errors(name, id_):
+    """
+    :param name: The name of the user to rename
+    :param id_: The id of the user to rename
+    :return: Returns booleans for every error check
+    """
+    name_too_long = id_non_number = name_not_updated = False
+    if len(name) > 15:
+        name_too_long = True
+    if not int(id_.isdigit()):
+        id_non_number = True
+    if bot.get_user(int(id_)).display_name != name:
+        name_not_updated = True
+    return name_too_long, id_non_number, name_not_updated
+
+
+# TODO: integration test this
+async def _report_possible_renaming_errors(ctx, name_too_long, id_non_number, name_not_updated, name, mention):
     """
     :param ctx: The context of the user to rename
-    :param name: The name of the user to rename
-    :param id: The id of the user to rename
+    :param name_too_long: True if characters in name > 15
+    :param id_non_number: True if id is not a digit
+    :param name_not_updated: True if user's nickname hasn't been changed to reflect rename
+    :return: Returns True if any errors occur
     """
-    if len(name) > 15:
-        await ctx.send("Namnet är för långt, max 15 tecken. *Format: ?rename DESIRED_NAME USER_ID")
-        return False
-    elif not int(id.isdigit()):
-        await ctx.send("USER_ID måste vara siffror endast. *Format: ?rename DESIRED_NAME USER_ID")
-        return False
-    return True
+    status = ""
+    error_found = False
+
+    if name_too_long:
+        error_found = True
+        status += "Namnet är för långt, max 15 tecken. *Format: ?rename DESIRED_NAME USER_ID\n"
+    if id_non_number:
+        error_found = True
+        status += "USER_ID måste vara siffror endast. *Format: ?rename DESIRED_NAME USER_ID\n"
+    if name_not_updated:
+        status += f"Don't forget to change your name to {name} {mention}"
+
+    if status != "":
+        await ctx.send(status)
+    return error_found
 
 
 async def _check_if_name_updated(ctx, user_id, name_to_check):
@@ -53,21 +79,21 @@ def _remove_user_from_file(file_name, user_name):
     return found
 
 
-def _rename_user_in_file(new_name, user_id):
+def _rename_user_in_file(filename, new_name, user_to_replace):
     """
     :param new_name: The new name to replace the previous name with
-    :param user_id: The id of the member to rename
+    :param user_to_replace: The string to find in the entry
     :return: Returns bool if the user was found and the name that was replaced
     """
     changed = False
     old_name = ""
 
-    with open("textfiles/idclaims.txt", "r") as file:
+    with open(filename, "r") as file:
         lines = file.readlines()
 
-    with open("textfiles/idclaims.txt", "w") as file:
+    with open(filename, "w") as file:
         for line in lines:
-            if user_id not in line:
+            if user_to_replace not in line:
                 file.write(line)
             else:
                 changed = True
@@ -84,38 +110,11 @@ def _update_leaderboards(old_name, new_name):
     :param new_name: The new name to replace the old name with
     """
     leaderboard_list = ["leaderboards/" + x + ".txt" for x in common.LEADERBOARD_LIST]
-    # Loop through files and update to new nickname
     for leaderboard in leaderboard_list[1:]:
-        fileList = []
-        # Read from file and look for nickname to update
-        file = open(leaderboard, "r")
-        for item in file:
-            item = item.split(" ")
-            # if name in file matches old name
-            if item[0].lower() == old_name.lower():
-                item[0] = new_name
-            temp = []
-            temp.append(item[0])
-            temp.append(" ")
-            temp.append(item[1])
-            temp.append(" ")
-            temp.append(item[2])
-            fileList.append(temp)
-        file.close()
-
-        # Write back to file with updated nickname
-        file = open(leaderboard, "w")
-        for item in fileList:
-            # if name in file matches old name
-            file.write(item[0])
-            file.write(" ")
-            file.write(item[2])
-            file.write(" ")
-            file.write(item[4])
-        file.close()
+        _rename_user_in_file(leaderboard, new_name, old_name)
 
 
-async def _inform_user(ctx, found, user_name, leaderboard_type):
+async def _inform_deleted_user(ctx, found, user_name, leaderboard_type):
     if found and str(ctx.invoked_with) == "from_leaderboard":
         await ctx.send("%s was found, removing %s from the %s leaderboard." % (
             user_name, user_name, leaderboard_type))
@@ -208,12 +207,11 @@ class Support(commands.Cog):
         :return: Updates the user data in the claim_id list and all leaderboards
         """
 
-        # TODO: check if name already the new name (that is already their name)
+        name_too_long, id_non_number, name_not_updated = _handle_rename_input_syntax_errors(new_name, user_id)
+        error_found = await _report_possible_renaming_errors(ctx, name_too_long, id_non_number, name_not_updated, new_name, ctx.author.mention)
 
-        no_errors = await _handle_rename_input_syntax_errors(ctx, new_name, user_id) # TODO: if we can remove the await here we can remove no_errors variable
-        await _check_if_name_updated(ctx, user_id, new_name)
-        if no_errors:
-            changed, old_name = _rename_user_in_file(new_name, user_id)
+        if not error_found:
+            changed, old_name = _rename_user_in_file("textfiles/idclaims.txt", new_name, user_id)
             if changed:
                 _update_leaderboards(old_name, new_name)
                 await ctx.send("Användarnamnet har uppdaterats från %s till %s" % (
@@ -262,7 +260,7 @@ class Support(commands.Cog):
             found = _remove_user_from_file(
                 file_name=f"leaderboards/{leaderboard_type}.txt",
                 user_name=user_name)
-            await _inform_user(ctx, found, user_name, leaderboard_type)
+            await _inform_deleted_user(ctx, found, user_name, leaderboard_type)
 
     @delete.error
     async def delete_on_error(self, ctx, error):
