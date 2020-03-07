@@ -26,7 +26,8 @@ if version == "1":
                '469121809162174495', '469121836651642911', '469122055439384577',
                '478886996064993280', '493847327925075968', '540876695264034834',
                '540876711202652160', '540876727698718721', '560905350405029888',
-               '560905402825310209', '605836493218643988', '605836537019760640']
+               '560905402825310209', '605836493218643988', '605836537019760640',
+               '685777854872551444']
 # Sneasel - pi
 elif version == "0":
     id_list = ['469095507759726603', '469095668137459712', '469095701947875338',
@@ -38,7 +39,8 @@ elif version == "0":
                '469151070137090048', '469151084124962816', '469150770881888266',
                '478894031678603266', '493848833932001301', '540882217845522432',
                '540882231816617986', '540882247142604810', '560906125026000897',
-               '560906243258974231', '605837275061944355', '605837367764320284']
+               '560906243258974231', '605837275061944355', '605837367764320284',
+               '685778484513079296']
 
 print("Version: %s" % version)
 with open("apitoken.txt", "r") as apiFile:
@@ -53,6 +55,25 @@ while True:
         time.sleep(5)
 
 EventHandler.client.close()
+
+# CREATING NEW LEADERBOARDS---------------------------------------------
+# Lista på saker att fixa vid nya leaderboards:
+#   Skapa Discord kanal, no send permission, admin priv
+#   Lägg till kanal id i id_list här i main.py
+#   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
+#   Lägg till .txt i .gitignore
+#   Lägg till i checkMessage leaderboard_list
+#   Om decimaler, lägg till i if not joggerTrue or..: int()
+#   Lägg till joggerTrue i leaderboard(message, id_list)
+#   Lägg till upperLimit i if joggerTrue i leaderboard(message, id_list)
+#   Lägg till embed, ändra icon i leaderboards, samt ändra title, samt channel2 index
+#   Lägg till enhet i checkmessages() -> ?RANKS
+#   Om decimaler, Lägg till i ranks if not item in "jogger", ...
+#   Om decimaler, ändra if joggertrue tempscore replace , med . i leaderboards
+#   git push PC + git pull på PI
+#   Skapa .txt fil på Pi, skapa 2.txt fil på PI (cat > idol.txt, skriv Sneasel 1 2018-07-11, ctrl+d ctrl+d) för att kontrollera "cat idol.txt"
+#   Lägg till i cp listan på Pi, cp idol.txt idol2.txt
+
 
 # BUG LIST ------------------------------------------
 # ingen error decimaler pilot
@@ -88,25 +109,6 @@ EventHandler.client.close()
 # När spelaren uppdaterar en leaderboard så uppdateras även overall
 
 # score = index i samtliga leaderboards / antal leaderboards
-
-
-# CREATING NEW LEADERBOARDS---------------------------------------------
-# Lista på saker att fixa vid nya leaderboards:
-#   Skapa Discord kanal, no send permission, admin priv
-#   Lägg till kanal id i id_list här i main.py
-#   Skapa .txt fil på PC (Sneasel 1 2018-07-11)
-#   Lägg till .txt i .gitignore
-#   Lägg till i checkMessage leaderboard_list
-#   Om decimaler, lägg till i if not joggerTrue or..: int()
-#   Lägg till joggerTrue i leaderboard(message, id_list)
-#   Lägg till upperLimit i if joggerTrue i leaderboard(message, id_list)
-#   Lägg till embed, ändra icon i leaderboards, samt ändra title, samt channel2 index
-#   Lägg till enhet i checkmessages() -> ?RANKS
-#   Om decimaler, Lägg till i ranks if not item in "jogger", ...
-#   Om decimaler, ändra if joggertrue tempscore replace , med . i leaderboards
-#   git push PC + git pull på PI
-#   Skapa .txt fil på Pi, skapa 2.txt fil på PI (cat > idol.txt, skriv Sneasel 1 2018-07-11, ctrl+d ctrl+d) för att kontrollera "cat idol.txt"
-#   Lägg till i cp listan på Pi, cp idol.txt idol2.txt
 
 
 # DELETE-----------------------------------------------------

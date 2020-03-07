@@ -342,6 +342,7 @@ async def leaderboard(message, id_list):
         cameramanTrue = False
         heroTrue = False
         purifierTrue = False
+        bestbuddyTrue = False
 
         sneaselRefresh = False
         leaderboardList = []
@@ -428,7 +429,7 @@ async def leaderboard(message, id_list):
             upperLimit = 500
         elif leaderboard_type == "idol":
             idolTrue = True
-            upperLimit = 200
+            upperLimit = 1000
         elif leaderboard_type == "greatleague":
             greatleagueTrue = True
             upperLimit = 50000
@@ -450,6 +451,9 @@ async def leaderboard(message, id_list):
         elif leaderboard_type == "purifier":
             purifierTrue = True
             upperLimit = 100000
+        elif leaderboard_type == "bestbuddy":
+            bestbuddyTrue = True
+            upperLimit = 1000
 
         # Replace possible commas with dots
         if joggerTrue:
@@ -577,6 +581,8 @@ async def leaderboard(message, id_list):
                     file.close()
 
                 # http://pokemongo.wikia.com/wiki/Medals
+                # https://www.serebii.net/pokemongo/medals.shtml
+                # https://bulbapedia.bulbagarden.net/wiki/List_of_Medals_in_Pok%C3%A9mon_GO
                 if joggerTrue:
                     embed = discord.Embed(title="Leaderboard Karlskrona: Jogger \n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
                     embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/9/98/Jogger_Gold.png/revision/latest?cb=20161013235539")
@@ -745,6 +751,13 @@ async def leaderboard(message, id_list):
                     embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                     embed.add_field(name="\u200b", value="\u200b", inline=False)
                     channel2 = client.get_channel(id_list[29])
+                elif bestbuddyTrue:
+                    embed = discord.Embed(title="Leaderboard Blekinge: Best Buddy\n", color=0xff9900, description=("Skriv '?%s poäng' i #leaderboards för att bli tillagd"%leaderboard_type))
+                    embed.set_thumbnail(url="https://vignette.wikia.nocookie.net/pokemongo/images/8/8f/Pok%C3%A9mon_GO_Park_Yokohama_2017.png/revision/latest?cb=20180328121902")
+                    embed.set_footer(text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                    embed.add_field(name="\u200b", value="\u200b", inline=False)
+                    channel2 = client.get_channel(id_list[30])
+
 
                 currentRank = 0
                 currentScore = 0
@@ -792,7 +805,7 @@ def checkMessages(id_list):
     leaderboard_list = ["jogger", "pikachu", "battlegirl", "pokedex", "collector", "scientist", "breeder", "backpacker", "fisherman",
                         "youngster", "berrymaster", "gymleader", "champion", "battlelegend", "ranger", "unown", "gentleman",
                         "pilot", "totalxp", "goldgyms", "idol", "greatleague", "ultraleague", "masterleague", "acetrainer",
-                        "cameraman", "hero", "purifier"]
+                        "cameraman", "hero", "purifier", "bestbuddy"]
 
     @client.event
     async def on_message(message):
@@ -928,6 +941,8 @@ def checkMessages(id_list):
                         unitString = "vinster"
                     elif item == "purifier":
                         unitString = "Pokémon"
+                    elif item == "bestbuddy":
+                        unitString = "best buddies"
 
 
                     leaderboard_file = open("%s.txt" % item, "r")

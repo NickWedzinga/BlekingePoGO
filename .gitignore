@@ -63,6 +63,8 @@ hero.txt
 hero2.txt
 purifier.txt
 purifier2.txt
+bestbuddy.txt
+bestbuddy2.txt
 
 # C extensions
 *.so
