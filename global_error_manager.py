@@ -1,6 +1,7 @@
 from discord.ext import commands
-from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
+
 import common
+from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
 
 
 class ErrorHandling(commands.Cog):
@@ -19,10 +20,7 @@ class ErrorHandling(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send(f"Command [{ctx.invoked_with}] was not found.")
-        for dev in common.DEVELOPERS:
-            user = ctx.bot.get_user(dev)
-            await user.send(f"""GENERIC error in command: {error}""")
+            await ctx.send(f"Command [**{ctx.invoked_with}**] was not found.")
 
 
 def setup(bot):

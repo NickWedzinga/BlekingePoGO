@@ -1,9 +1,11 @@
 import re
 
-from discord.ext import commands
-from instance import bot
-import common
 import discord.utils
+from discord.ext import commands
+
+import common
+from instance import bot
+from utils import message_wrapper, exception_wrapper
 
 
 def _handle_rename_input_syntax_errors(name, id_):
@@ -126,8 +128,22 @@ class Support(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="claim", pass_context=True, help="This command allows members access to the leaderboards.")
+    @commands.command(name="claim")
     async def claim(self, ctx):
+        """
+        Use this command to gain access to the leaderboards.
+
+        Example usage: ?claim
+        """
+        # TODO:
+        #   1: Delete message from channel
+        #   2: Check that user has legitimate name
+        #   3: Check that user is not already in claimed_ids
+        #   4: Add user to claimed_ids text file
+        #   5: Add claimed role to user
+        #   6: Send successful message in chat
+        #   7: Send pm with information
+
         claimedIDs = []
 
         # Add information of user to temporary list
@@ -136,11 +152,8 @@ class Support(commands.Cog):
         tempID.append(str(ctx.message.author.id) + "\n")
 
         found = False
-        # delete msg
-        try:
-            await ctx.delete_message()  # TODO: Doesn't work
-        except:
-            print("Somehow failed to delete CLAIM message.")
+        await message_wrapper.delete_message(ctx.message)
+
         # Check for illegal nickname symbols, + ensures min size == 1
         stringPattern = r'[^\.A-Za-z0-9]'
         if (re.search(stringPattern, ctx.message.author.display_name)):
@@ -192,11 +205,9 @@ class Support(commands.Cog):
 
     @claim.error
     async def claim_on_error(self, ctx, error):
-        for dev in common.DEVELOPERS:
-            user = ctx.bot.get_user(dev)
-            await user.send(f"""Error in CLAIM command: {error}""")
+        await exception_wrapper.pm_dev_error(source="claim", error_message=error)
 
-    @commands.command(name="rename", pass_context=True, help="This command renames a given player."
+    @commands.command(name="rename", help="This command renames a given player."
                                                              "Example: ?rename McMouse 169688623699066880")
     @commands.has_role("Admin")
     async def rename(self, ctx, new_name, user_id):

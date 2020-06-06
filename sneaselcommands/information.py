@@ -9,7 +9,7 @@ class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="list", pass_context=True, help="?list önskadleaderboard, används för att ut en lista på "
+    @commands.command(name="list", help="?list önskadleaderboard, används för att ut en lista på "
                                                            "top 5 samt din placering och dina närmsta konkurrenter. "
                                                            "Exempelanvändning: ?list jogger")
     async def list(self, ctx, leaderboard_type):
@@ -68,7 +68,7 @@ class Information(commands.Cog):
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in LIST command: {error}""")
 
-    # @commands.command(name="ranks", pass_context=True, help="Kommandot ?ranks används för att skriva ut en lista med "
+    # @commands.command(name="ranks",help="Kommandot ?ranks används för att skriva ut en lista med "
     #                                                         "dina placeringar i de olika leaderboards."
     #                                                         "\nExempel: ?ranks")
     # async def ranks(self, ctx):

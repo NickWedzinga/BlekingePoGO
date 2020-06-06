@@ -29,8 +29,10 @@ async def list_test(ctx, bot, leaderboard, list_command):
         raise ValueError(f"Comparison Error: {original_file} contents were changed during list function call.")
     os.remove(copied_file)
 
-    await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: LIST command integration-tests passed successfully!")
+    await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: List[Changing files]: List command does not alter "
+                                           f"contents of leaderboard file!")
 
 
+# TODO: Test that list array returns correct values
 async def run_tests(ctx, bot):
     await call_list_test(ctx, bot)
