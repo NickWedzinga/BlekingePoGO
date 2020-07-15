@@ -1,7 +1,6 @@
 import traceback
 
 import common
-from instance import bot
 
 
 def _formatted_error_log(source: str = "unspecified", error_message:str = None):
@@ -23,14 +22,14 @@ def catch_with_print(function_to_try, source: str = "unspecified"):
         print(_formatted_error_log(source))
 
 
-async def catch_with_pm(function_to_try, source: str = "unspecified", error_message: str = None):
+async def catch_with_pm(bot, function_to_try, source: str = "unspecified", error_message: str = None):
     try:
         function_to_try
     except:
-        await pm_dev_error(source=source, error_message=error_message)
+        await pm_dev_error(bot, source=source, error_message=error_message)
 
 
-async def pm_dev_error(error_message: str = None, source="unspecified"):
+async def pm_dev_error(bot, error_message: str = None, source="unspecified"):
     for dev in common.DEVELOPERS:
         user = bot.get_user(dev)
         await user.send(_formatted_error_log(source=source, error_message=error_message))

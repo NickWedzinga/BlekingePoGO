@@ -37,7 +37,7 @@ def in_channel_list(channel_id_list):
 @in_channel_list(common.COMMAND_CHANNEL_LIST)
 async def global_channel_check(ctx):
     common.INTEGRATION_TESTING = False
-    if str(ctx.invoked_with) == "test":  # TODO: could this be reworked to remove integration workaround boolean?
+    if str(ctx.invoked_with) == "test":  # TODO: rework to remove integration workaround boolean
         common.INTEGRATION_TESTING = True
         return True
     elif str(ctx.invoked_with) != "claim":

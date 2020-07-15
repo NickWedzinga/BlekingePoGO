@@ -3,7 +3,7 @@ import unittest
 from sneaselcommands.ranks import _create_rank_string, _build_rank_message, _extract_score, _every_fifteenth_or_last
 
 
-class MyTestCase(unittest.TestCase):
+class TestRanks(unittest.TestCase):
 
     def test_create_rank_string_top_10(self):
         """Testing creating a detailed rank string for a top ten submission"""
