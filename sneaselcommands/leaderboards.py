@@ -69,8 +69,6 @@ class Leaderboards(commands.Cog):
             sneaselRefresh = False
             leaderboardList = []
 
-            upperLimit = 0
-
             # Which leaderboard the user is updating
             leaderboard_type = invoked
 
@@ -82,89 +80,61 @@ class Leaderboards(commands.Cog):
             # set specific leaderboard values
             if leaderboard_type == "jogger":
                 joggerTrue = True
-                upperLimit = 20000
                 unitString = "km"
             elif leaderboard_type == "pikachu":
                 pikachuTrue = True
-                upperLimit = 5000
             elif leaderboard_type == "battlegirl":
                 battlegirlTrue = True
-                upperLimit = 100000
             elif leaderboard_type == "pokedex":
                 pokedexTrue = True
-                upperLimit = 600
             elif leaderboard_type == "collector":
                 collectorTrue = True
-                upperLimit = 500000
             elif leaderboard_type == "scientist":
                 scientistTrue = True
-                upperLimit = 40000
             elif leaderboard_type == "breeder":
                 breederTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "backpacker":
                 backpackerTrue = True
-                upperLimit = 500000
             elif leaderboard_type == "fisherman":
                 fishermanTrue = True
-                upperLimit = 10000
             elif leaderboard_type == "youngster":
                 youngsterTrue = True
-                upperLimit = 10000
             elif leaderboard_type == "berrymaster":
                 berrymasterTrue = True
-                upperLimit = 500000
             elif leaderboard_type == "gymleader":
                 gymleaderTrue = True
-                upperLimit = 500000
             elif leaderboard_type == "champion":
                 championTrue = True
-                upperLimit = 10000
             elif leaderboard_type == "battlelegend":
                 battlelegendTrue = True
-                upperLimit = 10000
             elif leaderboard_type == "ranger":
                 rangerTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "unown":
                 unownTrue = True
-                upperLimit = 30
             elif leaderboard_type == "gentleman":
                 gentlemanTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "pilot":
                 pilotTrue = True
-                upperLimit = 200000000
             elif leaderboard_type == "totalxp":
                 totalxpTrue = True
-                upperLimit = 200000000
             elif leaderboard_type == "goldgyms":
                 goldgymsTrue = True
-                upperLimit = 500
             elif leaderboard_type == "idol":
                 idolTrue = True
-                upperLimit = 200
             elif leaderboard_type == "greatleague":
                 greatleagueTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "ultraleague":
                 ultraleagueTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "masterleague":
                 masterleagueTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "acetrainer":
                 acetrainerTrue = True
-                upperLimit = 50000
             elif leaderboard_type == "cameraman":
                 cameramanTrue = True
-                upperLimit = 1000
             elif leaderboard_type == "hero":
                 heroTrue = True
-                upperLimit = 100000
             elif leaderboard_type == "purifier":
                 purifierTrue = True
-                upperLimit = 100000
 
             # Replace possible commas with dots
             if joggerTrue:
@@ -220,11 +190,7 @@ class Leaderboards(commands.Cog):
 
                     # if Sneasel is not refreshing, check score for illegal characters
                     if not sneaselRefresh:
-                        # Cast entry number to float
-                        if tempScore > upperLimit:
-                            await ctx.send(f"Poäng [{tempScore}] högre än tillåtet [{upperLimit}] i {leaderboard_type}.")
-                            checkFailed = True
-                        elif tempScore < 1 and not sneaselRefresh:
+                        if tempScore < 1 and not sneaselRefresh:
                             await ctx.send(f"Poäng [{tempScore}] lägre än tillåtet [{1}] i {leaderboard_type}.")
                             checkFailed = True
                         elif floatError and not sneaselRefresh:
