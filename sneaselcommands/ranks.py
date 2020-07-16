@@ -105,7 +105,7 @@ class Ranks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ranks", pass_context=True, help="Kommandot ?ranks används för att skriva ut en lista med "
+    @commands.command(name="ranks", help="Kommandot ?ranks används för att skriva ut en lista med "
                                                             "dina placeringar i de olika leaderboards."
                                                             "\nExempel: ?ranks")
     async def ranks(self, ctx):

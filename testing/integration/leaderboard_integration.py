@@ -25,10 +25,11 @@ async def add_to_leaderboards_test(ctx, bot):
     try:
         for leaderboard in common.LEADERBOARD_LIST[1:]:
             await add_to_leaderboard(ctx, bot, leaderboard)
-        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: LEADERBOARD command integration-tests passed successfully!")
+        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark:  Leaderboard[Add to leaderboard]: Successfully added"
+                                               f"a user to all leaderboards in the leaderboard list!")
     except Exception as e:
         traceback.print_exc()
-        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during list integration-tests: {e}")
+        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Leaderboard: Error during add_to_leaderboard integration-tests: {e}")
 
 
 async def renamed_member_test(ctx, bot):
@@ -40,7 +41,7 @@ async def renamed_member_test(ctx, bot):
         with open(filename, "w") as f:
             f.write(newText)
         await add_to_leaderboard(ctx, bot, "totalxp")
-        await common.TEST_RESULTS_CHANNEL.send(":no_entry: Leaderboard successfully added user with changed name,"
+        await common.TEST_RESULTS_CHANNEL.send(":no_entry:  Leaderboard[Renaming]: Successfully added user with changed name,"
                                                " should have thrown Exception.")
     except AssertionError as e:
         filename = "textfiles/idclaims.txt"
@@ -49,7 +50,7 @@ async def renamed_member_test(ctx, bot):
 
         with open(filename, "w") as f:
             f.write(newText)
-        await common.TEST_RESULTS_CHANNEL.send(":white_check_mark: Correctly thrown exception when attempting to "
+        await common.TEST_RESULTS_CHANNEL.send(":white_check_mark: Leaderboard[Renaming]: Correctly thrown exception when attempting to "
                                                "add to a leaderboard with a changed nickname.")
 
 

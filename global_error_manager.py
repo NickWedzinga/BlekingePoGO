@@ -1,6 +1,7 @@
 from discord.ext import commands
-from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
+
 import common
+from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
 
 
 class ErrorHandling(commands.Cog):
@@ -19,27 +20,28 @@ class ErrorHandling(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send(f"Command [{ctx.invoked_with}] was not found.")
-        for dev in common.DEVELOPERS:
-            user = ctx.bot.get_user(dev)
-            await user.send(f"""GENERIC error in command: {error}""")
+            await ctx.send(f"Command [**{ctx.invoked_with}**] was not found.")
 
 
 def setup(bot):
     bot.add_cog(ErrorHandling(bot))
 
+
+def in_channel_list(channel_id_list):
+    def predicate(ctx):
+        return ctx.message.channel.id in channel_id_list
+    return commands.check(predicate)
+
 # TODO: Somehow place this under ErrorHandling cog without losing global check
 @bot.check
-async def global_channel_check(ctx):  # TODO: Can this be one-lined without losing readability?
+@in_channel_list(common.COMMAND_CHANNEL_LIST)
+async def global_channel_check(ctx):
     common.INTEGRATION_TESTING = False
-    if str(ctx.message.channel) not in common.COMMAND_CHANNEL_LIST:
-        return False
-    elif str(ctx.invoked_with) == "test":
+    if str(ctx.invoked_with) == "test":  # TODO: rework to remove integration workaround boolean
         common.INTEGRATION_TESTING = True
         return True
     elif str(ctx.invoked_with) != "claim":
         if str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[2]:
             return False
         return True
-    else:
-        return True
+    return True
