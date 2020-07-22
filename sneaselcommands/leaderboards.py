@@ -1,19 +1,28 @@
 import asyncio
 import re
+from datetime import datetime
+
 import discord
 from discord.ext import commands
+
 import common
-from datetime import datetime
 from instance import bot
+
+
+# TODO: Currently pm's when someone just types ?jogger without a leaderboard
 
 
 class Leaderboards(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=common.LEADERBOARD_LIST, help="This command adds an entry to a given"
-                                                                               " leaderboard.\nExample: ?jogger 507")
+    @commands.command(aliases=common.LEADERBOARD_LIST)
     async def leaderboard(self, ctx, score):
+        """
+        Submit your score to a given leaderboard.
+
+        Usage: ?jogger 507
+        """
 
         # needed for integration-test invoke, because invoked_with returns ?test
         # instead of ?leaderboard_type, attempts float cast to check

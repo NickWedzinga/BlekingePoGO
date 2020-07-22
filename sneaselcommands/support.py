@@ -155,7 +155,7 @@ class Support(commands.Cog):
         """
         Use this command to gain access to the leaderboards.
 
-        Example usage: ?claim
+        Usage: ?claim
         """
         await message_wrapper.delete_message(bot=self.bot, message=ctx.message)
 
@@ -179,17 +179,13 @@ class Support(commands.Cog):
     async def claim_on_error(self, ctx, error):
         await exception_wrapper.pm_dev_error(bot=self.bot, source="claim", error_message=error)
 
-    @commands.command(name="rename")
+    @commands.command(name="rename", hidden=True)
     @commands.has_role("Admin")
     async def rename(self, ctx, new_name, user_id):
         """
-        "This command renames a given player."
-        "Example: ?rename McMomo 169688623699066880"
+        [Admin only]: This command renames a given player.
 
-        :param ctx: The context of the user's message
-        :param new_name: The new name to replace the old name with
-        :param user_id: The id of the member to rename
-        :return: Updates the user data in the claim_id list and all leaderboards
+        Usage: ?rename McMomo 133713371337
         """
 
         name_too_long, id_non_number, name_not_updated = _handle_rename_input_syntax_errors(self.bot, new_name, user_id)
@@ -209,35 +205,33 @@ class Support(commands.Cog):
         """Catches errors with rename command"""
         await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="rename")
 
-    @commands.group()
+    @commands.group(hidden=True)
     @commands.has_role("Admin")
     async def delete(self, ctx):
         """Delete base function"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Invalid delete command, options: delete user, delete from_leaderboard")
 
-    @delete.command(help="Deletes user from all leaderboards. Usage: ?delete user USER_ID")
+    @delete.command()
     @commands.has_role("Admin")
     async def user(self, ctx, user_name):
         """
-        :param ctx: The message's context
-        :param user_name: The user to remove from all leaderboards
-        :return: Removes the user from all leaderboards they have entered
+        [Admin only]: Deletes user from all leaderboards.
+
+        Usage: ?delete McMomo 133713371337
         """
         for leaderboard in common.LEADERBOARD_LIST[1:]:
             cmd = self.bot.get_command("delete from_leaderboard")
             await ctx.invoke(cmd, leaderboard, user_name)
         await ctx.send(f"{user_name} tas bort från alla leaderboards.")
 
-    @delete.command(help="Delete a user from a given leaderboard. "
-                         "Usage: ?delete from_leaderboard LEADERBOARD_TYPE USER_NAME")
+    @delete.command()
     @commands.has_role("Admin")
     async def from_leaderboard(self, ctx, leaderboard_type, user_name):
         """
-        :param ctx: The message's context
-        :param leaderboard_type: Which leaderboard to iterate
-        :param user_name: The user to remove
-        :return: Removes a user from a provided leaderboard, if found
+        [Admin only]: Delete a user from a given leaderboard.
+
+        Usage: ?delete from_leaderboard jogger McMomo
         """
         if leaderboard_type.lower() in common.LEADERBOARD_LIST:
             found = file_wrapper.remove_line_from_file(

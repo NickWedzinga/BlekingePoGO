@@ -1,6 +1,11 @@
-import instance
 import time
+import traceback
+
 import common
+import instance
+
+from utils.exception_wrapper import catch_with_print
+
 instance.startup()
 
 with open("textfiles/version.txt", "r") as versionFile:
@@ -34,9 +39,15 @@ elif version == "0":  # [0] is command channel
                                    540882231816617986, 540882247142604810, 560906125026000897,
                                    560906243258974231, 605837275061944355, 605837367764320284]
 
-while True:
-    try:
-        instance.bot.loop.run_until_complete(instance.bot.start(apitoken))
-    except BaseException:
-        print("Sneasel went offline..")
-        time.sleep(5)
+# TODO: somehow this won't log the error
+for retry in range(5):
+    # try:
+        catch_with_print(instance.bot.loop.run_until_complete(instance.bot.start(apitoken)))
+    # except:
+    #     f"""-------------------------------------------------------------------------------------------
+    #     **SNEASEL CRASHED (retry {retry}):**
+    #     {traceback.format_exc()}-------------------------------------------------------------------------------------------
+    #     """
+    #     time.sleep(5)
+    # print(f"Sneasel crashed, reconnecting..")
+    # time.sleep(5)

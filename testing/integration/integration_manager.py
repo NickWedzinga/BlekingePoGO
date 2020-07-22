@@ -7,13 +7,19 @@ from testing.integration import leaderboard_integration, list_integration, suppo
 from datetime import datetime
 
 
-class IntegrationManager(commands.Cog):
+class TestManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="healthcheck", help="This command acts as a health-check.")
+    @commands.command(name="healthcheck", hidden=True)
+    @commands.has_role("Admin")
     async def healthcheck(self, ctx):
-        await ctx.send(f"""..zzzZZ.. va? Jag är vaken {ctx.message.author.mention}! :sweat_smile:""")
+        """
+        [Admin only]: This command acts as a health-check.
+
+        Usage: ?healthcheck
+        """
+        await ctx.send(f"""..zzzZZ.. huh? Yes, hello, I'm awake {ctx.message.author.mention}! :sweat_smile:""")
 
     @healthcheck.error
     async def healthcheck_on_error(self, ctx, error):
@@ -22,8 +28,14 @@ class IntegrationManager(commands.Cog):
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in TEST command: {error}""")
 
-    @commands.command(name="test", help="This command acts as a health-check.")
+    @commands.command(name="test", help=".", hidden=True)
+    @commands.has_role("Admin")
     async def test(self, ctx):
+        """
+        [Admin only]: Run integration-tests in test environment.
+
+        Usage: ?test
+        """
         if ctx.message.author.id in common.DEVELOPERS and str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[1]:
             try:
                 common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
@@ -48,4 +60,4 @@ class IntegrationManager(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(IntegrationManager(bot))
+    bot.add_cog(TestManager(bot))
