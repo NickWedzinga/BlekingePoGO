@@ -9,14 +9,19 @@ class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="list", help="?list önskadleaderboard, används för att ut en lista på "
-                                                           "top 5 samt din placering och dina närmsta konkurrenter. "
-                                                           "Exempelanvändning: ?list jogger")
+    @commands.command(name="list")
     async def list(self, ctx, leaderboard_type):
+        """
+        List your position in a given leaderboard.
+
+        This command will list the top 5 of the leaderboard as well as your position and your closest competitors.
+
+        Usage: ?list jogger
+        """
         leaderboard_type = leaderboard_type.lower()
 
         lookUpList = []
-        messageOut = f"**---{leaderboard_type.capitalize()} list:---\n**"
+        messageOut = f"**---{leaderboard_type.capitalize()} list:---**\n"
 
         if not leaderboard_type in common.LEADERBOARD_LIST:
             await ctx.send("%s leaderboarden existerar inte." % leaderboard_type.capitalize())

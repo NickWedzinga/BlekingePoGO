@@ -50,8 +50,8 @@ def _create_rank_string(rank, name, leaderboard_type, score):
     :param score: The member's submitted score
     :return: Returns a prettified string listing the member's name, rank and score in this leaderboard
     """
-    num2words1 = {1: ':first_place:', 2: ':second_place:', 3: ':third_place:', 4: ':keycap_four:', 5: ':keycap_five:',
-                  6: ':keycap_six:', 7: ':keycap_seven:', 8: ':keycap_eight:', 9: ':keycap_nine:', 10: ':keycap_ten:'}
+    num2words1 = {1: ':trophy:', 2: ':second_place:', 3: ':third_place:', 4: ':four:', 5: ':five:',
+                  6: ':six:', 7: ':seven:', 8: ':eight:', 9: ':nine:', 10: ':keycap_ten:'}
     return """%s %s is ranked #%i in the %s leaderboard with a score of %s.""" % (
         num2words1.get(rank, ":asterisk:"), name, rank, leaderboard_type.capitalize(), score)
 
@@ -105,10 +105,13 @@ class Ranks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ranks", help="Kommandot ?ranks används för att skriva ut en lista med "
-                                                            "dina placeringar i de olika leaderboards."
-                                                            "\nExempel: ?ranks")
+    @commands.command(name="ranks")
     async def ranks(self, ctx):
+        """
+        Get all your current ranks in a private message.
+
+        Usage: ?ranks
+        """
         nickname = ctx.message.author.display_name.lower()
         id_ = str(ctx.message.author.id)
         concat_message = []

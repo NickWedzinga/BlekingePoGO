@@ -9,7 +9,7 @@ class TestRanks(unittest.TestCase):
         """Testing creating a detailed rank string for a top ten submission"""
         self.assertEqual(
             first=_create_rank_string(4, "test_name", "test_leaderboard", "test_score"),
-            second=":keycap_four: test_name is ranked #4 in the Test_leaderboard leaderboard with"
+            second=":four: test_name is ranked #4 in the Test_leaderboard leaderboard with"
                    " a score of test_score."
         )
 
