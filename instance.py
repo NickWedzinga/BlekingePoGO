@@ -13,7 +13,7 @@ for extension in initial_extensions:
 
 def startup():
     print("Starting..")
-    print(f"Discord version: {discord.__version__}")
+    # print(f"Discord version: {discord.__version__}")
     # Printing client info
     @bot.event
     async def on_ready():
