@@ -12,7 +12,7 @@ TEST_RESULTS_CHANNEL = []
 LEADERBOARD_LIST = ['refresh', 'jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
                     'backpacker', 'fisherman', 'youngster', 'berrymaster', 'gymleader', 'champion', 'battlelegend',
                     'ranger', 'unown', 'gentleman', 'pilot', 'totalxp', 'goldgyms', 'idol', 'greatleague',
-                    'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier']
+                    'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier', 'bestbuddy']
 
 # list of channels that correspond to leaderboards
 LEADERBOARD_CHANNELS = []

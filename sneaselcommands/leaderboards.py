@@ -74,6 +74,7 @@ class Leaderboards(commands.Cog):
             cameramanTrue = False
             heroTrue = False
             purifierTrue = False
+            bestBuddyTrue = False
 
             sneaselRefresh = False
             leaderboardList = []
@@ -144,6 +145,8 @@ class Leaderboards(commands.Cog):
                 heroTrue = True
             elif leaderboard_type == "purifier":
                 purifierTrue = True
+            elif leaderboard_type == "bestbuddy":
+                bestBuddyTrue = True
 
             # Replace possible commas with dots
             if joggerTrue:
@@ -550,6 +553,16 @@ class Leaderboards(commands.Cog):
                             text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
                         embed.add_field(name="\u200b", value="\u200b", inline=False)
                         channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[29])
+                    elif bestBuddyTrue:
+                        embed = discord.Embed(title="Leaderboard Blekinge: Best Buddy\n", color=0xff9900,
+                                              description=(
+                                                      "Skriv '?%s poäng' i #leaderboards för att bli tillagd" % leaderboard_type))
+                        embed.set_thumbnail(
+                            url="https://vignette.wikia.nocookie.net/pokemongo/images/7/76/BestBuddy_Gold.png/revision/latest/scale-to-width-down/64?cb=20200517072248")
+                        embed.set_footer(
+                            text="Övriga poäng är gömda, ta reda på hur du matchar mot övriga spelare med kommandot ?ranks")
+                        embed.add_field(name="\u200b", value="\u200b", inline=False)
+                        channel2 = bot.get_channel(common.LEADERBOARD_CHANNELS[30])
 
                     currentRank = 0
                     currentScore = 0
