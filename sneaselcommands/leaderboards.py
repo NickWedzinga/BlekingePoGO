@@ -28,7 +28,7 @@ class Leaderboards(commands.Cog):
         # instead of ?leaderboard_type, attempts float cast to check
         invoked = ctx.invoked_with
         try:
-            float(score)
+            float(str(score.replace(",", ".")))
         except:
             if not invoked == "refresh":
                 invoked = score
