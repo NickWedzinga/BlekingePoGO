@@ -13,6 +13,7 @@ async def call_list_test(ctx, bot):
     except Exception as e:
         traceback.print_exc()
         await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during list integration-tests: {e}")
+        raise ValueError(f"Error during list integration-tests")
 
 
 async def list_test(ctx, bot, leaderboard, list_command):

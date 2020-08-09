@@ -157,7 +157,7 @@ class Support(commands.Cog):
 
         Usage: ?claim
         """
-        await message_wrapper.delete_message(bot=self.bot, message=ctx.message)
+        await message_wrapper.delete_message(bot=self.bot, message=ctx.message, source="Claim")
 
         if await _validate_eligibility(ctx):
             entry = f"""{ctx.message.author.display_name} {ctx.message.author.id}"""
@@ -167,16 +167,17 @@ class Support(commands.Cog):
             await ctx.message.author.add_roles(role)
 
             command_channel = self.bot.get_channel(common.LEADERBOARD_CHANNELS[0])
-            await message_wrapper.message_user(self.bot, ctx.message.author, _create_introductory_message())
+            await message_wrapper.message_user(self.bot, ctx.message.author, _create_introductory_message(), source="Claim")
             await message_wrapper.message_channel(
                 bot=self.bot,
                 channel=ctx.message.channel,
                 message=f""":white_check_mark: {ctx.message.author.mention} you have claimed the nickname """ 
                 f"""{ctx.message.author.display_name}. Type ?help in {command_channel.mention} """
-                f"""for help on how to get started.""")
+                f"""for help on how to get started."""
+            )
 
     @claim.error
-    async def claim_on_error(self, ctx, error):
+    async def claim_on_error(self, _, error):
         await exception_wrapper.pm_dev_error(bot=self.bot, source="claim", error_message=error)
 
     @commands.command(name="rename", hidden=True)
@@ -201,7 +202,7 @@ class Support(commands.Cog):
                 await ctx.send(f"I could not find this user in the claimed id list. Incorrect id or the user has not claimed their name")
 
     @rename.error
-    async def rename_on_error(self, ctx, error):
+    async def rename_on_error(self, _, error):
         """Catches errors with rename command"""
         await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="rename")
 
@@ -240,7 +241,7 @@ class Support(commands.Cog):
             await _inform_deleted_user(ctx, found, user_name, leaderboard_type)
 
     @delete.error
-    async def delete_on_error(self, ctx, error):
+    async def delete_on_error(self, _, error):
         """Catches errors with delete command"""
         await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="delete")
 

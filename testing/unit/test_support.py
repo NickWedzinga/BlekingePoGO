@@ -4,6 +4,7 @@ import unittest
 
 from sneaselcommands import support
 from utils import file_wrapper
+import asyncio
 
 
 class TestSupport(unittest.TestCase):
@@ -48,7 +49,8 @@ class TestSupport(unittest.TestCase):
         copied_file2 = "testBoard3.txt"
 
         # create test leaderboard file
-        file_wrapper.create_file(original_file)
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(file_wrapper.create_file(original_file))
 
         # copy original file to verify later
         shutil.copy(original_file, copied_file)
