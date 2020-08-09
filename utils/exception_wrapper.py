@@ -1,9 +1,10 @@
+import inspect
 import traceback
 
 import common
 
 
-def _formatted_error_log(source: str = "unspecified", error_message:str = None):
+def _formatted_error_log(source: str = "unspecified", error_message: str = None):
     """
     Returns a formatted error log containing the function that raised the Exception
     as well as the stacktrace.
@@ -15,18 +16,37 @@ def _formatted_error_log(source: str = "unspecified", error_message:str = None):
     """
 
 
-def catch_with_print(function_to_try, source: str = "unspecified"):
+async def catch_with_print(function_to_try, source: str, *args,  **kwargs):
     try:
-        function_to_try
+        if inspect.iscoroutinefunction(function_to_try):
+            await function_to_try(*args, **kwargs)
+        else:
+            function_to_try(*args, **kwargs)
     except:
-        print(_formatted_error_log(source))
+        print(_formatted_error_log(source=source))
 
 
-async def catch_with_pm(bot, function_to_try, source: str = "unspecified", error_message: str = None):
+async def catch_with_pm(bot, function_to_try, source: str, *args, **kwargs):
     try:
-        function_to_try
+        if inspect.iscoroutinefunction(function_to_try):
+            await function_to_try(*args, **kwargs)
+        else:
+            function_to_try(*args, **kwargs)
     except:
-        await pm_dev_error(bot, source=source, error_message=error_message)
+        await pm_dev_error(bot, source=source)
+
+
+async def catch_with_channel_message(function_to_try, channel, catch_message, should_throw: bool, source: str, *args, **kwargs):
+    try:
+        if inspect.iscoroutinefunction(function_to_try):
+            await function_to_try(*args, **kwargs)
+        else:
+            function_to_try(*args, **kwargs)
+    except Exception as e:
+        traceback.print_exc()
+        await channel.send(f"{catch_message}: {e}")
+        if should_throw:
+            raise ValueError(f"Error when called from {source}")
 
 
 async def pm_dev_error(bot, error_message: str = None, source="unspecified"):

@@ -1,6 +1,6 @@
 import os
 
-from utils import exception_wrapper
+from utils.exception_wrapper import catch_with_print
 
 
 def found_in_file(str_to_find: str, file_name: str):
@@ -39,9 +39,9 @@ def remove_line_from_file(str_to_remove: str, file_name: str):
     return removed
 
 
-def create_file(file_name: str):
+async def create_file(file_name: str):
     """Created a file with the provided file_name"""
-    exception_wrapper.catch_with_print(open(file_name, "x"), "create_file")
+    await catch_with_print(open, "create_file", file_name, "x")
 
 
 def delete_file(file_to_delete: str):

@@ -3,7 +3,7 @@ import traceback
 from discord.ext import commands
 
 import common
-from testing.integration import leaderboard_integration, list_integration, support_integration
+from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration
 from datetime import datetime
 
 
@@ -29,14 +29,14 @@ class TestManager(commands.Cog):
             await user.send(f"""Error in TEST command: {error}""")
 
     @commands.command(name="test", help=".", hidden=True)
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def test(self, ctx):
         """
         [Admin only]: Run integration-tests in test environment.
 
         Usage: ?test
         """
-        if ctx.message.author.id in common.DEVELOPERS and str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[1]:
+        if str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[1]:
             try:
                 common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
                 await common.TEST_RESULTS_CHANNEL.send(f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
@@ -46,6 +46,7 @@ class TestManager(commands.Cog):
                 await leaderboard_integration.run_tests(ctx, self.bot)
                 await list_integration.run_tests(ctx, self.bot)
                 await support_integration.run_tests(ctx, self.bot)
+                await configure_integration.run_tests(self.bot, ctx)
 
                 await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
             except Exception as e:
