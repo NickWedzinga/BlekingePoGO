@@ -1,11 +1,11 @@
 import traceback
+from datetime import datetime
 
 from discord.ext import commands
 
 import common
-from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration,\
+from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
     dex_integration
-from datetime import datetime
 
 
 class TestManager(commands.Cog):

@@ -7,7 +7,6 @@ from sneasel_types import moves, stats, extras
 
 
 class Pokemon:
-    # TODO send more interesting stuff through constructor
     def __init__(self, pokemon_dict: dict, extras_dict):
         self.pokemon_dict = pokemon_dict
         self.extras_dict = extras_dict
