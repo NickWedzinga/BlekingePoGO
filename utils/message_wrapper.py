@@ -5,8 +5,6 @@ async def message_channel(bot, channel, message: str, source="unspecified"):
     """
     Sends a single message in a channel.
     """
-    if message == "":
-        message = "Empty message"
     await exception_wrapper.catch_with_pm(bot, channel.send, source, message)
 
 

@@ -7,12 +7,7 @@ import schedule
 
 import common
 from utils.exception_wrapper import catch_with_channel_message
-
-
-async def _invoke_scheduled_event_now(bot, ctx, command, **kwargs):
-    cmd = bot.get_command(f"configure schedule {command}")
-    await ctx.invoke(cmd, **kwargs)
-    await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Schedule[{command}]: Successfully invoked the {command} command.")
+from testing.integration.test_utils import invoke_wrapper
 
 
 async def call_configure_tests(bot, ctx):
@@ -32,15 +27,16 @@ async def test_create_channel(bot, ctx, channel_name):
     time_to_run = "0"
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule create_channel invocation",
         True,
         "integration/schedule/create_channel",
         bot,
         ctx,
-        "create_channel",
-        **{"channel_name": channel_name, "category_id": 469121458904367125, "weekday": str(today), "at_time": time_to_run}
+        "configure schedule create_channel",
+        "Schedule",
+        *[channel_name, 469121458904367125, str(today), time_to_run]
     )
 
     try:
@@ -67,15 +63,16 @@ async def test_send_message(bot, ctx, channel_name):
     assert (len(logs) == 0)
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule send_message invocation",
         True,
         "integration/schedule/send_message",
         bot,
         ctx,
-        "send_message",
-        **{"channel_id": str(channel_id), "weekday": str(today), "at_time": time_to_run},
+        "configure schedule send_message",
+        "Schedule",
+        *[str(channel_id), str(today), time_to_run, "test-message"],
     )
 
     logs = await channel.history().flatten()
@@ -89,15 +86,16 @@ async def test_purge(bot, ctx, channel_name):
     channel_id = str(discord.utils.get(ctx.guild.channels, name=channel_name).id)
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule purge invocation",
         True,
         "integration/schedule/purge",
         bot,
         ctx,
-        "purge",
-        **{"channel_id": channel_id, "weekday": str(today), "at_time": time_to_run},
+        "configure schedule purge",
+        "Schedule",
+        *[channel_id, str(today), time_to_run]
     )
 
 
@@ -108,15 +106,16 @@ async def test_delete_channel(bot, ctx, channel_name):
     channel_id = str(discord.utils.get(ctx.guild.channels, name=channel_name).id)
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule delete_channel invocation",
         True,
         "integration/schedule/delete_channel",
         bot,
         ctx,
-        "delete_channel",
-        **{"channel_id": channel_id, "weekday": str(today), "at_time": time_to_run},
+        "configure schedule delete_channel",
+        "Schedule",
+        *[channel_id, str(today), time_to_run],
     )
 
 
@@ -126,39 +125,41 @@ async def test_remove_scheduled_events(bot, ctx, channel_name):
     time_to_run = str((datetime.now() + timedelta(minutes=1)).time())[:8]
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule create_channel invocation",
         True,
         "integration/schedule/create_channel",
         bot,
         ctx,
-        "create_channel",
-        **{"channel_name": channel_name, "category_id": 469121458904367125, "weekday": str(today),
-           "at_time": time_to_run}
+        "configure schedule create_channel",
+        "Schedule",
+        *[channel_name, 469121458904367125, str(today), time_to_run]
     )
     assert(len(schedule.jobs) == 1)
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule list_scheduled_events invocation",
         True,
         "integration/schedule/list_scheduled_events",
         bot,
         ctx,
-        "list_scheduled_events"
+        "configure schedule list_scheduled_events",
+        "Schedule"
     )
 
     await catch_with_channel_message(
-        _invoke_scheduled_event_now,
+        invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule remove_scheduled_events invocation",
         True,
         "integration/schedule/remove_scheduled_events",
         bot,
         ctx,
-        "remove_scheduled_events",
-        **{"tag": "create"+channel_name}
+        "configure schedule remove_scheduled_events",
+        "Schedule",
+        *["create"+channel_name]
     )
     assert (len(schedule.jobs) == 0)
 

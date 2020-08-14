@@ -3,7 +3,8 @@ import traceback
 from discord.ext import commands
 
 import common
-from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration
+from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration,\
+    dex_integration
 from datetime import datetime
 
 
@@ -39,17 +40,21 @@ class TestManager(commands.Cog):
         if str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[1]:
             try:
                 common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
-                await common.TEST_RESULTS_CHANNEL.send(f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
-                await ctx.send(f"Sending results to {common.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
+                await common.TEST_RESULTS_CHANNEL.send(
+                    f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
+                await ctx.send(
+                    f"Sending results to {common.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
 
                 # TODO: Add all the tests to a list or something to run
                 await leaderboard_integration.run_tests(ctx, self.bot)
                 await list_integration.run_tests(ctx, self.bot)
                 await support_integration.run_tests(ctx, self.bot)
                 await configure_integration.run_tests(self.bot, ctx)
+                await dex_integration.run_tests(self.bot, ctx)
 
                 await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
             except Exception as e:
+                traceback.print_exc()
                 await ctx.send(f""":no_entry: At least one error found: {e}!""")
 
     @test.error

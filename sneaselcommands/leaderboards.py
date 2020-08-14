@@ -9,7 +9,7 @@ import common
 from instance import bot
 
 
-# TODO: Currently pm's when someone just types ?jogger without a leaderboard
+# TODO: Currently pm's when someone just sneasel_types ?jogger without a leaderboard
 
 
 class Leaderboards(commands.Cog):

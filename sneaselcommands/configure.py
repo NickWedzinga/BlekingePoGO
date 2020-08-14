@@ -1,11 +1,14 @@
+import threading
+import time
+
 import discord
 import schedule
 from discord.ext import commands
 
 from utils import scheduler
 from utils.channel_wrapper import purge_channel, create_channel, delete_channel
-from utils.message_wrapper import message_channel
 from utils.exception_wrapper import pm_dev_error
+from utils.message_wrapper import message_channel
 
 
 def _create_channel(bot, guild, channel_name: str, category: discord.CategoryChannel = None):
@@ -28,9 +31,16 @@ def _message_channel(bot: discord.ext.commands.bot, channel, message: str):
     bot.loop.create_task(message_channel(bot, channel, message, source="configure/schedule/_message_channel"))
 
 
+def _check_scheduled_events():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
 class Configure(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):
         self.bot = bot
+        threading.Thread(name="scheduled_events", target=_check_scheduled_events).start()
 
     @commands.group(hidden=True)
     @commands.has_role("Admin")
@@ -167,7 +177,7 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule send_message")
 
     @schedule.command()
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def list_scheduled_events(self, ctx):
         """
         Lists all the current scheduled events.
@@ -193,7 +203,7 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule list_scheduled_events")
 
     @schedule.command()
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def remove_scheduled_events(self, ctx, tag=None):
         """
         Removes a scheduled event.
