@@ -40,7 +40,11 @@ class Dex(commands.Cog):
     # TODO: p337: Victini unreleased, alolans no RELD but site says released, galar and gen 8 not in data
     @commands.command(name="dex")
     async def dex(self, ctx, *pokemon_name):
-        """Pokedex"""
+        """
+        Used to look a Pokémon up in the Pokédex, type ?dex <pokemon>
+
+        Usage: ?dex sneasel
+        """
         if not pokemon_name:
             await ctx.send("No Pokémon provided, usage is *?dex POKEMON_NAME*")
             return
@@ -64,7 +68,7 @@ class Dex(commands.Cog):
         """Catches errors with dex command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="dex")
 
-    @commands.command(name="update_pokedex")
+    @commands.command(name="update_pokedex", hidden=True)
     @commands.is_owner()
     async def update_pokedex(self, ctx):
         """Updates the Pokédex"""
