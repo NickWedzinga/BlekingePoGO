@@ -1,3 +1,5 @@
 discord.py
 schedule
 requests
+records
+mysqlclient

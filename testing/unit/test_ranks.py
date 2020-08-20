@@ -1,6 +1,6 @@
 import unittest
 
-from sneaselcommands.ranks import _create_rank_string, _build_rank_message, _extract_score, _every_fifteenth_or_last
+from sneaselcommands.ranks import _create_rank_string, _build_rank_message, _every_fifteenth_or_last
 
 
 class TestRanks(unittest.TestCase):
@@ -27,13 +27,6 @@ class TestRanks(unittest.TestCase):
         self.assertEqual(
             first=_build_rank_message(test_list, 0, 2),
             second="test_1\ntest_2"
-        )
-
-    def test_extract_score(self):
-        """Testing extracting score from leaderboard entry"""
-        self.assertEqual(
-            first=_extract_score("test_name test_score 2019-12-07"),
-            second="test_score"
         )
 
     def test_every_fifteenth_or_last_15(self):

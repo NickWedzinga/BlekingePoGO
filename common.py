@@ -2,6 +2,9 @@
 Contains common code
 """
 
+# connection to database
+DATABASE_CONNECTION = None
+
 # list of channels in which Sneasel can trigger sneaselcommands
 COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support"]
 
@@ -9,13 +12,10 @@ COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support"]
 TEST_RESULTS_CHANNEL = None
 
 # list of all leaderboards
-LEADERBOARD_LIST = ['refresh', 'jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
-                    'backpacker', 'fisherman', 'youngster', 'berrymaster', 'gymleader', 'champion', 'battlelegend',
+LEADERBOARD_LIST = ['jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
+                    'backpacker', 'fisher', 'youngster', 'berrymaster', 'gymleader', 'champion', 'battlelegend',
                     'ranger', 'unown', 'gentleman', 'pilot', 'totalxp', 'goldgyms', 'idol', 'greatleague',
                     'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier', 'bestbuddy']
-
-# list of channels that correspond to leaderboards
-LEADERBOARD_CHANNELS = []
 
 # Developers: McMomo,
 DEVELOPERS = [169688623699066880]
@@ -109,4 +109,37 @@ CPM_VALUES = {
     43:     0.8053,
     44:     0.81029999,
     45:     0.81529999
+}
+
+# Icon urls to leaderboards
+MEDAL_ICON_URLS = {
+    "acetrainer": "9/9c/AceTrainer_Gold.png",
+    "backpacker": "b/bb/Backpacker_Gold.png",
+    "battlegirl": "9/93/BattleGirl_Gold.png",
+    "battlelegend": "6/61/BattleLegend_Gold.png",
+    "berrymaster": "9/92/BerryMaster_Gold.png",
+    "bestbuddy": "7/76/BestBuddy_Gold.png",
+    "breeder": "b/b7/Breeder_Gold.png",
+    "cameraman": "1/19/Cameraman_Gold.png",
+    "champion": "2/20/Champion_Gold.png",
+    "collector": "8/86/Collector_Gold.png",
+    "fisher": "6/66/Fisher_Gold.png",
+    "gentleman": "f/f0/Gentleman_Gold.png",
+    "goldgyms": "/0/0a/Gym_Badge_Tier_Gold.png",
+    "greatleague": "2/28/GreatLeague_Gold.png",
+    "gymleader": "f/f9/GymLeader_Gold.png",
+    "hero": "5/52/Hero_Gold.png",
+    "idol": "9/9b/Idol_Gold.png",
+    "jogger": "9/98/Jogger_Gold.png",
+    "masterleague": "d/d7/MasterLeague_Gold.png",
+    "pikachu": "9/94/PikachuFan_Gold.png",
+    "pilot": "4/4e/Pilot_Gold.png",
+    "pokedex": "4/43/Kanto_Gold.png",
+    "purifier": "4/47/Purifier_Gold.png",
+    "ranger": "7/77/Researcher_Gold.png",
+    "scientist": "7/7c/Scientist_Gold.png",
+    "totalxp": "b/bd/Pok%C3%A9mon_GO_Fest_Chicago_2017.png",
+    "ultraleague": "5/5e/UltraLeague_Gold.png",
+    "unown": "1/1b/Unown_Gold.png",
+    "youngster": "9/94/Youngster_Gold.png",
 }

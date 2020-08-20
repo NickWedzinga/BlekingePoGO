@@ -43,10 +43,20 @@ async def catch_with_channel_message(function_to_try, channel, catch_message, sh
         else:
             function_to_try(*args[:-1], args[-1])
     except Exception as e:
-        traceback.print_exc()
-        await channel.send(f"{catch_message}: {e}")
+        await channel.send(f"{catch_message} {e}")
         if should_throw:
             raise ValueError(f"Error when called from {source}")
+
+
+async def catch_with_pm_and_channel_message(bot, function_to_try, channel, catch_message, source: str, *args):
+    try:
+        if inspect.iscoroutinefunction(function_to_try):
+            await function_to_try(*args[:-1], args[-1])
+        else:
+            function_to_try(*args[:-1], args[-1])
+    except Exception:
+        await channel.send(f"{catch_message}")
+        await pm_dev_error(bot, source=source)
 
 
 async def pm_dev_error(bot, error_message: str = None, source="unspecified"):

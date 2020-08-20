@@ -1,45 +1,9 @@
-import traceback
-
 from discord.ext import commands
 
 import common
-
-
-async def _check_if_member_claimed(ctx, nickname, id):
-    """
-    :param nickname: Nickname of the member
-    :param id: Id of the member
-    :return: Checks if the member's nickname and id match the previously collected information
-    """
-    missing_id = missing_name = False
-    with open("textfiles/idclaims.txt") as file:
-        for entry in file:
-            if nickname in entry.lower():
-                if id not in entry.lower():
-                    missing_id = True
-            if id in entry.lower():
-                if nickname not in entry.lower():
-                    missing_name = True
-    await _handle_missing_information(ctx, missing_id, missing_name)
-
-
-async def _handle_missing_information(ctx, missing_id, missing_name):
-    """
-    :param ctx:
-    :param missing_id:
-    :param missing_name:
-    :return:
-    """
-    if missing_id:
-        await ctx.send("Ditt användarnamn matchar inte det du registrerat tidigare, "
-                 "har du skapat ett nytt Discord-konto med samma namn? Ta kontakt med valfri admin.")
-        raise Exception(
-            "Member was missing from list of previously claimed members, assuming new Discord user with same name.")
-    elif missing_name:
-        await ctx.send("Ditt användarnamn matchar inte det du registrerat tidigare, "
-                 "ändra tillbaka det eller ta kontakt med valfri admin.")
-        raise Exception(
-            "Member was missing from list of previously claimed members, assuming renamed member.")
+from utils.database_connector import execute_statements, create_select_top_x_scores_query
+from utils.exception_wrapper import pm_dev_error
+from utils.global_error_manager import in_channel_list
 
 
 def _create_rank_string(rank, name, leaderboard_type, score):
@@ -50,10 +14,10 @@ def _create_rank_string(rank, name, leaderboard_type, score):
     :param score: The member's submitted score
     :return: Returns a prettified string listing the member's name, rank and score in this leaderboard
     """
-    num2words1 = {1: ':trophy:', 2: ':second_place:', 3: ':third_place:', 4: ':four:', 5: ':five:',
-                  6: ':six:', 7: ':seven:', 8: ':eight:', 9: ':nine:', 10: ':keycap_ten:'}
-    return """%s %s is ranked #%i in the %s leaderboard with a score of %s.""" % (
-        num2words1.get(rank, ":asterisk:"), name, rank, leaderboard_type.capitalize(), score)
+    rank_to_emoji = {1: ':trophy:', 2: ':second_place:', 3: ':third_place:', 4: ':four:', 5: ':five:',
+                     6: ':six:', 7: ':seven:', 8: ':eight:', 9: ':nine:', 10: ':keycap_ten:'}
+    return f"{rank_to_emoji.get(rank, ':asterisk:')} {name} is ranked #{rank} in the {leaderboard_type.capitalize()}" \
+           f" leaderboard with a score of {score}."
 
 
 def _build_rank_message(message_list, from_, to_):
@@ -63,15 +27,7 @@ def _build_rank_message(message_list, from_, to_):
     :param to_: Index in the list to end at
     :return: Takes a list of strings and returns a joined string with a newline denominator
     """
-    return "\n".join(message_list[from_:to_+1])
-
-
-def _extract_score(leaderboard_entry):
-    """
-    :param leaderboard_entry: The member's entry in the leaderboard
-    :return: Returns the score extracted from the member's entry
-    """
-    return leaderboard_entry.split(" ")[1]
+    return "\n".join(message_list[from_:to_ + 1])
 
 
 def _every_fifteenth_or_last(number, last):
@@ -86,7 +42,6 @@ def _every_fifteenth_or_last(number, last):
 
 
 # TODO: maybe send as embed?
-# TODO: send list of ranks ordered from highest to lowest
 async def _send_ranks(ctx, concat_message):
     """
     :param ctx: The member's sent message context
@@ -98,7 +53,7 @@ async def _send_ranks(ctx, concat_message):
         if _every_fifteenth_or_last(num, len(concat_message) - 1):
             await ctx.message.author.send(_build_rank_message(concat_message, previously_sent, num))
             previously_sent += 16
-    await ctx.send("Du har fått ett privatmeddelande med alla dina placeringar %s." % ctx.message.author.mention)
+    await ctx.send(f"You have received a PM with your ranks {ctx.author.mention}")
 
 
 class Ranks(commands.Cog):
@@ -106,38 +61,35 @@ class Ranks(commands.Cog):
         self.bot = bot
 
     @commands.command(name="ranks")
+    @in_channel_list(common.COMMAND_CHANNEL_LIST)
     async def ranks(self, ctx):
         """
         Get all your current ranks in a private message.
 
         Usage: ?ranks
         """
-        nickname = ctx.message.author.display_name.lower()
-        id_ = str(ctx.message.author.id)
+        statements = []
+        for leaderboard in common.LEADERBOARD_LIST:
+            statements.append(create_select_top_x_scores_query(leaderboard))
+
+        all_leaderboards_data = execute_statements(statements)
         concat_message = []
-
-        await _check_if_member_claimed(ctx, nickname, id_)
-
-        for leaderboard_number, leaderboard in enumerate(common.LEADERBOARD_LIST[1:], 1):
-            with open("leaderboards/%s.txt" % leaderboard) as leaderboard_file:
-                for rank, line in enumerate(leaderboard_file, 1):
-                    if nickname in line.lower():
-                        concat_message.append(
-                            _create_rank_string(
-                                rank=rank,
-                                name=ctx.message.author.mention,
-                                leaderboard_type=leaderboard,
-                                score=_extract_score(line)
-                            )
+        for leaderboard_name, leaderboard_data in zip(common.LEADERBOARD_LIST, all_leaderboards_data):
+            for rank, user in enumerate(leaderboard_data.all(as_dict=True)):
+                if user.get("name") == ctx.author.display_name:
+                    concat_message.append(
+                        _create_rank_string(
+                            rank=rank + 1,
+                            name=ctx.author.mention,
+                            leaderboard_type=leaderboard_name.capitalize(),
+                            score=user.get("score")
                         )
+                    )
         await _send_ranks(ctx, concat_message)
 
     @ranks.error
-    async def ranks_on_error(self, ctx, error):
-        for dev in common.DEVELOPERS:
-            traceback.print_exc()
-            user = ctx.bot.get_user(dev)
-            await user.send(f"""Error in RANKS command: {error}""")
+    async def ranks_on_error(self, _, error):
+        await pm_dev_error(bot=self.bot, error_message=error, source="Ranks")
 
 
 def setup(bot):
