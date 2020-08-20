@@ -1,7 +1,10 @@
 from discord.ext import commands
 
-import common
-from instance import bot  # TODO: causes test to fail, don't reimport, pass the bot instance around
+
+def in_channel_list(channel_list):
+    def predicate(ctx):
+        return ctx.message.channel.name in channel_list
+    return commands.check(predicate)
 
 
 class ErrorHandling(commands.Cog):
@@ -25,23 +28,3 @@ class ErrorHandling(commands.Cog):
 
 def setup(bot):
     bot.add_cog(ErrorHandling(bot))
-
-
-def in_channel_list(channel_id_list):
-    def predicate(ctx):
-        return ctx.message.channel.id in channel_id_list
-    return commands.check(predicate)
-
-# TODO: Somehow place this under ErrorHandling cog without losing global check
-@bot.check
-@in_channel_list(common.COMMAND_CHANNEL_LIST)
-async def global_channel_check(ctx):
-    common.INTEGRATION_TESTING = False
-    if str(ctx.invoked_with) == "test":  # TODO: rework to remove integration workaround boolean
-        common.INTEGRATION_TESTING = True
-        return True
-    elif str(ctx.invoked_with) != "claim":
-        if str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[2]:
-            return False
-        return True
-    return True
