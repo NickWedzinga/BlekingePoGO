@@ -25,9 +25,9 @@ def create_select_query(table_name: str, where_key: str = None, where_value=None
 def create_select_top_x_scores_query(table_name: str, limit: int = None) -> str:
     """Fetches every player's latest submission ranked from highest score to lowest score"""
     if limit is None:
-        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC"
+        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id"
     else:
-        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC LIMIT {limit}"
+        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id LIMIT {limit}"
 
 
 def create_update_query(table_name: str, column: str, new_value: str, where_key: str, where_value: str):
