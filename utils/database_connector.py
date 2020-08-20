@@ -14,7 +14,7 @@ def get_ranking_of_user(name: str, record_collection: records.RecordCollection) 
     return None
 
 
-def create_select_query(table_name: str, where_key: str = None, where_value: str = None) -> str:
+def create_select_query(table_name: str, where_key: str = None, where_value=None) -> str:
     """Create select statement from [table_name]"""
     if where_key is not None and where_value is not None:
         return f"select * FROM {table_name} WHERE {where_key}={where_value}"
