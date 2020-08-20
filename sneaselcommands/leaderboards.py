@@ -20,7 +20,12 @@ def _validate_score(score: str):
 
 def _validate_claimed_user(author_id: int, author_name: str):
     """Validates that current nickname matches claimed_id"""
-    rows = execute_statement(create_select_query(table_name="idclaims", where_key="user_id", where_value=str(author_id)))
+    print(f"Author ID: {author_id}")
+    print(f"Author Name: {author_name}")
+
+    statement = create_select_query(table_name="idclaims", where_key="user_id", where_value=author_id)
+    print(statement)
+    rows = execute_statement(statement)
     user_id = rows.first(as_dict=True).get("user_id")
     user_name = rows.first(as_dict=True).get("name")
 
