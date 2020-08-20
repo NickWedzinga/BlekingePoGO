@@ -79,19 +79,19 @@ async def _congratulate_submitter(ctx, leaderboard_channel, previous_top_3: dict
         for index, user in enumerate(current_top_3):
             # new rank 1
             if index == 0 and name == user.get("name") and not name == previous_top_3[0].get("name"):
-                await ctx.send(f":crown: :first_place: CONGRATULATIONS {ctx.author.mention} on your new #{index + 1} placement in {leaderboard_channel.mention}!"
+                await ctx.send(f":crown: :first_place: CONGRATULATIONS {ctx.author.mention} on your new #{index + 1} placement in the {leaderboard_channel.mention} leaderboard!"
                                f"\nPlease send an in-game screenshot to any admin for verification.")
             # new top 3
             elif name == user.get("name") and not any(name == user_entry.get("name") for user_entry in previous_top_3):
-                await ctx.send(f":crown: Congratulations {ctx.author.mention} on your #{index + 1} placement in {leaderboard_channel.mention}!"
+                await ctx.send(f":crown: Congratulations {ctx.author.mention} on your #{index + 1} placement in the {leaderboard_channel.mention} leaderboard!"
                                f"\nPlease send an in-game screenshot to any admin for verification.")
             elif name == user.get("name"):
-                await ctx.send(f":crown: Congratulations {ctx.author.mention} on your #{index + 1} position in {leaderboard_channel.mention}!")
+                await ctx.send(f":crown: Congratulations {ctx.author.mention} on your #{index + 1} position in the {leaderboard_channel.mention} leaderboard!")
     # submission not top 3
     else:
         record_collection = execute_statement(create_select_top_x_scores_query(leaderboard_channel.name))
         ranking = get_ranking_of_user(name=name, record_collection=record_collection)
-        await ctx.send(f"Nice work {ctx.author.mention} on your #{ranking} position, keep it up!")
+        await ctx.send(f"Nice work {ctx.author.mention} on your #{ranking} position in the {leaderboard_channel.mention} leaderboard, keep it up!")
 
 
 class Leaderboards(commands.Cog):
