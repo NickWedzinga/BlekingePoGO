@@ -11,7 +11,7 @@ def _formatted_error_log(source: str = "unspecified", error_message: str = None)
     """
     return f"""-------------------------------------------------------------------------------------------
     **Error[{source}]:**
-    Additional info: {error_message}\n
+    **Additional info: {error_message}\n**
     {traceback.format_exc()}-------------------------------------------------------------------------------------------
     """
 

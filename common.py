@@ -6,7 +6,7 @@ Contains common code
 DATABASE_CONNECTION = None
 
 # list of channels in which Sneasel can trigger sneaselcommands
-COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support"]
+COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support", "momos_test_dungeon"]
 
 # channel to send test results to
 TEST_RESULTS_CHANNEL = None
