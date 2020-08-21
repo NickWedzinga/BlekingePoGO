@@ -18,13 +18,24 @@ def _validate_score(score: str):
         raise AssertionError("Score contains illegal characters")
 
 
-def _validate_claimed_user(author_id: int, author_name: str):
+async def _validate_claimed_user(bot, ctx):
     """Validates that current nickname matches claimed_id"""
-    rows = execute_statement(create_select_query(table_name="idclaims", where_key="user_id", where_value=author_id))
-    user_id = rows.first(as_dict=True).get("user_id")
-    user_name = rows.first(as_dict=True).get("name")
+    author_id = ctx.author.id
+    author_name = ctx.author.display_name
+    statement = create_select_query(table_name="idclaims", where_key="user_id", where_value=author_id)
+    try:
+        rows = execute_statement(statement)
+        user_id = rows.first(as_dict=True).get("user_id")
+        user_name = rows.first(as_dict=True).get("name")
 
-    if len(rows.all()) > 1 or user_id != author_id or user_name != author_name:
+        if len(rows.all()) > 1 or user_id != author_id or user_name != author_name:
+            raise AssertionError("Username doesn't match claimed username")
+    except Exception as e:
+        await ctx.send("Something wrong with your claimed name, did you change your nickname? Contact an admin.")
+        await pm_dev_error(
+            bot=bot,
+            error_message=f"\nAuthor ID: {author_id}, Author Name: {author_name}\nSQL QUERY: {statement}",
+            source="_validate_claimed_user")
         raise AssertionError("Username doesn't match claimed username")
 
 
@@ -34,19 +45,12 @@ async def _validate_user(bot, ctx, score):
         _validate_score,
         ctx.channel,
         "Incorrect score format, has to be a number.",
-        False,
+        True,
         "leaderboard/validate_score",
         *{score}
     )
 
-    await catch_with_pm_and_channel_message(
-        bot,
-        _validate_claimed_user,
-        ctx.channel,
-        "Something wrong with your claimed name, did you change your nickname? Contact an admin.",
-        "leaderboard/validate_claimed",
-        *{ctx.author.id, ctx.author.display_name}
-    )
+    await _validate_claimed_user(bot, ctx)
 
 
 def _create_leaderboard_embed(leaderboard: str, score_dict: dict, command_channel):
@@ -106,7 +110,10 @@ class Leaderboards(commands.Cog):
 
         Usage: ?jogger 507
         """
-        await _validate_user(self.bot, ctx, score)
+        try:
+            await _validate_user(self.bot, ctx, score)
+        except Exception as e:
+            print(f"CRASH:{e}")  # TODO: remove try catch once issue fixed, just let crash
 
         # extract data
         try:
@@ -136,8 +143,8 @@ class Leaderboards(commands.Cog):
             score_dict=descending_score_dict,
             command_channel=discord.utils.get(ctx.guild.channels, name="leaderboards")
         )
-
-        await _update_leaderboard_embed(embed, leaderboard_channel)
+        if ctx.channel.name != "momos_test_dungeon":
+            await _update_leaderboard_embed(embed, leaderboard_channel)
         await _congratulate_submitter(ctx, leaderboard_channel, previous_top_3, descending_score_dict[:3])
 
     @leaderboard.error
