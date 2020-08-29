@@ -29,10 +29,10 @@ async def create_channel(bot, guild, name: str, category: discord.CategoryChanne
     )
 
 
-async def delete_channel(bot, channel_id: int, source: str = None):
+async def delete_channel(bot, channel, source: str = None):
     """Deletes a channel with the specified [channel_id]"""
     await exception_wrapper.catch_with_pm(
         bot,
-        bot.get_channel(channel_id).delete,
+        channel.delete,
         source
     )

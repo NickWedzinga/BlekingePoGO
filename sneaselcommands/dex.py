@@ -37,7 +37,6 @@ class Dex(commands.Cog):
         )
         self.bot = bot
 
-    # TODO: p337: Victini unreleased, alolans no RELD but site says released, galar and gen 8 not in data
     @commands.command(name="dex")
     async def dex(self, ctx, *pokemon_name):
         """

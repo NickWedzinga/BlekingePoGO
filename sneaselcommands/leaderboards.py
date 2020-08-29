@@ -8,7 +8,7 @@ import common
 from utils.channel_wrapper import delete_channel_messages
 from utils.database_connector import execute_statement, create_select_query, create_select_top_x_scores_query, \
     get_ranking_of_user
-from utils.exception_wrapper import pm_dev_error, catch_with_channel_message, catch_with_pm_and_channel_message
+from utils.exception_wrapper import pm_dev_error, catch_with_channel_message
 from utils.global_error_manager import in_channel_list
 
 
@@ -22,7 +22,7 @@ async def _validate_claimed_user(bot, ctx):
     """Validates that current nickname matches claimed_id"""
     author_id = ctx.author.id
     author_name = ctx.author.display_name
-    statement = create_select_query(table_name="idclaims", where_key="user_id", where_value=author_id)
+    statement = create_select_query(table_name="leaderboard__idclaims", where_key="user_id", where_value=author_id)
     try:
         rows = execute_statement(statement)
         user_id = rows.first(as_dict=True).get("user_id")
@@ -110,10 +110,7 @@ class Leaderboards(commands.Cog):
 
         Usage: ?jogger 507
         """
-        try:
-            await _validate_user(self.bot, ctx, score)
-        except Exception as e:
-            print(f"CRASH:{e}")  # TODO: remove try catch once issue fixed, just let crash
+        await _validate_user(self.bot, ctx, score)
 
         # extract data
         try:
@@ -132,7 +129,7 @@ class Leaderboards(commands.Cog):
         previous_top_3 = execute_statement(create_select_top_x_scores_query(table_name=invoked_leaderboard, limit=3)).all(as_dict=True)
 
         # insert entry into leaderboard
-        execute_statement(f"INSERT INTO {invoked_leaderboard} (name, score, submit_date) VALUES ('{ctx.author.display_name}', {score}, DATE '{datetime.now().date()}')")
+        execute_statement(f"INSERT INTO leaderboard__{invoked_leaderboard} (name, score, submit_date) VALUES ('{ctx.author.display_name}', {score}, DATE '{datetime.now().date()}')")
 
         # select 10 highest ranks
         descending_score_dict = execute_statement(create_select_top_x_scores_query(table_name=invoked_leaderboard, limit=10)).all(as_dict=True)

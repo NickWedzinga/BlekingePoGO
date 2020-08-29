@@ -4,10 +4,10 @@ from datetime import datetime
 from discord.ext import commands
 
 import common
-from utils.global_error_manager import in_channel_list
 from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
     dex_integration
 from utils.exception_wrapper import pm_dev_error
+from utils.global_error_manager import in_channel_list
 
 
 class TestManager(commands.Cog):
