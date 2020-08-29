@@ -25,9 +25,17 @@ def create_select_query(table_name: str, where_key: str = None, where_value=None
 def create_select_top_x_scores_query(table_name: str, limit: int = None) -> str:
     """Fetches every player's latest submission ranked from highest score to lowest score"""
     if limit is None:
-        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id"
-    else:
-        return f"SELECT score_table.* FROM {table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM {table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id LIMIT {limit}"
+        return f"SELECT score_table.* FROM leaderboard__{table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM leaderboard__{table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id"
+    return f"SELECT score_table.* FROM leaderboard__{table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM leaderboard__{table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id LIMIT {limit}"
+
+
+def create_insert_scheduled_event_query(task: str, weekday: str, at_time: str, tag: str, message: str = "empty",
+                                        channel_id: int = 0, category_id: int = 0, guild_id: int = 0, number: int = 0,
+                                        channel_name: str = "empty") -> str:
+    """Creates an INSERT INTO query for the configure__schedule table"""
+    return f"INSERT INTO configure__schedule " \
+           f"(task, weekday, at_time, tag, message, channel_id, category_id, guild_id, number, channel_name) " \
+           f"VALUES ('{task}', '{weekday}', '{at_time}', '{tag}', '{message}', {channel_id}, {category_id}, {guild_id}, {number}, '{channel_name}')"
 
 
 def create_update_query(table_name: str, column: str, new_value: str, where_key: str, where_value: str):
@@ -35,8 +43,10 @@ def create_update_query(table_name: str, column: str, new_value: str, where_key:
     return f"UPDATE {table_name} SET {column}={new_value} WHERE {where_key}={where_value}"
 
 
-def create_delete_query(table_name: str, where_key: str, where_value: str):
+def create_delete_query(table_name: str, where_key: str = None, where_value: str = None):
     """Create update statement for a value in a table"""
+    if where_key is None and where_value is None:
+        return f"DELETE FROM {table_name}"
     return f"DELETE FROM {table_name} WHERE {where_key}={where_value}"
 
 

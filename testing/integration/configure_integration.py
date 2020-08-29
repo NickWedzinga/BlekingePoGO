@@ -14,11 +14,28 @@ async def call_configure_tests(bot, ctx):
     """Calls all the sub-commands of configure"""
     channel_name = "test_create_channel"
 
+    await test_clean_table(bot, ctx)
     await test_create_channel(bot, ctx, channel_name)
     await test_send_message(bot, ctx, channel_name)
     await test_purge(bot, ctx, channel_name)
     await test_delete_channel(bot, ctx, channel_name)
     await test_remove_scheduled_events(bot, ctx, channel_name)
+
+
+async def test_clean_table(bot, ctx):
+    """Cleans any leftover scheduled events in case of previously broken tests"""
+    await catch_with_channel_message(
+        invoke_wrapper.invoke_event_now,
+        common.TEST_RESULTS_CHANNEL,
+        f":no_entry: Error during remove_scheduled_events inital cleanup",
+        True,
+        "integration/schedule/remove_scheduled_events",
+        bot,
+        ctx,
+        "remove_scheduled_events",
+        "Schedule"
+    )
+    assert (len(schedule.jobs) == 0)
 
 
 async def test_create_channel(bot, ctx, channel_name):
@@ -120,7 +137,7 @@ async def test_delete_channel(bot, ctx, channel_name):
 
 
 async def test_remove_scheduled_events(bot, ctx, channel_name):
-    """Test the configure schedule remove_scheduled_events command"""
+    """Test the remove_scheduled_events command"""
     today = calendar.day_name[datetime.today().weekday()]
     time_to_run = str((datetime.now() + timedelta(minutes=1)).time())[:8]
 
@@ -140,24 +157,24 @@ async def test_remove_scheduled_events(bot, ctx, channel_name):
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
-        f":no_entry: Error during configure schedule list_scheduled_events invocation",
+        f":no_entry: Error during list_scheduled_events invocation",
         True,
         "integration/schedule/list_scheduled_events",
         bot,
         ctx,
-        "configure schedule list_scheduled_events",
+        "list_scheduled_events",
         "Schedule"
     )
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
         common.TEST_RESULTS_CHANNEL,
-        f":no_entry: Error during configure schedule remove_scheduled_events invocation",
+        f":no_entry: Error during remove_scheduled_events invocation",
         True,
         "integration/schedule/remove_scheduled_events",
         bot,
         ctx,
-        "configure schedule remove_scheduled_events",
+        "remove_scheduled_events",
         "Schedule",
         *["create"+channel_name]
     )

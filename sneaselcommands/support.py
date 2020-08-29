@@ -53,15 +53,15 @@ async def _report_possible_renaming_errors(ctx, name_too_long, id_non_number, na
     return error_found
 
 
-def _rename_user_in_idclaims(table_name, new_name, user_id) -> bool:
+def _rename_user_in_idclaims(new_name, user_id) -> bool:
     """
     :param new_name: The new name to replace the previous name with
     :param user_to_replace: The string to find in the entry
     :return: Returns bool if the user was found and the name that was replaced
     """
-    previous_entry = execute_statement(create_select_query(table_name, "user_id", f"'{user_id}'")).all(as_dict=True)
-    execute_statement(create_update_query(table_name, "name", f"'{new_name}'", "user_id", f"'{user_id}'"))
-    updated_entry = execute_statement(create_select_query(table_name, "user_id", f"'{user_id}'")).all(as_dict=True)
+    previous_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
+    execute_statement(create_update_query("leaderboard__idclaims", "name", f"'{new_name}'", "user_id", f"'{user_id}'"))
+    updated_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
 
     try:
         if previous_entry[0].get("name") != new_name and updated_entry[0].get("name") == new_name:
@@ -76,7 +76,7 @@ def _rename_user_in_leaderboards(new_name: str, old_name: str):
     """Updates all the leaderboard tables with the new name"""
     statements = []
     for leaderboard in common.LEADERBOARD_LIST:
-        statements.append(create_update_query(leaderboard, "name", f"'{new_name}'", "name", f"'{old_name}'"))
+        statements.append(create_update_query(f"leaderboard__{leaderboard}", "name", f"'{new_name}'", "name", f"'{old_name}'"))
     execute_statements(statements)
 
 
@@ -115,7 +115,7 @@ async def _validate_eligibility(ctx):
     """
     error_in_nickname = _check_invalid_nickname(ctx.message.author.display_name)
     rows = execute_statement(
-        create_select_query(table_name="idclaims", where_key="user_id", where_value=str(ctx.message.author.id))).all(
+        create_select_query(table_name="leaderboard__idclaims", where_key="user_id", where_value=str(ctx.message.author.id))).all(
         as_dict=True)
 
     if len(rows) > 0:
@@ -219,7 +219,7 @@ class Support(commands.Cog):
         """
         statements = []
         for leaderboard in common.LEADERBOARD_LIST:
-            statements.append(create_delete_query(leaderboard, "name", f"'{user_name}'"))
+            statements.append(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
         execute_statements(statements)
         await ctx.send(f"{user_name} is removed from all leaderboards.")
 
@@ -232,9 +232,9 @@ class Support(commands.Cog):
         Usage: ?delete from_leaderboard jogger McMomo
         """
         if leaderboard in common.LEADERBOARD_LIST:
-            in_leaderboard_before = execute_statement(create_select_query(leaderboard, "name", f"'{user_name}'")).all(True)
-            execute_statement(create_delete_query(leaderboard.lower(), "name", f"'{user_name}'"))
-            in_leaderboard_after = execute_statement(create_select_query(leaderboard, "name", f"'{user_name}'")).all(True)
+            in_leaderboard_before = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
+            execute_statement(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
+            in_leaderboard_after = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
 
             if len(in_leaderboard_before) == 1 and len(in_leaderboard_after) == 0:
                 await ctx.send(f"Removed {user_name} from {leaderboard}")
