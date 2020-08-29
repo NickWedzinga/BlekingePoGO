@@ -4,22 +4,26 @@ import discord.utils
 from discord.ext import commands
 
 import common
-from utils import message_wrapper, exception_wrapper, file_wrapper
+from utils import message_wrapper, exception_wrapper
+from utils.database_connector import execute_statement, create_select_query, create_update_query, execute_statements, \
+    create_delete_query
 
 
-def _handle_rename_input_syntax_errors(bot, name, id_):
+def _handle_rename_input_syntax_errors(name, user_id, old_name):
     """
     :param name: The name of the user to rename
-    :param id_: The id of the user to rename
+    :param user_id: The id of the user to rename
     :return: Returns booleans for every error check
     """
     name_too_long = id_non_number = name_not_updated = False
+
     if len(name) > 15:
         name_too_long = True
-    if not int(id_.isdigit()):
+    if not int(user_id.isdigit()):
         id_non_number = True
-    if bot.get_user(int(id_)).display_name != name:
+    if old_name != name:
         name_not_updated = True
+
     return name_too_long, id_non_number, name_not_updated
 
 
@@ -49,50 +53,31 @@ async def _report_possible_renaming_errors(ctx, name_too_long, id_non_number, na
     return error_found
 
 
-def _rename_user_in_file(filename, new_name, user_to_replace):
+def _rename_user_in_idclaims(new_name, user_id) -> bool:
     """
     :param new_name: The new name to replace the previous name with
     :param user_to_replace: The string to find in the entry
     :return: Returns bool if the user was found and the name that was replaced
     """
-    changed = False
+    previous_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
+    execute_statement(create_update_query("leaderboard__idclaims", "name", f"'{new_name}'", "user_id", f"'{user_id}'"))
+    updated_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
 
-    with open(filename, "r") as file:
-        lines = file.readlines()
-
-    with open(filename, "w") as file:
-        for line in lines:
-            if user_to_replace not in line:
-                file.write(line)
-            else:
-                changed = True
-                file.write(line.replace(user_to_replace, new_name))
-    return changed, user_to_replace
+    try:
+        if previous_entry[0].get("name") != new_name and updated_entry[0].get("name") == new_name:
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
-def _update_leaderboards(old_name, new_name, leaderboard_to_update=None):
-    """
-    :param old_name: The name to replace
-    :param new_name: The new name to replace the old name with
-    :param leaderboard_to_update: The leaderboard to update, defaults to None in which case all leaderboards will be updated
-    """
-    if leaderboard_to_update is None:
-        leaderboard_list = ["leaderboards/" + x + ".txt" for x in common.LEADERBOARD_LIST]
-        for leaderboard in leaderboard_list[1:]:
-            _rename_user_in_file(leaderboard, new_name, old_name)
-    else:
-        _rename_user_in_file(leaderboard_to_update, new_name, old_name)
-
-
-async def _inform_deleted_user(ctx, found, user_name, leaderboard_type):
-    """
-    TODO: add docstring
-    """
-    if found and str(ctx.invoked_with) == "from_leaderboard":
-        await ctx.send("%s was found, removing %s from the %s leaderboard." % (
-            user_name, user_name, leaderboard_type))
-    elif not found and str(ctx.invoked_with) == "from_leaderboard":
-        await ctx.send(f"{user_name} could not be found in the {leaderboard_type} leaderboard.")
+def _rename_user_in_leaderboards(new_name: str, old_name: str):
+    """Updates all the leaderboard tables with the new name"""
+    statements = []
+    for leaderboard in common.LEADERBOARD_LIST:
+        statements.append(create_update_query(f"leaderboard__{leaderboard}", "name", f"'{new_name}'", "name", f"'{old_name}'"))
+    execute_statements(statements)
 
 
 def _check_invalid_nickname(name: str):
@@ -112,13 +97,13 @@ def _check_invalid_nickname(name: str):
 
 # TODO: English, don't hard-code #leaderboards, get command channel from leaderboard list
 def _create_introductory_message():
-    return "Välkommen till Blekinges leaderboards! \n\n"\
-           "**__KOMMANDON TILLGÄNGLIGA__**\n\n"\
-           "*Alla kommandon skrivs i #leaderboards*\n\n"\
-           "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. \n    "\
+    return "Välkommen till Blekinges leaderboards! \n\n" \
+           "**__KOMMANDON TILLGÄNGLIGA__**\n\n" \
+           "*Alla kommandon skrivs i #leaderboards*\n\n" \
+           "1. ?önskadleaderboard poäng, används för att rapportera in dina poäng till de olika leaderboards. \n    " \
            "*Exempelanvändning 1: '?jogger 2320'*, för att lägga in dina 2320km i Jogger leaderboarden. \n    \"" \
            "*Exempelanvändning 2: '?pikachu 463'*, för att skicka in dina 463 Pikachu fångster i Pikachu Fan leaderboarden.\n" \
-           "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. "\
+           "2. ?list önskadleaderboard, används för att ut en lista på top 5 samt din placering och dina närmsta konkurrenter. " \
            "*Exempelanvändning: ?list jogger*\n" \
            "3. ?ranks, används för att visa hur du rankas mot övriga medlemmar.\n" \
            "4. ?help kommando, används för att få mer information om ett specifikt kommando. *Exempel: ?help jogger*\n"
@@ -129,9 +114,11 @@ async def _validate_eligibility(ctx):
     Checks that the user has not already claimed access to the leaderboards and has a valid nickname.
     """
     error_in_nickname = _check_invalid_nickname(ctx.message.author.display_name)
-    already_claimed = file_wrapper.found_in_file(str(ctx.message.author.id), "textfiles/idclaims.txt")
+    rows = execute_statement(
+        create_select_query(table_name="leaderboard__idclaims", where_key="user_id", where_value=str(ctx.message.author.id))).all(
+        as_dict=True)
 
-    if already_claimed:
+    if len(rows) > 0:
         await message_wrapper.message_channel(
             bot=ctx.bot,
             channel=ctx.message.channel,
@@ -157,26 +144,28 @@ class Support(commands.Cog):
 
         Usage: ?claim
         """
-        await message_wrapper.delete_message(bot=self.bot, message=ctx.message)
+        await message_wrapper.delete_message(bot=self.bot, message=ctx.message, source="Claim")
 
         if await _validate_eligibility(ctx):
-            entry = f"""{ctx.message.author.display_name} {ctx.message.author.id}"""
-            file_wrapper.append_to_file(str_to_add=entry, file_name="textfiles/idclaims.txt")
+            execute_statement(
+                f"INSERT INTO idclaims (name, user_id) VALUES ('{ctx.author.display_name}', {ctx.author.id})")
 
             role = discord.utils.get(ctx.message.guild.roles, name="claimed")
             await ctx.message.author.add_roles(role)
 
-            command_channel = self.bot.get_channel(common.LEADERBOARD_CHANNELS[0])
-            await message_wrapper.message_user(self.bot, ctx.message.author, _create_introductory_message())
+            command_channel = discord.utils.get(ctx.message.guild.channels, name="leaderboards")
+            await message_wrapper.message_user(self.bot, ctx.message.author, _create_introductory_message(),
+                                               source="Claim")
             await message_wrapper.message_channel(
                 bot=self.bot,
                 channel=ctx.message.channel,
-                message=f""":white_check_mark: {ctx.message.author.mention} you have claimed the nickname """ 
-                f"""{ctx.message.author.display_name}. Type ?help in {command_channel.mention} """
-                f"""for help on how to get started.""")
+                message=f""":white_check_mark: {ctx.message.author.mention} you have claimed the nickname """
+                        f"""{ctx.message.author.display_name}. Type ?help in {command_channel.mention} """
+                        f"""for help on how to get started."""
+            )
 
     @claim.error
-    async def claim_on_error(self, ctx, error):
+    async def claim_on_error(self, _, error):
         await exception_wrapper.pm_dev_error(bot=self.bot, source="claim", error_message=error)
 
     @commands.command(name="rename", hidden=True)
@@ -187,21 +176,29 @@ class Support(commands.Cog):
 
         Usage: ?rename McMomo 133713371337
         """
+        try:
+            user_to_change = discord.utils.get(ctx.guild.members, id=int(user_id))
+            old_name = user_to_change.display_name
+        except:
+            await ctx.send("Could not find a user on this Discord server with that id.")
+            return
 
-        name_too_long, id_non_number, name_not_updated = _handle_rename_input_syntax_errors(self.bot, new_name, user_id)
-        error_found = await _report_possible_renaming_errors(ctx, name_too_long, id_non_number, name_not_updated, new_name, ctx.author.mention)
+        name_too_long, id_non_number, name_not_updated = _handle_rename_input_syntax_errors(new_name, user_id, old_name)
+        error_found = await _report_possible_renaming_errors(ctx, name_too_long, id_non_number, name_not_updated,
+                                                             new_name, user_to_change.mention)
 
         if not error_found:
-            changed, old_name = _rename_user_in_file("textfiles/idclaims.txt", new_name, user_id)
+            changed = _rename_user_in_idclaims("idclaims", new_name, user_id)
             if changed:
-                _update_leaderboards(old_name, new_name)
-                await ctx.send("Användarnamnet har uppdaterats från %s till %s" % (
-                    old_name, new_name))
+                _rename_user_in_leaderboards(new_name, old_name)
+                await ctx.send(f"Username updated from {old_name} to {new_name}")
             else:
-                await ctx.send(f"I could not find this user in the claimed id list. Incorrect id or the user has not claimed their name")
+                await ctx.send(
+                    f"Error with renaming {user_to_change.mention} in the database. "
+                    f"\nEither incorrect id, the user has never claimed or the user has already claimed with that name")
 
     @rename.error
-    async def rename_on_error(self, ctx, error):
+    async def rename_on_error(self, _, error):
         """Catches errors with rename command"""
         await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="rename")
 
@@ -220,27 +217,34 @@ class Support(commands.Cog):
 
         Usage: ?delete McMomo 133713371337
         """
-        for leaderboard in common.LEADERBOARD_LIST[1:]:
-            cmd = self.bot.get_command("delete from_leaderboard")
-            await ctx.invoke(cmd, leaderboard, user_name)
-        await ctx.send(f"{user_name} tas bort från alla leaderboards.")
+        statements = []
+        for leaderboard in common.LEADERBOARD_LIST:
+            statements.append(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
+        execute_statements(statements)
+        await ctx.send(f"{user_name} is removed from all leaderboards.")
 
     @delete.command()
     @commands.has_role("Admin")
-    async def from_leaderboard(self, ctx, leaderboard_type, user_name):
+    async def from_leaderboard(self, ctx, leaderboard, user_name):
         """
         [Admin only]: Delete a user from a given leaderboard.
 
         Usage: ?delete from_leaderboard jogger McMomo
         """
-        if leaderboard_type.lower() in common.LEADERBOARD_LIST:
-            found = file_wrapper.remove_line_from_file(
-                file_name=f"leaderboards/{leaderboard_type}.txt",
-                str_to_remove=user_name)
-            await _inform_deleted_user(ctx, found, user_name, leaderboard_type)
+        if leaderboard in common.LEADERBOARD_LIST:
+            in_leaderboard_before = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
+            execute_statement(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
+            in_leaderboard_after = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
+
+            if len(in_leaderboard_before) == 1 and len(in_leaderboard_after) == 0:
+                await ctx.send(f"Removed {user_name} from {leaderboard}")
+            else:
+                await ctx.send(f"Could not find {user_name} in {leaderboard}")
+        else:
+            await ctx.send(f"Can't find the {leaderboard} leaderboard")
 
     @delete.error
-    async def delete_on_error(self, ctx, error):
+    async def delete_on_error(self, _, error):
         """Catches errors with delete command"""
         await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="delete")
 

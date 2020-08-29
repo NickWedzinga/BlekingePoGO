@@ -1,10 +1,13 @@
 import traceback
+from datetime import datetime
 
 from discord.ext import commands
 
 import common
-from testing.integration import leaderboard_integration, list_integration, support_integration
-from datetime import datetime
+from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
+    dex_integration
+from utils.exception_wrapper import pm_dev_error
+from utils.global_error_manager import in_channel_list
 
 
 class TestManager(commands.Cog):
@@ -29,34 +32,36 @@ class TestManager(commands.Cog):
             await user.send(f"""Error in TEST command: {error}""")
 
     @commands.command(name="test", help=".", hidden=True)
-    @commands.has_role("Admin")
+    @commands.is_owner()
+    @in_channel_list(["sneasel_commands"])
     async def test(self, ctx):
         """
         [Admin only]: Run integration-tests in test environment.
 
         Usage: ?test
         """
-        if ctx.message.author.id in common.DEVELOPERS and str(ctx.message.channel) == common.COMMAND_CHANNEL_LIST[1]:
-            try:
-                common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
-                await common.TEST_RESULTS_CHANNEL.send(f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
-                await ctx.send(f"Sending results to {common.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
+        try:
+            common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
+            await common.TEST_RESULTS_CHANNEL.send(
+                f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
+            await ctx.send(
+                f"Sending results to {common.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
 
-                # TODO: Add all the tests to a list or something to run
-                await leaderboard_integration.run_tests(ctx, self.bot)
-                await list_integration.run_tests(ctx, self.bot)
-                await support_integration.run_tests(ctx, self.bot)
+            # TODO: Add all the tests to a list or something to run
+            await leaderboard_integration.run_tests(self.bot, ctx)
+            await list_integration.run_tests(ctx, self.bot)
+            await support_integration.run_tests(ctx, self.bot)
+            await configure_integration.run_tests(self.bot, ctx)
+            await dex_integration.run_tests(self.bot, ctx)
 
-                await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
-            except Exception as e:
-                await ctx.send(f""":no_entry: At least one error found: {e}!""")
+            await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
+        except Exception as e:
+            traceback.print_exc()
+            await ctx.send(f""":no_entry: At least one error found: {e}!""")
 
     @test.error
     async def test_on_error(self, ctx, error):
-        traceback.print_exc()
-        for dev in common.DEVELOPERS:
-            user = ctx.bot.get_user(dev)
-            await user.send(f"""Error in TEST command: {error}""")
+        await pm_dev_error(bot=self.bot, error_message=error, source="Test")
 
 
 def setup(bot):

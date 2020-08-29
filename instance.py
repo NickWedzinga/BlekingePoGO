@@ -3,8 +3,9 @@ from discord.ext import commands as discordcommands
 
 # list of all cogs to add
 # TODO: perhaps put this in a function? Will that allow import bot from instance.py as it now does not load extensions every time?
-initial_extensions = ['global_error_manager', 'testing.integration.integration_manager', 'sneaselcommands.information',
-                      'sneaselcommands.support', 'sneaselcommands.leaderboards', 'sneaselcommands.ranks']
+initial_extensions = ['utils.global_error_manager', 'testing.integration.integration_manager', 'sneaselcommands.list',
+                      'sneaselcommands.support', 'sneaselcommands.leaderboards', 'sneaselcommands.ranks',
+                      'sneaselcommands.configure', 'sneaselcommands.dex', 'sneaselcommands.refresh']
 
 bot = discordcommands.Bot(command_prefix="?")
 for extension in initial_extensions:
