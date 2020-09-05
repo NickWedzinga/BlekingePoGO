@@ -4,9 +4,10 @@ import discord.utils
 from discord.ext import commands
 
 import common
-from utils import message_wrapper, exception_wrapper
 from utils.database_connector import execute_statement, create_select_query, create_update_query, execute_statements, \
     create_delete_query
+from utils.exception_wrapper import pm_dev_error
+from utils.message_wrapper import message_channel, delete_message, message_user
 
 
 def _handle_rename_input_syntax_errors(name, user_id, old_name):
@@ -56,12 +57,14 @@ async def _report_possible_renaming_errors(ctx, name_too_long, id_non_number, na
 def _rename_user_in_idclaims(new_name, user_id) -> bool:
     """
     :param new_name: The new name to replace the previous name with
-    :param user_to_replace: The string to find in the entry
+    :param user_id: The id of the user to rename
     :return: Returns bool if the user was found and the name that was replaced
     """
-    previous_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
+    previous_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(
+        as_dict=True)
     execute_statement(create_update_query("leaderboard__idclaims", "name", f"'{new_name}'", "user_id", f"'{user_id}'"))
-    updated_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(as_dict=True)
+    updated_entry = execute_statement(create_select_query("leaderboard__idclaims", "user_id", f"'{user_id}'")).all(
+        as_dict=True)
 
     try:
         if previous_entry[0].get("name") != new_name and updated_entry[0].get("name") == new_name:
@@ -76,7 +79,8 @@ def _rename_user_in_leaderboards(new_name: str, old_name: str):
     """Updates all the leaderboard tables with the new name"""
     statements = []
     for leaderboard in common.LEADERBOARD_LIST:
-        statements.append(create_update_query(f"leaderboard__{leaderboard}", "name", f"'{new_name}'", "name", f"'{old_name}'"))
+        statements.append(
+            create_update_query(f"leaderboard__{leaderboard}", "name", f"'{new_name}'", "name", f"'{old_name}'"))
     execute_statements(statements)
 
 
@@ -115,20 +119,21 @@ async def _validate_eligibility(ctx):
     """
     error_in_nickname = _check_invalid_nickname(ctx.message.author.display_name)
     rows = execute_statement(
-        create_select_query(table_name="leaderboard__idclaims", where_key="user_id", where_value=str(ctx.message.author.id))).all(
+        create_select_query(table_name="leaderboard__idclaims", where_key="user_id",
+                            where_value=str(ctx.message.author.id))).all(
         as_dict=True)
 
     if len(rows) > 0:
-        await message_wrapper.message_channel(
+        await message_channel(
             bot=ctx.bot,
             channel=ctx.message.channel,
             message=f""":no_entry: You have already claimed access to the leaderboards, """
                     f"""{ctx.message.author.mention}, if you have recently changed your nickname, """
-                    f"""please contact an admin.""",
+                    f"""please contact an admin or moderator.""",
             source="claim")
         return False
     elif error_in_nickname:
-        await message_wrapper.message_channel(bot=ctx.bot, channel=ctx.channel, message=error_in_nickname)
+        await message_channel(bot=ctx.bot, channel=ctx.channel, message=error_in_nickname)
         return False
     return True
 
@@ -137,14 +142,14 @@ class Support(commands.Cog):
     def __init__(self, bot=None):
         self.bot = bot
 
-    @commands.command(name="claim")
+    @commands.command(name="claim", hidden=True)
     async def claim(self, ctx):
         """
         Use this command to gain access to the leaderboards.
 
         Usage: ?claim
         """
-        await message_wrapper.delete_message(bot=self.bot, message=ctx.message, source="Claim")
+        await delete_message(bot=self.bot, message=ctx.message, source="Claim")
 
         if await _validate_eligibility(ctx):
             execute_statement(
@@ -154,9 +159,9 @@ class Support(commands.Cog):
             await ctx.message.author.add_roles(role)
 
             command_channel = discord.utils.get(ctx.message.guild.channels, name="leaderboards")
-            await message_wrapper.message_user(self.bot, ctx.message.author, _create_introductory_message(),
-                                               source="Claim")
-            await message_wrapper.message_channel(
+            await message_user(self.bot, ctx.message.author, _create_introductory_message(),
+                               source="Claim")
+            await message_channel(
                 bot=self.bot,
                 channel=ctx.message.channel,
                 message=f""":white_check_mark: {ctx.message.author.mention} you have claimed the nickname """
@@ -166,10 +171,10 @@ class Support(commands.Cog):
 
     @claim.error
     async def claim_on_error(self, _, error):
-        await exception_wrapper.pm_dev_error(bot=self.bot, source="claim", error_message=error)
+        await pm_dev_error(bot=self.bot, source="claim", error_message=error)
 
     @commands.command(name="rename", hidden=True)
-    @commands.has_role("Admin")
+    @commands.has_any_role("Admin", "Moderator")
     async def rename(self, ctx, new_name, user_id):
         """
         [Admin only]: This command renames a given player.
@@ -200,17 +205,17 @@ class Support(commands.Cog):
     @rename.error
     async def rename_on_error(self, _, error):
         """Catches errors with rename command"""
-        await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="rename")
+        await pm_dev_error(bot=self.bot, error_message=error, source="rename")
 
     @commands.group(hidden=True)
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def delete(self, ctx):
         """Delete base function"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Invalid delete command, options: delete user, delete from_leaderboard")
 
     @delete.command()
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def user(self, ctx, user_name):
         """
         [Admin only]: Deletes user from all leaderboards.
@@ -224,7 +229,7 @@ class Support(commands.Cog):
         await ctx.send(f"{user_name} is removed from all leaderboards.")
 
     @delete.command()
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def from_leaderboard(self, ctx, leaderboard, user_name):
         """
         [Admin only]: Delete a user from a given leaderboard.
@@ -232,9 +237,11 @@ class Support(commands.Cog):
         Usage: ?delete from_leaderboard jogger McMomo
         """
         if leaderboard in common.LEADERBOARD_LIST:
-            in_leaderboard_before = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
+            in_leaderboard_before = execute_statement(
+                create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
             execute_statement(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
-            in_leaderboard_after = execute_statement(create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
+            in_leaderboard_after = execute_statement(
+                create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
 
             if len(in_leaderboard_before) == 1 and len(in_leaderboard_after) == 0:
                 await ctx.send(f"Removed {user_name} from {leaderboard}")
@@ -246,7 +253,7 @@ class Support(commands.Cog):
     @delete.error
     async def delete_on_error(self, _, error):
         """Catches errors with delete command"""
-        await exception_wrapper.pm_dev_error(bot=self.bot, error_message=error, source="delete")
+        await pm_dev_error(bot=self.bot, error_message=error, source="delete")
 
 
 def setup(bot):

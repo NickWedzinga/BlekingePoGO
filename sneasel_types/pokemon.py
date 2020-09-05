@@ -2,6 +2,7 @@ import datetime
 
 import discord
 from discord.utils import get
+import requests
 
 from sneasel_types import moves, stats, extras
 
@@ -18,6 +19,7 @@ class Pokemon:
         self.extras: extras.Extras = extras.Extras()
         self.stats: stats.Stats = stats.Stats()
         self.movepool: moves.Moves = moves.Moves()
+        self.sprite_url = None
 
         # updates the Pokemon´s values
         self.__parse_dict_as_pokemon()
@@ -31,23 +33,28 @@ class Pokemon:
         self.stats = stats.Stats(self.pokemon_dict.get("stats"))
         self.movepool = moves.Moves(fast_moves=self.pokemon_dict.get("quickMoves"), charge_moves=self.pokemon_dict.get("cinematicMoves"))
 
+        # TODO: remove special case for mega once pokemondb adds GO megas
+        if "mega" in self.name.lower():
+            icon_url = f"https://img.pokemondb.net/sprites/x-y/normal/{self.name.replace(' ', '-').lower()}.png"
+        else:
+            icon_url = f"https://img.pokemondb.net/sprites/go/normal/{self.name.replace(' ', '-').lower()}.png"
+        self.sprite_url = icon_url
+
     async def send_embed(self, ctx):
         pokebattler_url_name = self.name.replace(" ", "_") + "_FORM" if " " in self.name else self.name
-        pokemondb_url_name = self.name.replace(" ", "-")
-
         pokebattler_url = f"https://www.pokebattler.com/pokemon/names/{pokebattler_url_name.upper()}/levels/40/opponents/levels/40/strategies/DODGE_SPECIALS/DEFENSE_RANDOM_MC?sort=OVERALL&weatherCondition=NO_WEATHER&view=GROUPED&dodgeStrategy=DODGE_REACTION_TIME"
-        pokemondb_sprite_url = f"https://img.pokemondb.net/sprites/go/normal/{pokemondb_url_name.lower()}.png"
+        pokemondb_sprite_url = self.sprite_url if requests.get(self.sprite_url).status_code == 200 else "https://www.pokencyclopedia.info/sprites/misc/spr_substitute/art__substitute.png"
 
         level_15 = self.stats.calculate_cp_at_level(level=15)
         level_20 = self.stats.calculate_cp_at_level(level=20)
         level_25 = self.stats.calculate_cp_at_level(level=25)
         level_40 = self.stats.calculate_cp_at_level(level=40)
 
-        emoji_type1 = get(ctx.message.guild.emojis, name=f"{self.type1.lower()}_type")
+        emoji_type1 = get(ctx.guild.emojis, name=f"{self.type1.lower()}_type")
         typing_str = f"{emoji_type1} {self.type1}"
 
         if self.type2 is not None:
-            emoji_type2 = get(ctx.message.guild.emojis, name=f"{self.type2.lower()}_type")
+            emoji_type2 = get(ctx.guild.emojis, name=f"{self.type2.lower()}_type")
             type2_str = f"{emoji_type2} {self.type2}"
             typing_str = f"{typing_str}\n{type2_str}"
 
@@ -60,7 +67,7 @@ class Pokemon:
         embed.set_footer(text="Sprite: https://pokemondb.net/sprites • Shiny info: https://p337.info", icon_url=pokemondb_sprite_url)
         embed.add_field(name="Type: ", value=typing_str, inline=True)
         embed.add_field(name="\u200b", value="\u200b", inline=True)
-        embed.add_field(name="Shiny", value=(":no_entry:" if self.extras.shiny_date is None else f":white_check_mark: {self.extras.shiny_date}"), inline=True)
+        embed.add_field(name="Shiny", value=(":grey_question:" if self.extras.shiny_date is None else f":white_check_mark: {self.extras.shiny_date}"), inline=True)
         embed.add_field(name="Max CP:", value=f"Research: **{level_15}**, Raid/Egg: **{level_20}**, \nRaid (weather boost): **{level_25}**, Max:  **{level_40}**", inline=False)
         embed.add_field(name="Fast moves:", value=" ".join(self.movepool.fast_moves), inline=True)
         embed.add_field(name="\u200b", value="\u200b", inline=True)

@@ -5,13 +5,15 @@ import discord
 import schedule
 from discord.ext import commands
 
+import common
+from sneaselcommands.raids.utils.raid_scheduler import delete_channel_at_time, update_embed, remind_task, get_interval
 from utils import scheduler
 from utils.channel_wrapper import purge_channel, create_channel, delete_channel
 from utils.database_connector import create_insert_scheduled_event_query, create_delete_query, execute_statement, \
     create_select_query
 from utils.exception_wrapper import pm_dev_error
 from utils.message_wrapper import message_channel
-from utils.scheduler import re_schedule_task
+from utils.scheduler import schedule_new_weekly_task
 
 
 def _create_channel(bot: discord.ext.commands.Bot, **kwargs):
@@ -40,15 +42,18 @@ def _get_task(task):
         "create_channel": _create_channel,
         "remove_channel": _remove_channel,
         "purge": _schedule_purge,
-        "send_message": _message_channel
+        "send_message": _message_channel,
+        "remind": remind_task,
+        "remove_channel_at": delete_channel_at_time,
+        "edit_embed": update_embed
     }.get(task)
 
 
-def _schedule_event(bot: discord.ext.commands.Bot):
-    task_info_list = execute_statement(create_select_query("configure__schedule")).all(as_dict=True)
-    for task_info in task_info_list:
+def _schedule_events(bot: discord.ext.commands.Bot):
+    weekly_task_info_list = execute_statement(create_select_query(common.SCHEDULE_WEEKLY)).all(as_dict=True)
+    for task_info in weekly_task_info_list:
         local_guild: discord.Guild = bot.get_guild(task_info.get("guild_id"))
-        re_schedule_task(
+        schedule_new_weekly_task(
             bot,
             _get_task(task_info.get("task")),
             task_info.get("weekday"),
@@ -59,6 +64,18 @@ def _schedule_event(bot: discord.ext.commands.Bot):
             number=task_info.get("number"),
             guild=local_guild,
             category=None if local_guild is None else discord.utils.get(local_guild.categories, id=int(task_info.get("category_id")))
+        )
+
+    task_info_list = execute_statement(create_select_query(common.SCHEDULE_RAID)).all(as_dict=True)
+    for task_info in task_info_list:
+        channel = bot.get_channel(int(task_info.get("channel_id")))
+        get_interval(task_info.get("task_interval"))(
+            _get_task(task_info.get("task")),
+            task_info.get("tag"),
+            bot=bot,
+            channel=channel,
+            at_time=task_info.get("at_time"),
+            message=task_info.get("message")
         )
 
 
@@ -72,7 +89,7 @@ class Configure(commands.Cog):
         threading.Thread(name="scheduled_events", target=self._check_scheduled_events).start()
 
     def _check_scheduled_events(self):
-        _schedule_event(self.bot)
+        _schedule_events(self.bot)
         while True:
             schedule.run_pending()
             time.sleep(1)
@@ -115,7 +132,7 @@ class Configure(commands.Cog):
 
         Usage: ?configure schedule create_channel some_channel_name 12756371253 monday 13:00
         """
-        await scheduler.schedule_new_task(
+        await scheduler.schedule_new_weekly_task_command(
             self.bot,
             ctx,
             _create_channel,
@@ -152,7 +169,7 @@ class Configure(commands.Cog):
 
         Usage: ?configure schedule delete_channel some_channel_id monday 13:00
         """
-        await scheduler.schedule_new_task(
+        await scheduler.schedule_new_weekly_task_command(
             self.bot,
             ctx,
             _remove_channel,
@@ -189,7 +206,7 @@ class Configure(commands.Cog):
         channel_to_purge = self.bot.get_channel(int(channel_id))
         number = None if number_of_messages == 0 else int(number_of_messages)
 
-        await scheduler.schedule_new_task(
+        await scheduler.schedule_new_weekly_task_command(
             self.bot,
             ctx,
             _schedule_purge,
@@ -224,7 +241,7 @@ class Configure(commands.Cog):
 
         Usage: ?configure schedule send_message 8126387123 monday 13:00 some message here
         """
-        await scheduler.schedule_new_task(
+        await scheduler.schedule_new_weekly_task_command(
             self.bot,
             ctx,
             _message_channel,
@@ -252,7 +269,7 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule send_message")
 
     @commands.command()
-    @commands.has_role("Admin")
+    @commands.has_any_role("Admin", "Moderator")
     async def list_scheduled_events(self, ctx):
         """
         Lists all the current scheduled events.
@@ -298,10 +315,10 @@ class Configure(commands.Cog):
 
         schedule.clear(tag)
         if tag is None:
-            execute_statement(create_delete_query("configure__schedule"))
+            execute_statement(create_delete_query(common.SCHEDULE_WEEKLY))
             await ctx.send(f"Removed all scheduled events")
         else:
-            execute_statement(create_delete_query("configure__schedule", "tag", f"'{tag}'"))
+            execute_statement(create_delete_query(common.SCHEDULE_WEEKLY, "tag", f"'{tag}'"))
             await ctx.send(f"Removed all scheduled events with tag [{tag}]")
 
     @remove_scheduled_events.error

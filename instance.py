@@ -1,13 +1,13 @@
 import discord
-from discord.ext import commands as discordcommands
+from discord.ext import commands
 
-# list of all cogs to add
-# TODO: perhaps put this in a function? Will that allow import bot from instance.py as it now does not load extensions every time?
 initial_extensions = ['utils.global_error_manager', 'testing.integration.integration_manager', 'sneaselcommands.list',
                       'sneaselcommands.support', 'sneaselcommands.leaderboards', 'sneaselcommands.ranks',
-                      'sneaselcommands.configure', 'sneaselcommands.dex', 'sneaselcommands.refresh']
+                      'sneaselcommands.configure', 'sneaselcommands.dex', 'sneaselcommands.refresh',
+                      'sneaselcommands.raids.raid', 'sneaselcommands.raids.close', 'sneaselcommands.raids.update',
+                      'sneaselcommands.raids.status', 'sneaselcommands.raids.raids']
 
-bot = discordcommands.Bot(command_prefix="?")
+bot = commands.Bot(command_prefix="?", case_insensitive=True)
 for extension in initial_extensions:
     bot.load_extension(extension)
 
@@ -15,7 +15,6 @@ for extension in initial_extensions:
 def startup():
     print("Starting..")
     print(f"Discord version: {discord.__version__}")
-    # Printing client info
     @bot.event
     async def on_ready():
         print('Logged in as: ' + bot.user.display_name)

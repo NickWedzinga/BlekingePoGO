@@ -29,11 +29,16 @@ def create_select_top_x_scores_query(table_name: str, limit: int = None) -> str:
     return f"SELECT score_table.* FROM leaderboard__{table_name} score_table WHERE score_table.id = (SELECT MAX(score_table2.id) FROM leaderboard__{table_name} score_table2 WHERE score_table2.name = score_table.name) ORDER BY score DESC, id LIMIT {limit}"
 
 
+def create_insert_query(table_name: str, keys: str, values: str) -> str:
+    """Creates a INSERT INTO query"""
+    return f"INSERT INTO {table_name} {keys} VALUES {values}"
+
+
 def create_insert_scheduled_event_query(task: str, weekday: str, at_time: str, tag: str, message: str = "empty",
                                         channel_id: int = 0, category_id: int = 0, guild_id: int = 0, number: int = 0,
                                         channel_name: str = "empty") -> str:
-    """Creates an INSERT INTO query for the configure__schedule table"""
-    return f"INSERT INTO configure__schedule " \
+    """Creates an INSERT INTO query for the configure__schedule_weekly table"""
+    return f"INSERT INTO {common.SCHEDULE_WEEKLY} " \
            f"(task, weekday, at_time, tag, message, channel_id, category_id, guild_id, number, channel_name) " \
            f"VALUES ('{task}', '{weekday}', '{at_time}', '{tag}', '{message}', {channel_id}, {category_id}, {guild_id}, {number}, '{channel_name}')"
 
