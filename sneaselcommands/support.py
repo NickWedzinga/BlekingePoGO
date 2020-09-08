@@ -148,7 +148,7 @@ class Support(commands.Cog):
 
         if await _validate_eligibility(ctx):
             execute_statement(
-                f"INSERT INTO idclaims (name, user_id) VALUES ('{ctx.author.display_name}', {ctx.author.id})")
+                f"INSERT INTO leaderboard__idclaims (name, user_id) VALUES ('{ctx.author.display_name}', {ctx.author.id})")
 
             role = discord.utils.get(ctx.message.guild.roles, name="claimed")
             await ctx.message.author.add_roles(role)
@@ -188,7 +188,7 @@ class Support(commands.Cog):
                                                              new_name, user_to_change.mention)
 
         if not error_found:
-            changed = _rename_user_in_idclaims("idclaims", new_name, user_id)
+            changed = _rename_user_in_idclaims(new_name, user_id)
             if changed:
                 _rename_user_in_leaderboards(new_name, old_name)
                 await ctx.send(f"Username updated from {old_name} to {new_name}")
