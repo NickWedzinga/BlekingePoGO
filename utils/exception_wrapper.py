@@ -2,6 +2,7 @@ import inspect
 import traceback
 
 import common
+from discord.ext import commands
 
 
 def _formatted_error_log(source: str = "unspecified", error_message: str = None):
@@ -59,7 +60,8 @@ async def catch_with_pm_and_channel_message(bot, function_to_try, channel, catch
         await pm_dev_error(bot, source=source)
 
 
-async def pm_dev_error(bot, error_message: str = None, source="unspecified"):
-    for dev in common.DEVELOPERS:
-        user = bot.get_user(dev)
-        await user.send(_formatted_error_log(source=source, error_message=error_message)[:1999])
+async def pm_dev_error(bot, error_message=None, source="unspecified"):
+    if not isinstance(error_message, commands.errors.CheckFailure):
+        for dev in common.DEVELOPERS:
+            user = bot.get_user(dev)
+            await user.send(_formatted_error_log(source=source, error_message=error_message)[:1999])

@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 
 import discord
 
@@ -36,3 +37,21 @@ async def delete_channel(bot, channel, source: str = None):
         channel.delete,
         source
     )
+
+
+async def find_embed_in_channel(bot, channel: Optional[discord.TextChannel], source: str, should_pm: bool = True) -> Optional[discord.Message]:
+    """
+    Returns the first message containing an embed in the provided channel
+    If the channel/embed doesn't exist, will pm_dev_error and return None
+    """
+    if channel is not None:
+        async for message in channel.history(oldest_first=True):
+            if message.embeds:
+                return message
+
+    if should_pm:
+        await exception_wrapper.pm_dev_error(
+            bot=bot,
+            error_message="Unable to find embed channel" if channel is None else "Unable to find embed in channel",
+            source=source)
+    return None

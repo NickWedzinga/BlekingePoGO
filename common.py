@@ -5,8 +5,20 @@ Contains common code
 # connection to database
 DATABASE_CONNECTION = None
 
+# data tables
+SCHEDULE_RAID = "configure__schedule_raid_channel"
+SCHEDULE_WEEKLY = "configure__schedule_weekly"
+ACTIVE_RAID_CHANNEL_OWNERS = "raid__active_channel_owners"
+
 # list of channels in which Sneasel can trigger sneaselcommands
 COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support", "momos_test_dungeon"]
+
+# list of raid report channels
+RAID_REPORT_CHANNEL_LIST = ["raids"]
+RAID_ACTIVES_CHANNEL = "raids-active"
+
+# raid egg types
+RAID_EGG_TYPES = ["T1", "T3", "T5", "LEGENDARY", "MEGA"]
 
 # channel to send test results to
 TEST_RESULTS_CHANNEL = None
@@ -142,4 +154,13 @@ MEDAL_ICON_URLS = {
     "ultraleague": "5/5e/UltraLeague_Gold.png",
     "unown": "1/1b/Unown_Gold.png",
     "youngster": "9/94/Youngster_Gold.png",
+}
+
+# icon urls to raid eggs
+RAID_EGG_ICON_URLS = {
+    "T1": "https://vignette.wikia.nocookie.net/pokemongo/images/5/5a/Egg_Raid_Normal.png/",
+    "T3": "https://vignette.wikia.nocookie.net/pokemongo/images/e/e3/Egg_Raid_Rare.png/",
+    "T5": "https://vignette.wikia.nocookie.net/pokemongo/images/c/cd/Egg_Raid_Legendary.png",
+    "LEGENDARY": "https://vignette.wikia.nocookie.net/pokemongo/images/c/cd/Egg_Raid_Legendary.png",
+    "MEGA": "https://vignette.wikia.nocookie.net/pokemongo/images/c/c2/Egg_Raid_Mega.png"
 }

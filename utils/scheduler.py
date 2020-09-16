@@ -2,8 +2,6 @@ import datetime
 
 import schedule
 
-from utils.exception_wrapper import catch_with_pm
-
 
 def _validate_datetime(at_time: str):
     try:
@@ -27,7 +25,21 @@ def _get_weekday(weekday):
     }.get(weekday.lower())
 
 
-async def schedule_new_task(bot, ctx, task, source: str, weekday: str, at_time: str, tag: str, **kwargs):
+def schedule_new_hourly_task(task, tag, **kwargs):
+    schedule.every().hour.do(task, **kwargs).tag(tag)
+
+
+def schedule_new_daily_task(task, tag, **kwargs):
+    schedule.every().day.at(kwargs.get("at_time")).do(task, **kwargs).tag(tag)
+
+
+def schedule_new_weekly_task(bot, task, weekday: str, at_time: str, tag: str, **kwargs):
+    """Schedules previously scheduled events that don't need new new information messaging"""
+    scheduled_day = _get_weekday(weekday)
+    scheduled_day.at(at_time).do(task, bot, **kwargs).tag(tag)
+
+
+async def schedule_new_weekly_task_command(bot, ctx, task, source: str, weekday: str, at_time: str, tag: str, **kwargs):
     if _validate_datetime(at_time) == "0":
         task(bot, **kwargs)
         await ctx.send(f"Time for schedule {source} set to execute immediately.")
@@ -35,10 +47,3 @@ async def schedule_new_task(bot, ctx, task, source: str, weekday: str, at_time: 
         scheduled_day = _get_weekday(weekday)
         scheduled_day.at(at_time).do(task, bot, **kwargs).tag(tag)
         await ctx.send(f"Scheduled {source} every {weekday} at {at_time}.")
-
-
-def re_schedule_task(bot, task, weekday: str, at_time: str, tag: str, **kwargs):
-    """Schedules previously scheduled events that don't need new new information messaging"""
-    _validate_datetime(at_time)
-    scheduled_day = _get_weekday(weekday)
-    scheduled_day.at(at_time).do(task, bot, **kwargs).tag(tag)

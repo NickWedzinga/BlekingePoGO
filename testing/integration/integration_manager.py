@@ -1,11 +1,12 @@
 import traceback
 from datetime import datetime
 
+import discord
 from discord.ext import commands
 
 import common
 from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
-    dex_integration
+    dex_integration, raid_integration
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
 
@@ -41,7 +42,7 @@ class TestManager(commands.Cog):
         Usage: ?test
         """
         try:
-            common.TEST_RESULTS_CHANNEL = self.bot.get_channel(640964820732084233)
+            common.TEST_RESULTS_CHANNEL = discord.utils.get(ctx.guild.channels, name="test_results")
             await common.TEST_RESULTS_CHANNEL.send(
                 f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
             await ctx.send(
@@ -53,6 +54,7 @@ class TestManager(commands.Cog):
             await support_integration.run_tests(ctx, self.bot)
             await configure_integration.run_tests(self.bot, ctx)
             await dex_integration.run_tests(self.bot, ctx)
+            await raid_integration.run_tests(self.bot, ctx)
 
             await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
         except Exception as e:

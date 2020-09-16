@@ -1,11 +1,13 @@
 import discord
 from discord.ext import commands
 
+import common_instances
 from utils import pokemon_collection
 from utils.exception_wrapper import pm_dev_error
+from spellchecker import SpellChecker
 
 
-def _find_possible_matches(name: str, list_of_names: list):
+def _find_possible_matches(name: str, list_of_names: list) -> list:
     possible_list = []
     for pkmn_name in list_of_names:
         if name in pkmn_name:
@@ -13,29 +15,39 @@ def _find_possible_matches(name: str, list_of_names: list):
     return possible_list
 
 
-def _create_info_message(name: str, possible_matches: list):
-    info_message = ""
-    if possible_matches:
-        if len(possible_matches) > 10:
-            info_message += f"\t:question: Too many Pokémon containing: **{name}**\n"
-        else:
-            info_message += f"\t:grey_question: Pokémon found containing **{name}**: *{', '.join(possible_matches)}*\n"
-    else:
-        info_message += f"\t:question: Could not find any Pokémon containing: **{name}**\n"
+def _find_containing_matches(ctx, pokemon_name: str) -> list:
+    """Takes a name and checks for each word in name if a Pokémon contains that word"""
+    possible_matches = []
+    for sub_name in pokemon_name.split(" "):
+        sub_matches = _find_possible_matches(sub_name.upper(), common_instances.POKEDEX.pokedict.keys())
+        if len(sub_matches) < 10:
+            [possible_matches.append(sub_match) for sub_match in sub_matches if sub_match not in possible_matches]
+    return possible_matches
+
+
+def create_info_message(ctx, pokemon_name: str):
+    pokemon_spelling_candidates = common_instances.SPELLCHECKER.candidates(pokemon_name)
+    pokemon_containing_matches = _find_containing_matches(ctx=ctx, pokemon_name=pokemon_name)
+
+    info_message = f"Could not find any matches for {pokemon_name} {ctx.author.mention}"
+
+    if len(pokemon_spelling_candidates) > 1 or (pokemon_spelling_candidates and pokemon_name not in pokemon_spelling_candidates):
+        info_message += f"\nSimilarly spelled alternatives: {', '.join(list(map(str.title, pokemon_spelling_candidates)))}"
+    if pokemon_containing_matches:
+        info_message += f"\nPokémon containing parts of {pokemon_name}: {', '.join(list(map(str.title, pokemon_containing_matches)))}"
     return info_message
 
 
 class Dex(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):
-        self.pokedex_file_path = "textfiles/pokedex.json"
-        self.pokedex_url = "https://fight.pokebattler.com/pokemon"
-        self.shiny_file_path = "textfiles/shiny.json"
-        self.shiny_url = "https://p337.info/pokemongo/pokedex/?show=shiny&hide=unreleased"
-        self.dex = pokemon_collection.create_pokedex_from_file_or_rest(
-            pokedex_file_path=self.pokedex_file_path, pokedex_url=self.pokedex_url,
-            extras_file_path=self.shiny_file_path, extras_url=self.shiny_url
-        )
         self.bot = bot
+        common_instances.POKEDEX = pokemon_collection.create_pokedex_from_file_or_rest(
+            pokedex_file_path=common_instances.POKEDEX_FILE_PATH, pokedex_url=common_instances.POKEDEX_URL,
+            extras_file_path=common_instances.SHINY_FILE_PATH, extras_url=common_instances.SHINY_URL
+        )
+        common_instances.SPELLCHECKER = SpellChecker(distance=2)
+        common_instances.SPELLCHECKER.word_frequency.remove_words(common_instances.SPELLCHECKER.word_frequency.words())
+        common_instances.SPELLCHECKER.word_frequency.load_words(common_instances.POKEDEX.pokedict.keys())
 
     @commands.command(name="dex")
     async def dex(self, ctx, *pokemon_name):
@@ -48,17 +60,23 @@ class Dex(commands.Cog):
             await ctx.send("No Pokémon provided, usage is *?dex POKEMON_NAME*")
             return
 
-        pokemon_name_list = [name.replace(",", "") for name in pokemon_name]
-        pokemon_name_concat = " ".join(map(str, pokemon_name_list))
-        pkmn = self.dex.lookup(pokemon_name_concat.upper())
+        pokemon_name_concat = " ".join(pokemon_name)
+        pkmn = common_instances.POKEDEX.lookup(pokemon_name_concat)
 
         if pkmn is None:
-            info_message = f"Could not find **{pokemon_name_concat.capitalize()}** in Pokédex, similar results:\n"
+            # TODO: implement the subset lookup that raid has
 
-            for sub_name in pokemon_name_list:
-                possible_matches = _find_possible_matches(sub_name.upper(), self.dex.pokedict.keys())
-                info_message += _create_info_message(name=sub_name.capitalize(), possible_matches=possible_matches)
-            await ctx.send(info_message)
+            pkmn_spell_checked = common_instances.POKEDEX.lookup(common_instances.SPELLCHECKER.correction(pokemon_name_concat))
+            if pkmn_spell_checked is not None:
+                await pkmn_spell_checked.send_embed(ctx)
+                info_message = f"Showing result for **{pkmn_spell_checked.name.title()}**, did not find **{pokemon_name_concat.title()}**"
+
+                candidates = common_instances.SPELLCHECKER.candidates(pokemon_name_concat)
+                if len(candidates) > 1:
+                    info_message += f"\nOther options: {', '.join(list(map(str.title, candidates)))}"
+                await ctx.send(info_message)
+            else:
+                await ctx.send(create_info_message(ctx, pokemon_name_concat))
         else:
             await pkmn.send_embed(ctx)
 
@@ -71,11 +89,11 @@ class Dex(commands.Cog):
     @commands.is_owner()
     async def update_pokedex(self, ctx):
         """Updates the Pokédex"""
-        self.dex = pokemon_collection.update_pokedex(
-            pokedex_file_path=self.pokedex_file_path,
-            pokedex_url=self.pokedex_url,
-            extras_file_path=self.shiny_file_path,
-            extras_url=self.shiny_url
+        common_instances.POKEDEX = pokemon_collection.update_pokedex(
+            pokedex_file_path=common_instances.POKEDEX_FILE_PATH,
+            pokedex_url=common_instances.POKEDEX_URL,
+            extras_file_path=common_instances.SHINY_FILE_PATH,
+            extras_url=common_instances.SHINY_URL
         )
         await ctx.send(f"Updated Pokédex!")
 

@@ -8,4 +8,4 @@ class Pokedex:
         self.pokedict = pokedict
 
     def lookup(self, pokemon_name: str):
-        return self.pokedict.get(pokemon_name)
+        return self.pokedict.get(pokemon_name.upper())
