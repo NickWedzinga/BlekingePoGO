@@ -3,6 +3,9 @@ import os
 import unittest
 from datetime import datetime, timedelta
 
+from spellchecker import SpellChecker
+
+import common
 import common_instances
 from sneaselcommands.raids.raid import _validate_report, valid_time_hhmm, _find_pokemon_and_gym, \
     filter_pokemon_leftovers_from_gym, _remove_found_pokemon_from_report
@@ -11,6 +14,10 @@ from utils.pokemon_collection import _parse_jsons_as_pokedex
 common_instances.POKEDEX = _parse_jsons_as_pokedex(
     pokedex_json=json.load(open(os.path.dirname(os.path.abspath(__file__)) + "/test_pokedex.json")),
     extras_json={"response": []})
+
+common_instances.SPELLCHECKER = SpellChecker(distance=2)
+common_instances.SPELLCHECKER.word_frequency.remove_words(common_instances.SPELLCHECKER.word_frequency.words())
+common_instances.SPELLCHECKER.word_frequency.load_words(common_instances.POKEDEX.pokedict.keys())
 
 
 class TestRaid(unittest.TestCase):
@@ -77,12 +84,6 @@ class TestRaid(unittest.TestCase):
             first=("CHARIZARD MEGA X", "Bleke"),
             second=_find_pokemon_and_gym("mega", "charizard", "x", "Bleke"))
 
-    def test_pokemon_extraction_pokemon_and_gym_with_multiple_words(self):
-        """Testing that a multi-word pokemon is returned correctly"""
-        self.assertEqual(
-            first=("CHARIZARD MEGA X", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "charizard", "x", "adam", "och", "eva"))
-
     def test_pokemon_extraction_shorter_mega(self):
         """Testing that a mega venusaur is returned correctly"""
         self.assertEqual(
@@ -92,7 +93,7 @@ class TestRaid(unittest.TestCase):
     def test_pokemon_extraction_mega_charizard(self):
         """Testing that a mega charizard is returned correctly"""
         self.assertEqual(
-            first=("MEGA", "Charizard Adam Och Eva"),
+            first=("CHARIZARD", "Mega Adam Och Eva"),
             second=_find_pokemon_and_gym("mega", "charizard", "adam", "och", "eva"))
 
     def test_pokemon_extraction_mega_egg(self):
@@ -128,7 +129,7 @@ class TestRaid(unittest.TestCase):
     def test_pokemon_extraction_no_match(self):
         """Testing no match"""
         self.assertEqual(
-            first=("thisisnopokemon", "Adam Och Eva"),
+            first=("THISISNOPOKEMON", "Adam Och Eva"),
             second=_find_pokemon_and_gym("thisisnopokemon", "adam", "och", "eva"))
 
     def test_pokemon_extraction_egg_variants(self):
@@ -136,6 +137,24 @@ class TestRaid(unittest.TestCase):
         self.assertEqual(
             first=("T5", "Adam Och Eva"),
             second=_find_pokemon_and_gym("t5", "adam", "och", "eva"))
+
+    def test_pokemon_incorrect_spelling(self):
+        """Basic test for a Pokémon with incorrect spelling"""
+        self.assertEqual(
+            first=("CHARIZARD", "Adam Och Eva"),
+            second=_find_pokemon_and_gym("charirzard", "adam", "och", "eva"))
+
+    def test_pokemon_scrambled_order(self):
+        """Test for a scrambled Pokémon"""
+        self.assertEqual(
+            first=("CHARIZARD MEGA X", "Adam Och Eva"),
+            second=_find_pokemon_and_gym("mega", "charizard", "x", "adam", "och", "eva"))
+
+    def test_pokemon_scrambled_order_and_incorrect_spelling(self):
+        """Test for a scrambled and incorrectly spelled Pokémon"""
+        self.assertEqual(
+            first=("CHARIZARD MEGA X", "Adam Och Eva"),
+            second=_find_pokemon_and_gym("mega", "charirzard", "x", "adam", "och", "eva"))
 
     def test_filter_pokemon_leftovers_from_gym(self):
         """Testing filters for gym"""
