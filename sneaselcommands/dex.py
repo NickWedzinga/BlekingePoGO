@@ -1,10 +1,14 @@
+from typing import Optional
+
 import discord
 from discord.ext import commands
+from spellchecker import SpellChecker
 
 import common_instances
+from sneasel_types.pokemon import Pokemon
 from utils import pokemon_collection
 from utils.exception_wrapper import pm_dev_error
-from spellchecker import SpellChecker
+from utils.pokemon_handler import check_scrumbled_pokemon_name, check_scrumbled_and_spelling_pokemon, check_spelling_pokemon_name
 
 
 def _find_possible_matches(name: str, list_of_names: list) -> list:
@@ -15,7 +19,7 @@ def _find_possible_matches(name: str, list_of_names: list) -> list:
     return possible_list
 
 
-def _find_containing_matches(ctx, pokemon_name: str) -> list:
+def _find_containing_matches(pokemon_name: str) -> list:
     """Takes a name and checks for each word in name if a Pokémon contains that word"""
     possible_matches = []
     for sub_name in pokemon_name.split(" "):
@@ -25,9 +29,9 @@ def _find_containing_matches(ctx, pokemon_name: str) -> list:
     return possible_matches
 
 
-def create_info_message(ctx, pokemon_name: str):
+def create_no_matches_info_message(ctx, pokemon_name: str):
     pokemon_spelling_candidates = common_instances.SPELLCHECKER.candidates(pokemon_name)
-    pokemon_containing_matches = _find_containing_matches(ctx=ctx, pokemon_name=pokemon_name)
+    pokemon_containing_matches = _find_containing_matches(pokemon_name=pokemon_name)
 
     info_message = f"Could not find any matches for {pokemon_name} {ctx.author.mention}"
 
@@ -36,6 +40,32 @@ def create_info_message(ctx, pokemon_name: str):
     if pokemon_containing_matches:
         info_message += f"\nPokémon containing parts of {pokemon_name}: {', '.join(list(map(str.title, pokemon_containing_matches)))}"
     return info_message
+
+
+def create_found_correction_info_message(ctx, corrected_name: str, incorrect_name: str) -> str:
+    """Creates a str that lists the corrected Pokémon and attempts to give spelling alternatives"""
+    info_message = f"Showing result for **{corrected_name.title()}**, did not find **{incorrect_name.title()}** {ctx.author.mention}"
+
+    candidates = common_instances.SPELLCHECKER.candidates(incorrect_name)
+    if len(candidates) > 1:
+        info_message += f"\nOther spelling options: {', '.join(list(map(str.title, candidates)))}"
+    return info_message
+
+
+def find_corrected_pokemon(pokemon_name: list) -> Optional[Pokemon]:
+    """Attempts to scamble and spell-check to find the correct Pokémon"""
+    pkmn_scrambled_checked = check_scrumbled_pokemon_name(list(pokemon_name))
+    if pkmn_scrambled_checked is not None:
+        return pkmn_scrambled_checked
+
+    pkmn_spell_checked = check_spelling_pokemon_name(" ".join(pokemon_name))
+    if pkmn_spell_checked is not None:
+        return pkmn_spell_checked
+
+    pkmn_spell_and_scrambled_checked = check_scrumbled_and_spelling_pokemon(pokemon_name)
+    if pkmn_spell_and_scrambled_checked:
+        return pkmn_spell_and_scrambled_checked
+    return None
 
 
 class Dex(commands.Cog):
@@ -64,19 +94,12 @@ class Dex(commands.Cog):
         pkmn = common_instances.POKEDEX.lookup(pokemon_name_concat)
 
         if pkmn is None:
-            # TODO: implement the subset lookup that raid has
-
-            pkmn_spell_checked = common_instances.POKEDEX.lookup(common_instances.SPELLCHECKER.correction(pokemon_name_concat))
-            if pkmn_spell_checked is not None:
-                await pkmn_spell_checked.send_embed(ctx)
-                info_message = f"Showing result for **{pkmn_spell_checked.name.title()}**, did not find **{pokemon_name_concat.title()}**"
-
-                candidates = common_instances.SPELLCHECKER.candidates(pokemon_name_concat)
-                if len(candidates) > 1:
-                    info_message += f"\nOther options: {', '.join(list(map(str.title, candidates)))}"
-                await ctx.send(info_message)
+            maybe_found_pokemon = find_corrected_pokemon(list(pokemon_name))
+            if maybe_found_pokemon is not None:
+                await ctx.send(create_found_correction_info_message(ctx, maybe_found_pokemon.name, " ".join(pokemon_name)))
+                await maybe_found_pokemon.send_embed(ctx)
             else:
-                await ctx.send(create_info_message(ctx, pokemon_name_concat))
+                await ctx.send(create_no_matches_info_message(ctx, " ".join(pokemon_name)))
         else:
             await pkmn.send_embed(ctx)
 

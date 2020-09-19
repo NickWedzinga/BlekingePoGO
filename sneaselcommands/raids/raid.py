@@ -11,6 +11,7 @@ from sneaselcommands.raids.utils.raid_scheduler import schedule_edit_embed, sche
 from utils.database_connector import execute_statement, create_insert_query, create_select_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
+from utils.pokemon_handler import check_scrumbled_pokemon_name, check_spelling_pokemon_name, check_scrumbled_and_spelling_pokemon
 from utils.time_wrapper import valid_time_hhmm, valid_time_mm, format_as_hhmm
 
 
@@ -114,34 +115,49 @@ def _remove_found_pokemon_from_report(report: list, pokemon: str) -> str:
     return " ".join(report_list).title()
 
 
+def _find_originally_misspelled_pokemon(report: list, corrected_pokemon_name: str) -> str:
+    """Finds the originally misspelled Pokémon from the report and the corrected pokemon name"""
+    original_pokemon_list = []
+    for word in report:
+        if word.upper() in corrected_pokemon_name.upper():
+            original_pokemon_list.append(word)
+        elif common_instances.SPELLCHECKER.correction(word).upper() in corrected_pokemon_name.upper():
+            original_pokemon_list.append(word)
+    return " ".join(original_pokemon_list)
+
+
 def _find_pokemon_and_gym(*report) -> (str, str):
     """Attempts to find the pokemon and gym in a printreport"""
+    report = list(report)
     if valid_time_hhmm(report[-1]) is not None or valid_time_mm(report[-1]):
         report = report[:-1]
 
-    pokemon = report[0]
-    pokemon_and_gym_converted = list(map(str.upper, report))
+    original_pokemon = report[0]
+    pokemon = check_scrumbled_pokemon_name(report)
 
-    proper_matches = []
-    backup_matches = []
-    for key in common_instances.POKEDEX.pokedict.keys():
-        set_key = set(key.split(" "))
-        if set_key.issubset(set(pokemon_and_gym_converted)):
-            proper_matches.append(key)
-        if pokemon.upper() in key:
-            backup_matches.append(key)
+    if pokemon is not None:
+        pokemon = pokemon.name.upper()
+        original_pokemon = pokemon
 
-    if proper_matches:
-        pokemon = max(proper_matches, key=len)
-    elif backup_matches:
-        pokemon = min(backup_matches, key=len)
+    # Checking len is less than 3 assures that the Pokémon only contains one word
+    if pokemon is None and len(report) < 3:
+        maybe_spelled_correctly_pokemon = check_spelling_pokemon_name(original_pokemon)
+        if maybe_spelled_correctly_pokemon is not None:
+            pokemon = maybe_spelled_correctly_pokemon.name
 
-    if report[0].upper() in common.RAID_EGG_TYPES:
-        intersection = set(pokemon_and_gym_converted).intersection(pokemon.split(" "))
-        if len(intersection) < 2:
-            pokemon = report[0].upper()
+    # check if both the order is wrong and Pokémon is misspelled
+    if pokemon is None:
+        maybe_correct_spelling_and_scramble_pokemon = check_scrumbled_and_spelling_pokemon(report)
+        if maybe_correct_spelling_and_scramble_pokemon is not None:
+            pokemon = maybe_correct_spelling_and_scramble_pokemon.name
+            original_pokemon = _find_originally_misspelled_pokemon(report, pokemon)
 
-    return pokemon, _remove_found_pokemon_from_report(pokemon_and_gym_converted, pokemon)
+    # Works both for if first word is an egg type or if Pokémon just can't be found
+    if pokemon is None:
+        pokemon = report[0]
+        original_pokemon = pokemon
+
+    return pokemon.upper(), _remove_found_pokemon_from_report(list(map(str.upper, report)), original_pokemon)
 
 
 def _find_channel_index_by_hatch_time(hatch_time: datetime):
@@ -160,11 +176,6 @@ async def _create_channel_and_information(bot, ctx, *report):
     if not gym:
         await ctx.send(f"Your raid does not include a gym name {ctx.author.mention}, use *?help raid* for details")
         return
-
-    if common_instances.POKEDEX.lookup(pokemon) is None:
-        pokemon_spell_checked = common_instances.SPELLCHECKER.correction(pokemon)
-        if common_instances.POKEDEX.lookup(pokemon_spell_checked) is not None:
-            pokemon = pokemon_spell_checked
 
     maybe_valid_hatch_time = valid_time_hhmm(at_time_or_train)
     maybe_valid_despawn_time = valid_time_mm(at_time_or_train)

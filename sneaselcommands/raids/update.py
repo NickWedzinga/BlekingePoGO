@@ -5,7 +5,7 @@ from discord.ext import commands
 
 import common
 import common_instances
-from sneaselcommands.dex import create_info_message
+from sneaselcommands.dex import create_no_matches_info_message, find_corrected_pokemon, create_found_correction_info_message
 from sneaselcommands.raids.raid import create_raid_embed
 from sneaselcommands.raids.utils.raid_embeds import update_time_in_embed
 from sneaselcommands.raids.utils.raid_scheduler import update_raids_channel, schedule_delete_channel_at, \
@@ -15,6 +15,7 @@ from utils.channel_wrapper import find_embed_in_channel
 from utils.database_connector import execute_statement, create_delete_query, create_select_query, create_update_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import validate_active_raid_and_user
+from utils.pokemon_handler import check_scrumbled_pokemon_name
 from utils.time_wrapper import valid_time_mm, valid_time_hhmm, format_as_hhmm
 
 
@@ -108,13 +109,14 @@ class Update(commands.Cog):
         """
         pokemon_name_concat = " ".join(pokemon_name).capitalize()
         pokemon = common_instances.POKEDEX.lookup(pokemon_name_concat)
+
         if pokemon is None and pokemon_name_concat.upper() not in common.RAID_EGG_TYPES:
-            pokemon_spell_checked = common_instances.POKEDEX.lookup(common_instances.SPELLCHECKER.correction(pokemon_name_concat))
-            if pokemon_spell_checked is None:
-                await ctx.send(create_info_message(ctx=ctx, pokemon_name=pokemon_name_concat))
+            maybe_found_pokemon = find_corrected_pokemon(list(pokemon_name))
+            if maybe_found_pokemon is not None:
+                await ctx.send(create_found_correction_info_message(ctx, maybe_found_pokemon.name, " ".join(pokemon_name)))
+                pokemon_name_concat = maybe_found_pokemon.name
             else:
-                pokemon_name_concat = pokemon_spell_checked.name
-                await ctx.send(f"Showing result for **{pokemon_spell_checked.name.title()}**, did not find **{pokemon_name_concat.title()}**")
+                await ctx.send(create_no_matches_info_message(ctx=ctx, pokemon_name=pokemon_name_concat))
 
         embed_message = await find_embed_in_channel(self.bot, ctx.channel, source="Raid: Update pokemon")
         if embed_message is None:
