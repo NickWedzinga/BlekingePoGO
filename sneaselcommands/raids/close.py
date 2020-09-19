@@ -1,11 +1,9 @@
 import discord
 import discord.ext.commands.context
-import schedule
 from discord.ext import commands
 
-import common
+from sneaselcommands.raids.utils.raid_scheduler import cancel_all_scheduled_events_for_raid_channel
 from sneaselcommands.raids.utils.raid_scheduler import update_raids_channel
-from utils.database_connector import execute_statement, create_delete_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import validate_active_raid_and_user
 
@@ -26,19 +24,7 @@ class Close(commands.Cog):
         channel = ctx.channel if channel_id is None else discord.utils.get(ctx.guild.channels, id=channel_id)
         await channel.delete()
 
-        execute_statement(create_delete_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
-            where_key="channel_id",
-            where_value=f"{ctx.channel.id if channel_id is None else channel_id}"))
-
-        execute_statement(create_delete_query(
-            table_name=common.SCHEDULE_RAID,
-            where_key="channel_id",
-            where_value=f"{ctx.channel.id if channel_id is None else channel_id}"))
-
-        schedule.clear(f"send{ctx.channel.id if channel_id is None else channel_id}")
-        schedule.clear(f"delete{ctx.channel.id if channel_id is None else channel_id}")
-        schedule.clear(f"edit_embed{ctx.channel.id if channel_id is None else channel_id}")
+        cancel_all_scheduled_events_for_raid_channel(channel_id=ctx.channel.id if channel_id is None else channel_id)
 
         await update_raids_channel(self.bot, ctx)
 
