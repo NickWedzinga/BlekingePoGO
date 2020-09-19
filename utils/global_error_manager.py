@@ -14,12 +14,13 @@ def validate_active_raid_and_user():
     async def predicate(ctx):
         maybe_channel_dict = execute_statement(create_select_query(common.ACTIVE_RAID_CHANNEL_OWNERS, "channel_id", f"'{ctx.channel.id}'")).all(as_dict=True)
 
-        if not maybe_channel_dict:
-            await ctx.send("This command can only be used in a created raid channel")
+        if "help" not in ctx.invoked_with:
+            if not maybe_channel_dict:
+                await ctx.send("This command can only be used in a created raid channel")
 
-        if not (any(channel_info.get("reporter_id") == ctx.author.id for channel_info in maybe_channel_dict) or
-                any(role.name in ["Admin", "Moderator"] for role in ctx.author.roles)):
-            await ctx.send("This command can only be used by the raid reporter, admins and moderators")
+            if not (any(channel_info.get("reporter_id") == ctx.author.id for channel_info in maybe_channel_dict) or
+                    any(role.name in ["Admin", "Moderator"] for role in ctx.author.roles)):
+                await ctx.send("This command can only be used by the raid reporter, admins and moderators")
 
         return maybe_channel_dict and \
                (any(channel_info.get("reporter_id") == ctx.author.id for channel_info in maybe_channel_dict) or
