@@ -19,6 +19,23 @@ async def update_raids_channel(bot, ctx):
         await update_raids.raids(ctx)
 
 
+def cancel_all_scheduled_events_for_raid_channel(channel_id):
+    """Clears all scheduled events"""
+    execute_statement(create_delete_query(
+        table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+        where_key="channel_id",
+        where_value=channel_id))
+
+    execute_statement(create_delete_query(
+        table_name=common.SCHEDULE_RAID,
+        where_key="channel_id",
+        where_value=channel_id))
+
+    schedule.clear(f"send{channel_id}")
+    schedule.clear(f"delete{channel_id}")
+    schedule.clear(f"edit_embed{channel_id}")
+
+
 def schedule_reminding_task(bot, ctx, created_channel, message, at_time, task_interval):
     """Schedules a reminding message that executes every hour, used for raid train channels"""
     get_interval(task_interval)(
@@ -61,15 +78,7 @@ def delete_channel_at_time(**kwargs):
     kwargs.get("bot").loop.create_task(kwargs.get("channel").delete())
 
     channel_id = kwargs.get("channel").id
-    execute_statement(create_delete_query(
-        table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
-        where_key="channel_id",
-        where_value=channel_id))
-
-    execute_statement(create_delete_query(
-        table_name=common.SCHEDULE_RAID,
-        where_key="channel_id",
-        where_value=channel_id))
+    cancel_all_scheduled_events_for_raid_channel(channel_id=channel_id)
 
     # TODO: Can't get context from configure upon start-up, so can't run raids command upon restart
     if kwargs.get("ctx") is not None:
