@@ -15,7 +15,7 @@ from utils.channel_wrapper import find_embed_in_channel
 from utils.database_connector import execute_statement, create_delete_query, create_select_query, create_update_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import validate_active_raid_and_user
-from utils.pokemon_handler import check_scrumbled_pokemon_name
+from utils.pokemon_corrector import check_scrumbled_pokemon_name
 from utils.time_wrapper import valid_time_mm, valid_time_hhmm, format_as_hhmm
 
 
@@ -111,7 +111,7 @@ class Update(commands.Cog):
         pokemon = common_instances.POKEDEX.lookup(pokemon_name_concat)
 
         if pokemon is None and pokemon_name_concat.upper() not in common.RAID_EGG_TYPES:
-            maybe_found_pokemon = find_corrected_pokemon(list(pokemon_name))
+            maybe_found_pokemon = await find_corrected_pokemon(ctx, list(pokemon_name))
             if maybe_found_pokemon is not None:
                 await ctx.send(create_found_correction_info_message(ctx, maybe_found_pokemon.name, " ".join(pokemon_name)))
                 pokemon_name_concat = maybe_found_pokemon.name

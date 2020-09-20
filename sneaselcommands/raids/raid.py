@@ -11,7 +11,7 @@ from sneaselcommands.raids.utils.raid_scheduler import schedule_edit_embed, sche
 from utils.database_connector import execute_statement, create_insert_query, create_select_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
-from utils.pokemon_handler import check_scrumbled_pokemon_name, check_spelling_pokemon_name, check_scrumbled_and_spelling_pokemon
+from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_spelling_pokemon_name, check_scrumbled_and_spelling_pokemon
 from utils.time_wrapper import valid_time_hhmm, valid_time_mm, format_as_hhmm
 
 

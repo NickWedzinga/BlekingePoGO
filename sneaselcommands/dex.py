@@ -8,7 +8,7 @@ import common_instances
 from sneasel_types.pokemon import Pokemon
 from utils import pokemon_collection
 from utils.exception_wrapper import pm_dev_error
-from utils.pokemon_handler import check_scrumbled_pokemon_name, check_scrumbled_and_spelling_pokemon, check_spelling_pokemon_name
+from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_scrumbled_and_spelling_pokemon, check_spelling_pokemon_name
 
 
 def _find_possible_matches(name: str, list_of_names: list) -> list:
@@ -52,7 +52,7 @@ def create_found_correction_info_message(ctx, corrected_name: str, incorrect_nam
     return info_message
 
 
-def find_corrected_pokemon(pokemon_name: list) -> Optional[Pokemon]:
+async def find_corrected_pokemon(ctx, pokemon_name: list) -> Optional[Pokemon]:
     """Attempts to scamble and spell-check to find the correct Pokémon"""
     pkmn_scrambled_checked = check_scrumbled_pokemon_name(list(pokemon_name))
     if pkmn_scrambled_checked is not None:
@@ -62,6 +62,7 @@ def find_corrected_pokemon(pokemon_name: list) -> Optional[Pokemon]:
     if pkmn_spell_checked is not None:
         return pkmn_spell_checked
 
+    await ctx.send("This may take some time..")
     pkmn_spell_and_scrambled_checked = check_scrumbled_and_spelling_pokemon(pokemon_name)
     if pkmn_spell_and_scrambled_checked:
         return pkmn_spell_and_scrambled_checked
@@ -94,7 +95,7 @@ class Dex(commands.Cog):
         pkmn = common_instances.POKEDEX.lookup(pokemon_name_concat)
 
         if pkmn is None:
-            maybe_found_pokemon = find_corrected_pokemon(list(pokemon_name))
+            maybe_found_pokemon = await find_corrected_pokemon(ctx, list(pokemon_name))
             if maybe_found_pokemon is not None:
                 await ctx.send(create_found_correction_info_message(ctx, maybe_found_pokemon.name, " ".join(pokemon_name)))
                 await maybe_found_pokemon.send_embed(ctx)
