@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 import discord.ext.commands.context
@@ -27,7 +27,7 @@ def _create_embed(ctx, active_raids_dict: dict, max_field_count: int = 24):
         channel = discord.utils.get(ctx.guild.channels, id=raid.get("channel_id"))
 
         maybe_valid_hatch = valid_time_hhmm(raid.get("hatch_time"))
-        hatch_time = f"Hatched, despawns at {'{:%H:%M}'.format(maybe_valid_hatch)}" \
+        hatch_time = f"Hatched, despawns at {'{:%H:%M}'.format(maybe_valid_hatch + timedelta(minutes=45))}" \
             if maybe_valid_hatch is not None and maybe_valid_hatch.time() < datetime.now().time() \
             else raid.get("hatch_time")
 
