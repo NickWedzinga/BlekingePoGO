@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 from spellchecker import SpellChecker
 
-import common
 import common_instances
 from sneaselcommands.raids.raid import _validate_report, valid_time_hhmm, _find_pokemon_and_gym, \
     filter_pokemon_leftovers_from_gym, _remove_found_pokemon_from_report
@@ -26,6 +25,8 @@ class TestRaid(unittest.TestCase):
         """Testing valid time formatting"""
         self.assertTrue(valid_time_hhmm("18:15"))
         self.assertTrue(valid_time_hhmm("00:00"))
+        self.assertTrue(valid_time_hhmm("18.15"))
+        self.assertTrue(valid_time_hhmm("1815"))
 
     def test_invalid_time(self):
         """Testing invalid time formatting"""
@@ -93,7 +94,7 @@ class TestRaid(unittest.TestCase):
     def test_pokemon_extraction_mega_charizard(self):
         """Testing that a mega charizard is returned correctly"""
         self.assertEqual(
-            first=("CHARIZARD", "Mega Adam Och Eva"),
+            first=("MEGA", "Charizard Adam Och Eva"),
             second=_find_pokemon_and_gym("mega", "charizard", "adam", "och", "eva"))
 
     def test_pokemon_extraction_mega_egg(self):
@@ -155,6 +156,30 @@ class TestRaid(unittest.TestCase):
         self.assertEqual(
             first=("CHARIZARD MEGA X", "Adam Och Eva"),
             second=_find_pokemon_and_gym("mega", "charirzard", "x", "adam", "och", "eva"))
+
+    def test_prioritize_egg_hatch(self):
+        """Tests that egg types are priorites"""
+        self.assertEqual(
+            first=("T5", "Ankaret Från 1777"),
+            second=_find_pokemon_and_gym("t5", "ankaret", "från", "1777"))
+
+    def test_prioritize_egg_hatch_simple(self):
+        """Tests that egg types are priorites"""
+        self.assertEqual(
+            first=("MEGA", "Mewtwo"),
+            second=_find_pokemon_and_gym("mega", "mewtwo"))
+
+    def test_prioritize_egg_hatch_spellcheck_1(self):
+        """Tests that egg types are priorites"""
+        self.assertEqual(
+            first=("T3", "Charzirard"),
+            second=_find_pokemon_and_gym("t3", "charzirard"))
+
+    def test_prioritize_egg_hatch_spellcheck_2(self):
+        """Tests that egg types are priorites"""
+        self.assertEqual(
+            first=("CHARRRRZIRARD", "Från"),
+            second=_find_pokemon_and_gym("charrrrzirard", "från"))
 
     def test_filter_pokemon_leftovers_from_gym(self):
         """Testing filters for gym"""

@@ -133,11 +133,13 @@ def _find_pokemon_and_gym(*report) -> (str, str):
         report = report[:-1]
 
     original_pokemon = report[0]
-    pokemon = check_scrumbled_pokemon_name(report)
-
-    if pokemon is not None:
-        pokemon = pokemon.name.upper()
-        original_pokemon = pokemon
+    if original_pokemon.upper() in common.RAID_EGG_TYPES and original_pokemon.upper() != "MEGA":
+        pokemon = original_pokemon
+    else:
+        pokemon = check_scrumbled_pokemon_name(report)
+        if pokemon is not None:
+            pokemon = pokemon.name.upper()
+            original_pokemon = pokemon
 
     # Checking len is less than 3 assures that the Pokémon only contains one word
     if pokemon is None and len(report) < 3:
@@ -174,7 +176,7 @@ async def _create_channel_and_information(bot, ctx, *report):
     pokemon, gym = _find_pokemon_and_gym(*report)
 
     if not gym:
-        await ctx.send(f"Your raid does not include a gym name {ctx.author.mention}, use *?help raid* for details")
+        await ctx.send(f"Your raid is missing either a pokemon or gym name {ctx.author.mention}, use *?help raid* for details")
         return
 
     maybe_valid_hatch_time = valid_time_hhmm(at_time_or_train)

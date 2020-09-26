@@ -32,7 +32,10 @@ def check_scrumbled_pokemon_name(scrumbled_pokemon_name: list) -> Optional[Pokem
     elif backup_matches and scrumbled_pokemon_name[0] not in common.RAID_EGG_TYPES:
         pokemon = common_instances.POKEDEX.lookup(min(backup_matches, key=len))
 
-    return pokemon
+    # checks that the first word in report is included in the found pokemon
+    if pokemon is not None and scrumbled_pokemon_name[0].upper() in pokemon.name.upper():
+        return pokemon
+    return None
 
 
 def check_spelling_pokemon_name(pokemon_misspelled: str) -> Optional[Pokemon]:
