@@ -172,11 +172,11 @@ def _find_channel_index_by_hatch_time(hatch_time: datetime):
 
 async def _find_raid_category(bot, ctx) -> discord.CategoryChannel:
     """Finds the related raid-category for the reported raid"""
-    maybe_category = discord.utils.get(ctx.guild.categories, name=f"{ctx.channel.category.name}-raids")
+    maybe_category = discord.utils.get(ctx.guild.categories, name=f"{ctx.channel.category.name} raids")
 
     if maybe_category is None:
         await pm_dev_error(bot=bot,
-                           error_message=f"Somehow can't find category: [{ctx.channel.category.name}-raids]",
+                           error_message=f"Somehow can't find category: [{ctx.channel.category.name} raids]",
                            source="Create raid channel, finding category")
     return maybe_category if maybe_category is not None else ctx.channel.category
 

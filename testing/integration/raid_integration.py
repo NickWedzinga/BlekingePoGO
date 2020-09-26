@@ -130,7 +130,7 @@ async def _check_created_channel(ctx, channel_name):
         history = await channel.history().flatten()
         assert(len(history) == 1)
         assert(len(history[0].embeds) == 1)
-        assert(channel.category.name == f"{ctx.channel.category}-raids")
+        assert(channel.category.name == f"{ctx.channel.category} raids")
 
         await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: "
                                                f"Verified that the channel created exists!")
