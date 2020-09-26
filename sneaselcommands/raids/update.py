@@ -59,9 +59,9 @@ async def _maybe_update_channel_name(ctx, channel, new_channel_name: str, field_
             where_value=channel.id
         ))
         await channel.edit(name=new_channel_name)
-        await ctx.send(f"{field_name_to_update} updated to: {field_new_value}")
+        await ctx.send(f"{field_name_to_update.title()} updated to: {field_new_value.title()}")
     else:
-        await ctx.send(f"{field_name_to_update} updated to: {field_new_value}, but I cannot "
+        await ctx.send(f"{field_name_to_update.title()} updated to: {field_new_value.title()}, but I cannot "
                        f"change the channel's name again due to Discord rate limits.")
 
 
@@ -128,15 +128,16 @@ class Update(commands.Cog):
             return
 
         old_embed_description = embed_message.embeds[0].description.split("\n")
-        old_hatch_or_despawn_time = old_embed_description[1]
+        old_hatch_or_despawn_time = old_embed_description[2]
         if "Despawn" in old_hatch_or_despawn_time:
             hatch_time = format_as_hhmm(valid_time_hhmm(old_hatch_or_despawn_time.replace("Despawn time: ", "")) - timedelta(minutes=45))
         else:
             hatch_time = old_hatch_or_despawn_time.replace("Hatch time: ", "")
         embed = create_raid_embed(
             ctx=ctx,
+            reporter=old_embed_description[0].replace("Reporter: ", ""),
             pokemon_name=pokemon_name_concat,
-            gym_name=old_embed_description[0].replace("Gym: ", ""),
+            gym_name=old_embed_description[1].replace("Gym: ", ""),
             hatch_time=hatch_time
         )
         await embed_message.edit(embed=embed)

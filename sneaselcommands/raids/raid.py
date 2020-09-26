@@ -27,7 +27,7 @@ def _validate_report(*args) -> str:
         return f"A raid that hatched at **{args[-1]}** should have already despawned by now"
 
     latest_possible_hatch_time = (datetime.now() + timedelta(hours=1))
-    if hatch_time is not None and hatch_time.time() >  latest_possible_hatch_time.time():
+    if hatch_time is not None and hatch_time.time() > latest_possible_hatch_time.time():
         return f"A raid that hatches at **{args[-1]}** can not have spawned yet"
 
     despawn_time = valid_time_mm(args[-1])
@@ -38,7 +38,7 @@ def _validate_report(*args) -> str:
 
 async def _send_embed(bot, ctx, channel, pokemon_name: str, gym: str, hatch_time: str):
     """Creates the embed to be posted in the new raid channel"""
-    embed = create_raid_embed(ctx, pokemon_name, gym, hatch_time)
+    embed = create_raid_embed(ctx, ctx.author.mention, pokemon_name, gym, hatch_time)
     await channel.send(embed=embed)
 
     maybe_valid_time = valid_time_hhmm(hatch_time)
@@ -48,14 +48,12 @@ async def _send_embed(bot, ctx, channel, pokemon_name: str, gym: str, hatch_time
     return embed
 
 
-def create_raid_embed(ctx, pokemon_name: str, gym_name: str, hatch_time: str) -> discord.Embed:
+def create_raid_embed(ctx, reporter, pokemon_name: str, gym_name: str, hatch_time: str) -> discord.Embed:
     maybe_valid_time = valid_time_hhmm(hatch_time)
-    if maybe_valid_time is None:
-        description = f"Gym: {gym_name.capitalize()}\nHatch time: {hatch_time}"
-    elif maybe_valid_time.time() > datetime.now().time():
-        description = f"Gym: {gym_name.capitalize()}\nHatch time: {hatch_time}"
+    if maybe_valid_time is None or maybe_valid_time.time() > datetime.now().time():
+        description = f"Reporter: {reporter}\nGym: {gym_name.capitalize()}\nHatch time: {hatch_time}"
     else:
-        description = f"Gym: {gym_name.capitalize()}\nDespawn time: {format_as_hhmm((maybe_valid_time + timedelta(minutes=45)))}"
+        description = f"Reporter: {reporter}\nGym: {gym_name.capitalize()}\nDespawn time: {format_as_hhmm((maybe_valid_time + timedelta(minutes=45)))}"
 
     pokemon = common_instances.POKEDEX.lookup(pokemon_name)
     pokemon_icon = "https://www.pokencyclopedia.info/sprites/misc/spr_substitute/art__substitute.png"
@@ -253,7 +251,10 @@ class Raid(commands.Cog):
         Creates a raid channel that will automatically be deleted 15 minutes after the raid despawns
         Egg types: [T1, T3, T5, MEGA]
 
-        Type ?help update, when you are in the created raid channel, for more information.
+        When you are in the raid channel..
+        Type ?help update, for more information on how to update the raid
+        Type ?status, to ask Sneasel to re-send the raid information
+        Type ?close, to close the raid channel early
         """
         validated_report = _validate_report(*args)
         if len(validated_report) > 1:
