@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Optional
 
 import discord
 import requests
@@ -200,12 +199,12 @@ async def _create_channel_and_information(bot, ctx, *report):
     # TODO: position argument doesn't set channel at that position, temp commented until fixed
     if maybe_valid_despawn_time is not None:
         created_channel = await ctx.guild.create_text_channel(
-            name=f"{pokemon}_{gym}_{format_as_hhmm(datetime.now() - timedelta(minutes=45-maybe_valid_despawn_time.minute))}",
+            name=f"{format_as_hhmm(datetime.now() - timedelta(minutes=45-maybe_valid_despawn_time.minute))}_{pokemon}_{gym}",
             category=category)
             # position=_find_channel_index_by_hatch_time(datetime.now() - timedelta(minutes=45-maybe_valid_despawn_time.minute)) + 1)
     elif maybe_valid_hatch_time is not None:
         created_channel = await ctx.guild.create_text_channel(
-            name=f"{pokemon}_{gym}_{at_time_or_train}",
+            name=f"{at_time_or_train}_{pokemon}_{gym}",
             category=category)
             # position=_find_channel_index_by_hatch_time(maybe_valid_hatch_time) + 1)
     else:
