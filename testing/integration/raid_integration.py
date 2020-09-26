@@ -2,6 +2,7 @@ import traceback
 
 import discord
 from datetime import datetime, timedelta
+from utils.time_wrapper import format_as_hhmm
 
 import common
 from utils.database_connector import execute_statement, create_select_query
@@ -21,13 +22,18 @@ async def call_raid_tests(bot, ctx):
 async def _run_not_hatched_raid(bot, ctx):
     """Run the tests for a non-hatched raid, for example ?raid heatran klockstapeln 18:15"""
     try:
-        time = '{:%H:%M}'.format(datetime.now() + timedelta(minutes=2))
-        channel_name = f"sneasel_momos-hem_{time.replace(':', '')}"
+        time = format_as_hhmm(datetime.now() + timedelta(minutes=2))
+        update_time = format_as_hhmm(datetime.now() + timedelta(minutes=4))
+        channel_name = f"{time.replace(':', '')}_sneasel_momos-hem"
+        updated_name = f"{time.replace(':', '')}_weavile_momos-hem"
+
         await _invoke_raid_command(bot, ctx, "Sneasel", "Momos", "hem", time)
         await _check_created_rows_in_database(ctx)
         await _check_created_channel(ctx, channel_name)
 
-        await _invoke_close_command(bot, ctx, channel_name)
+        await _invoke_update_command(bot, ctx, channel_name, update_time)
+
+        await _invoke_close_command(bot, ctx, updated_name)
         await _check_deleted_rows_from_database()
 
         await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: Successfully completed non-hatched raid.")
@@ -38,12 +44,17 @@ async def _run_not_hatched_raid(bot, ctx):
 async def _run_hatched_raid(bot, ctx):
     """Run the tests for a hatched-raid, for example ?raid heatran klockstapeln"""
     try:
+        time = format_as_hhmm(datetime.now() + timedelta(minutes=2))
         channel_name = "sneasel_momos-hem"
+        updated_name = "weavile_momos-hem"
+
         await _invoke_raid_command(bot, ctx, "Sneasel", "Momos", "hem")
         await _check_created_rows_in_database(ctx)
         await _check_created_channel(ctx, channel_name)
 
-        await _invoke_close_command(bot, ctx, channel_name)
+        await _invoke_update_command(bot, ctx, channel_name, time)
+
+        await _invoke_close_command(bot, ctx, updated_name)
         await _check_deleted_rows_from_database()
 
         await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: Successfully completed the hatched raid.")
@@ -52,14 +63,19 @@ async def _run_hatched_raid(bot, ctx):
 
 
 async def _run_raid_train(bot, ctx):
-    """"""
+    """Run the tests for a raid train channel, for example ?raid sneasel train"""
     try:
+        time = format_as_hhmm(datetime.now() + timedelta(minutes=2))
         channel_name = "sneasel_train"
+        updated_name = "weavile_train"
+
         await _invoke_raid_command(bot, ctx, "Sneasel", "train")
         await _check_created_rows_in_database(ctx)
         await _check_created_channel(ctx, channel_name)
 
-        await _invoke_close_command(bot, ctx, channel_name)
+        await _invoke_update_command(bot, ctx, channel_name, time)
+
+        await _invoke_close_command(bot, ctx, updated_name)
         await _check_deleted_rows_from_database()
 
         await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: Successfully completed the raid train.")
@@ -122,6 +138,27 @@ async def _check_created_channel(ctx, channel_name):
         traceback.print_exc()
         await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during raid create channel: {e}")
         raise ValueError(f"Error during raid create_channel, can't find the created channel")
+
+
+async def _invoke_update_command(bot, ctx, channel_name: str, time: str):
+    try:
+        raid_channel = discord.utils.get(ctx.guild.channels, name=channel_name)
+
+        update_command = bot.get_command("update pokemon")
+        await ctx.invoke(update_command, "weavile", channel_id=raid_channel.id)
+
+        update_command = bot.get_command("update gym")
+        await ctx.invoke(update_command, "adam och eva", channel_id=raid_channel.id)
+
+        update_command = bot.get_command("update hatch")
+        await ctx.invoke(update_command, time, channel_id=raid_channel.id)
+
+        update_command = bot.get_command("update despawn")
+        await ctx.invoke(update_command, "1", channel_id=raid_channel.id)
+    except Exception as e:
+        traceback.print_exc()
+        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during close invocation: {e}")
+        raise ValueError(f"Error during raid invocation")
 
 
 async def _invoke_close_command(bot, ctx, channel_name):

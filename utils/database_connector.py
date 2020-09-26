@@ -43,7 +43,7 @@ def create_insert_scheduled_event_query(task: str, weekday: str, at_time: str, t
            f"VALUES ('{task}', '{weekday}', '{at_time}', '{tag}', '{message}', {channel_id}, {category_id}, {guild_id}, {number}, '{channel_name}')"
 
 
-def create_update_query(table_name: str, column: str, new_value: str, where_key: str, where_value: str):
+def create_update_query(table_name: str, column: str, new_value: str, where_key: str, where_value):
     """Create update statement for a value in a table"""
     return f"UPDATE {table_name} SET {column}={new_value} WHERE {where_key}={where_value}"
 
