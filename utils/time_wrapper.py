@@ -4,6 +4,9 @@ from datetime import datetime
 
 def valid_time_hhmm(raid_time: str) -> Optional[datetime]:
     try:
+        if len(raid_time) == 4:
+            raid_time = f"{raid_time[:2]}:{raid_time[2:]}"
+        raid_time = raid_time.replace(".", ":")
         assert (int(raid_time.replace(":", "")) < 2400)
         return datetime.strptime(raid_time, "%H:%M")
     except:
