@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
 import discord
 import requests
@@ -11,7 +12,8 @@ from sneaselcommands.raids.utils.raid_scheduler import schedule_edit_embed, sche
 from utils.database_connector import execute_statement, create_insert_query, create_select_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
-from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_spelling_pokemon_name, check_scrumbled_and_spelling_pokemon
+from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_spelling_pokemon_name, \
+    check_scrumbled_and_spelling_pokemon
 from utils.time_wrapper import valid_time_hhmm, valid_time_mm, format_as_hhmm
 
 
@@ -171,6 +173,17 @@ def _find_channel_index_by_hatch_time(hatch_time: datetime):
     return sorted(hatch_times).index(hatch_time)
 
 
+async def _find_raid_category(bot, ctx) -> discord.CategoryChannel:
+    """Finds the related raid-category for the reported raid"""
+    maybe_category = discord.utils.get(ctx.guild.categories, name=f"{ctx.channel.category.name}-raids")
+
+    if maybe_category is None:
+        await pm_dev_error(bot=bot,
+                           error_message=f"Somehow can't find category: [{ctx.channel.category.name}-raids]",
+                           source="Create raid channel, finding category")
+    return maybe_category if maybe_category is not None else ctx.channel.category
+
+
 async def _create_channel_and_information(bot, ctx, *report):
     at_time_or_train = report[-1]
     pokemon, gym = _find_pokemon_and_gym(*report)
@@ -182,19 +195,21 @@ async def _create_channel_and_information(bot, ctx, *report):
     maybe_valid_hatch_time = valid_time_hhmm(at_time_or_train)
     maybe_valid_despawn_time = valid_time_mm(at_time_or_train)
 
+    category = await _find_raid_category(bot, ctx)
+
     # TODO: position argument doesn't set channel at that position, temp commented until fixed
     if maybe_valid_despawn_time is not None:
         created_channel = await ctx.guild.create_text_channel(
             name=f"{pokemon}_{gym}_{format_as_hhmm(datetime.now() - timedelta(minutes=45-maybe_valid_despawn_time.minute))}",
-            category=ctx.channel.category)
+            category=category)
             # position=_find_channel_index_by_hatch_time(datetime.now() - timedelta(minutes=45-maybe_valid_despawn_time.minute)) + 1)
     elif maybe_valid_hatch_time is not None:
         created_channel = await ctx.guild.create_text_channel(
             name=f"{pokemon}_{gym}_{at_time_or_train}",
-            category=ctx.channel.category)
+            category=category)
             # position=_find_channel_index_by_hatch_time(maybe_valid_hatch_time) + 1)
     else:
-        created_channel = await ctx.guild.create_text_channel(name=f"{pokemon}_{gym}", category=ctx.channel.category)
+        created_channel = await ctx.guild.create_text_channel(name=f"{pokemon}_{gym}", category=category)
 
     if maybe_valid_hatch_time is None and maybe_valid_despawn_time is None:
         if at_time_or_train == "train":
