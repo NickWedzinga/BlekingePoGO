@@ -38,148 +38,148 @@ class TestRaid(unittest.TestCase):
         """Testing valid report formatting"""
         self.assertEqual(
             first="",
-            second=_validate_report(None, "Sneasel", "Momos", "Home", '{:%H:%M}'.format(datetime.now() + timedelta(minutes=2)))
+            second=_validate_report([None, "Sneasel", "Momos", "Home", '{:%H:%M}'.format(datetime.now() + timedelta(minutes=2))])
         )
 
     def test_invalid_hatch_time_too_early(self):
         """Testing valid report formatting"""
         self.assertEqual(
             first=f"A raid that hatched at **{'{:%H:%M}'.format(datetime.now() - timedelta(hours=2))}** should have already despawned by now",
-            second=_validate_report(None, "Sneasel", "Momos", "Home", '{:%H:%M}'.format(datetime.now() - timedelta(hours=2)))
+            second=_validate_report([None, "Sneasel", "Momos", "Home", '{:%H:%M}'.format(datetime.now() - timedelta(hours=2))])
         )
 
     def test_invalid_report_missing_args(self):
         """Testing invalid report formatting, missing time"""
         self.assertEqual(
             first="Missing information, please provide name and gym. Type *?help raid* for help",
-            second=_validate_report("Sneasel")
+            second=_validate_report(["Sneasel"])
         )
 
     def test_pokemon_extraction_single_word(self):
         """Testing that a basic search of Charizard can be found in the Pokédex"""
         self.assertEqual(
             first=("CHARIZARD", "Bleke"),
-            second=_find_pokemon_and_gym("Charizard", "Bleke"))
+            second=_find_pokemon_and_gym(["Charizard", "Bleke"]))
 
     def test_pokemon_extraction_single_word_lowercase(self):
         """Testing that a lowercase search of Blastoise can be found in the Pokédex"""
         self.assertEqual(
             first=("BLASTOISE", "Bleke"),
-            second=_find_pokemon_and_gym("blastoise", "bleke"))
+            second=_find_pokemon_and_gym(["blastoise", "bleke"]))
 
     def test_pokemon_extraction_single_word_uppercase(self):
         """Testing that a uppercase search of Venusaur can be found in the Pokédex"""
         self.assertEqual(
             first=("VENUSAUR", "Bleke"),
-            second=_find_pokemon_and_gym("VENUSAUR", "BLEKE"))
+            second=_find_pokemon_and_gym(["VENUSAUR", "BLEKE"]))
 
     def test_pokemon_extraction_gym_with_multiple_words(self):
         """Testing that a multi-word gym is returned correctly"""
         self.assertEqual(
             first=("CHARIZARD", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("charizard", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["charizard", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_pokemon_with_multiple_words(self):
         """Testing that a multi-word pokemon is returned correctly"""
         self.assertEqual(
             first=("CHARIZARD MEGA X", "Bleke"),
-            second=_find_pokemon_and_gym("mega", "charizard", "x", "Bleke"))
+            second=_find_pokemon_and_gym(["mega", "charizard", "x", "Bleke"]))
 
     def test_pokemon_extraction_shorter_mega(self):
         """Testing that a mega venusaur is returned correctly"""
         self.assertEqual(
             first=("VENUSAUR MEGA", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "venusaur", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["mega", "venusaur", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_mega_charizard(self):
         """Testing that a mega charizard is returned correctly"""
         self.assertEqual(
             first=("MEGA", "Charizard Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "charizard", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["mega", "charizard", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_mega_egg(self):
         """Testing that just the word mega means an unhatched mega egg"""
         self.assertEqual(
             first=("MEGA", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["mega", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_yanmega(self):
         """Testing that a yanmega is not broken because of megas"""
         self.assertEqual(
             first=("YANMEGA", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("yanmega", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["yanmega", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_filter_form(self):
         """Testing filter for form"""
         self.assertEqual(
             first=("DEOXYS DEFENSE", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("deoxys", "defense", "form", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["deoxys", "defense", "form", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_galarian(self):
         """Testing galarian raids"""
         self.assertEqual(
             first=("DARMANITAN GALARIAN ZEN", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("galarian", "darmanitan", "zen", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["galarian", "darmanitan", "zen", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_shortest_if_no_exact_match(self):
         """Testing darmanitan raids"""
         self.assertEqual(
             first=("DARMANITAN ZEN", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("darmanitan", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["darmanitan", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_no_match(self):
         """Testing no match"""
         self.assertEqual(
             first=("THISISNOPOKEMON", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("thisisnopokemon", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["thisisnopokemon", "adam", "och", "eva"]))
 
     def test_pokemon_extraction_egg_variants(self):
         """Testing no match"""
         self.assertEqual(
             first=("T5", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("t5", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["t5", "adam", "och", "eva"]))
 
     def test_pokemon_incorrect_spelling(self):
         """Basic test for a Pokémon with incorrect spelling"""
         self.assertEqual(
             first=("CHARIZARD", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("charirzard", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["charirzard", "adam", "och", "eva"]))
 
     def test_pokemon_scrambled_order(self):
         """Test for a scrambled Pokémon"""
         self.assertEqual(
             first=("CHARIZARD MEGA X", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "charizard", "x", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["mega", "charizard", "x", "adam", "och", "eva"]))
 
     def test_pokemon_scrambled_order_and_incorrect_spelling(self):
         """Test for a scrambled and incorrectly spelled Pokémon"""
         self.assertEqual(
             first=("CHARIZARD MEGA X", "Adam Och Eva"),
-            second=_find_pokemon_and_gym("mega", "charirzard", "x", "adam", "och", "eva"))
+            second=_find_pokemon_and_gym(["mega", "charirzard", "x", "adam", "och", "eva"]))
 
     def test_prioritize_egg_hatch(self):
         """Tests that egg types are priorites"""
         self.assertEqual(
             first=("T5", "Ankaret Från 1777"),
-            second=_find_pokemon_and_gym("t5", "ankaret", "från", "1777"))
+            second=_find_pokemon_and_gym(["t5", "ankaret", "från", "1777"]))
 
     def test_prioritize_egg_hatch_simple(self):
         """Tests that egg types are priorites"""
         self.assertEqual(
             first=("MEGA", "Mewtwo"),
-            second=_find_pokemon_and_gym("mega", "mewtwo"))
+            second=_find_pokemon_and_gym(["mega", "mewtwo"]))
 
     def test_prioritize_egg_hatch_spellcheck_1(self):
         """Tests that egg types are priorites"""
         self.assertEqual(
             first=("T3", "Charzirard"),
-            second=_find_pokemon_and_gym("t3", "charzirard"))
+            second=_find_pokemon_and_gym(["t3", "charzirard"]))
 
     def test_prioritize_egg_hatch_spellcheck_2(self):
         """Tests that egg types are priorites"""
         self.assertEqual(
             first=("CHARRRRZIRARD", "Från"),
-            second=_find_pokemon_and_gym("charrrrzirard", "från"))
+            second=_find_pokemon_and_gym(["charrrrzirard", "från"]))
 
     def test_filter_pokemon_leftovers_from_gym(self):
         """Testing filters for gym"""

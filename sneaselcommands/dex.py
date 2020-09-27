@@ -8,7 +8,8 @@ import common_instances
 from sneasel_types.pokemon import Pokemon
 from utils import pokemon_collection
 from utils.exception_wrapper import pm_dev_error
-from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_scrumbled_and_spelling_pokemon, check_spelling_pokemon_name
+from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_scrumbled_and_spelling_pokemon, \
+    check_spelling_pokemon_name
 
 
 def _find_possible_matches(name: str, list_of_names: list) -> list:
