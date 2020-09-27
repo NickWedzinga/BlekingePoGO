@@ -43,11 +43,10 @@ def maybe_replace_time(*report) -> list:
 
     maybe_valid_time_hhmm = valid_time_hhmm(report[-1])
     maybe_valid_time_mm = valid_time_mm(report[-1])
-
     if maybe_valid_time_hhmm is not None:
         report[-1] = format_as_hhmm(maybe_valid_time_hhmm)
     elif maybe_valid_time_mm is not None:
-        report[-1] = format_as_hhmm(maybe_valid_time_mm)
+        report[-1] = format_as_hhmm(datetime.now() - timedelta(minutes=45-maybe_valid_time_mm.minute))
     return report
 
 
