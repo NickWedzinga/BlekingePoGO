@@ -18,7 +18,6 @@ def _maybe_fix_valid_hhmm(raid_time: str) -> Optional[datetime]:
                 raid_time = f"{raid_time[:2]}:{raid_time[2:]}"
             elif raid_time[1] == ":":
                 raid_time = f"0{raid_time}"
-
         assert (int(raid_time.replace(":", "")) < 2400)
         return datetime.strptime(raid_time, "%H:%M")
     except:
