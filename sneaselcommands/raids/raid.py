@@ -8,6 +8,7 @@ import common
 import common_instances
 from sneaselcommands.raids.utils.raid_scheduler import schedule_edit_embed, schedule_reminding_task, \
     schedule_delete_channel_at, update_raids_channel
+from sneaselcommands.raids.utils.raid_stats import insert_into_stats
 from utils.database_connector import execute_statement, create_insert_query, create_select_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
@@ -16,7 +17,7 @@ from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_spelling
 from utils.time_wrapper import valid_time_hhmm, valid_time_mm, format_as_hhmm
 
 
-def _validate_report(*args) -> str:
+def _validate_report(args: list) -> str:
     """Validates the format of the report."""
     if len(args) < 2:
         return f"Missing information, please provide name and gym. Type *?help raid* for help"
@@ -34,6 +35,20 @@ def _validate_report(*args) -> str:
     if despawn_time is not None and (despawn_time.minute <= 0 or despawn_time.minute > 45):
         return f"Incorrect despawn time of **{despawn_time.minute}** minutes, should be between 1 and 45 minutes"
     return ""
+
+
+def maybe_replace_time(*report) -> list:
+    """Replaces the time """
+    report = list(report)
+
+    maybe_valid_time_hhmm = valid_time_hhmm(report[-1])
+    maybe_valid_time_mm = valid_time_mm(report[-1])
+
+    if maybe_valid_time_hhmm is not None:
+        report[-1] = format_as_hhmm(maybe_valid_time_hhmm)
+    elif maybe_valid_time_mm is not None:
+        report[-1] = format_as_hhmm(maybe_valid_time_mm)
+    return report
 
 
 async def _send_embed(bot, ctx, channel, pokemon_name: str, gym: str, hatch_time: str):
@@ -125,9 +140,8 @@ def _find_originally_misspelled_pokemon(report: list, corrected_pokemon_name: st
     return " ".join(original_pokemon_list)
 
 
-def _find_pokemon_and_gym(*report) -> (str, str):
+def _find_pokemon_and_gym(report: list) -> (str, str):
     """Attempts to find the pokemon and gym in a printreport"""
-    report = list(report)
     if valid_time_hhmm(report[-1]) is not None or valid_time_mm(report[-1]):
         report = report[:-1]
 
@@ -181,9 +195,9 @@ async def _find_raid_category(bot, ctx) -> discord.CategoryChannel:
     return maybe_category if maybe_category is not None else ctx.channel.category
 
 
-async def _create_channel_and_information(bot, ctx, *report):
+async def _create_channel_and_information(bot, ctx, report: list):
     at_time_or_train = report[-1]
-    pokemon, gym = _find_pokemon_and_gym(*report)
+    pokemon, gym = _find_pokemon_and_gym(report)
 
     if not gym:
         await ctx.send(f"Your raid is missing either a pokemon or gym name {ctx.author.mention}, use *?help raid* for details")
@@ -231,6 +245,8 @@ async def _create_channel_and_information(bot, ctx, *report):
         keys="(channel_id, reporter_id, pokemon, gym, hatch_time, last_updated)",
         values=f"('{created_channel.id}', '{ctx.author.id}', '{pokemon}', '{gym}', '{hatch_time}', 'empty')"))
 
+    insert_into_stats(ctx, ctx.author.display_name, ctx.author.id, created_channel.id, pokemon, gym, hatch_time)
+
     await ctx.send(f"{ctx.author.mention} has created a raid in {created_channel.mention}, why don't you join them?")
     await _send_embed(bot, ctx, created_channel, pokemon, gym, hatch_time)
 
@@ -256,12 +272,13 @@ class Raid(commands.Cog):
         Type ?status, to ask Sneasel to re-send the raid information
         Type ?close, to close the raid channel early
         """
-        validated_report = _validate_report(*args)
+        args = maybe_replace_time(*args)
+        validated_report = _validate_report(args)
         if len(validated_report) > 1:
             await ctx.send(f"{validated_report} {ctx.author.mention}")
             return
 
-        await _create_channel_and_information(self.bot, ctx, *args)
+        await _create_channel_and_information(self.bot, ctx, args)
         await update_raids_channel(self.bot, ctx)
 
     @raid.error

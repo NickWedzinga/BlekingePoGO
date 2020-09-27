@@ -12,6 +12,7 @@ from sneaselcommands.raids.raid import create_raid_embed
 from sneaselcommands.raids.utils.raid_embeds import update_time_in_embed
 from sneaselcommands.raids.utils.raid_scheduler import update_raids_channel, schedule_delete_channel_at, \
     schedule_edit_embed, schedule_reminding_task
+from sneaselcommands.raids.utils.raid_stats import update_pokemon_in_stats
 from utils.channel_wrapper import find_embed_in_channel
 from utils.database_connector import execute_statement, create_delete_query, create_select_query, create_update_query
 from utils.exception_wrapper import pm_dev_error
@@ -164,6 +165,11 @@ class Update(commands.Cog):
             where_key="channel_id",
             where_value=channel.id
         ))
+        update_pokemon_in_stats(
+            channel_id=channel.id,
+            column="pokemon",
+            new_value=f"'{pokemon_name_concat}'"
+        )
         await update_raids_channel(self.bot, ctx)
 
     @pokemon.error
@@ -222,6 +228,11 @@ class Update(commands.Cog):
             where_key="channel_id",
             where_value=channel.id
         ))
+        update_pokemon_in_stats(
+            channel_id=channel.id,
+            column="hatch_time",
+            new_value=f"'{time}'"
+        )
         await update_raids_channel(self.bot, ctx)
 
     @hatch.error
@@ -277,6 +288,11 @@ class Update(commands.Cog):
             where_key="channel_id",
             where_value=channel.id
         ))
+        update_pokemon_in_stats(
+            channel_id=channel.id,
+            column="hatch_time",
+            new_value=f"'{time}'"
+        )
         await update_raids_channel(self.bot, ctx)
 
     @despawn.error
@@ -301,8 +317,11 @@ class Update(commands.Cog):
 
         gym = " ".join(gym).title()
         embed = embed_message.embeds[0]
-        old_hatch_info = embed.description.split("\n")[1]
-        embed.description = f"{embed.description[:5]} {gym}\n{old_hatch_info}"
+        old_embed_description = embed.description.split("\n")
+        old_reporter_info = old_embed_description[0]
+        old_gym_info = old_embed_description[1]
+        old_hatch_info = old_embed_description[2]
+        embed.description = f"{old_reporter_info}\n{old_gym_info[:5]} {gym}\n{old_hatch_info}"
         await embed_message.edit(embed=embed)
 
         channel_name = channel.name.split("_")
@@ -330,6 +349,11 @@ class Update(commands.Cog):
             where_key="channel_id",
             where_value=channel.id
         ))
+        update_pokemon_in_stats(
+            channel_id=channel.id,
+            column="gym",
+            new_value=f"'{gym}'"
+        )
         await update_raids_channel(self.bot, ctx)
 
     @gym.error
