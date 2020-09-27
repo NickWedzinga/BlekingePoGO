@@ -1,17 +1,18 @@
 import traceback
+from datetime import datetime, timedelta
 
 import discord
-from datetime import datetime, timedelta
-from utils.time_wrapper import format_as_hhmm
 
 import common
 from utils.database_connector import execute_statement, create_select_query
+from utils.time_wrapper import format_as_hhmm
 
 
 async def call_raid_tests(bot, ctx):
     try:
         await _run_not_hatched_raid(bot, ctx)
         await _run_hatched_raid(bot, ctx)
+        await _run_hatched_raid_despawn_time(bot, ctx)
         await _run_raid_train(bot, ctx)
 
         await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: Successfully completed the Raid commands.")
@@ -49,6 +50,27 @@ async def _run_hatched_raid(bot, ctx):
         updated_name = "weavile_momos-hem"
 
         await _invoke_raid_command(bot, ctx, "Sneasel", "Momos", "hem")
+        await _check_created_rows_in_database(ctx)
+        await _check_created_channel(ctx, channel_name)
+
+        await _invoke_update_command(bot, ctx, channel_name, time)
+
+        await _invoke_close_command(bot, ctx, updated_name)
+        await _check_deleted_rows_from_database()
+
+        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: Successfully completed the hatched raid.")
+    except Exception:
+        raise ValueError(f"Error during raid integration-tests")
+
+
+async def _run_hatched_raid_despawn_time(bot, ctx):
+    """Run the tests for a raid with despawn time, for example ?raid heatran klockstapeln 32"""
+    try:
+        time = format_as_hhmm(datetime.now() - timedelta(minutes=30))
+        channel_name = f"{time.replace(':', '')}_sneasel_momos-hem"
+        updated_name = f"{time.replace(':', '')}_weavile_momos-hem"
+
+        await _invoke_raid_command(bot, ctx, "Sneasel", "Momos", "hem", "15")
         await _check_created_rows_in_database(ctx)
         await _check_created_channel(ctx, channel_name)
 
