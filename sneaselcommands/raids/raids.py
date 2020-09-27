@@ -7,11 +7,21 @@ from discord.ext import commands
 import common
 from sneaselcommands.raids.raid import valid_time_hhmm
 from utils.channel_wrapper import find_embed_in_channel
-from utils.database_connector import execute_statement, create_select_query
+from utils.database_connector import execute_statement
 from utils.exception_wrapper import pm_dev_error
 
 
-def _create_embed(ctx, active_raids_dict: dict, max_field_count: int = 24):
+def _sort_raid_dict(active_raids_dict: list) -> list:
+    hatched_first_raid_dict = []
+    for raid in active_raids_dict:
+        if raid.get("hatch_time") == "Hatched!":
+            hatched_first_raid_dict.insert(0, raid)
+        else:
+            hatched_first_raid_dict.append(raid)
+    return hatched_first_raid_dict
+
+
+def _create_embed(ctx, active_raids_dict: list, max_field_count: int = 24):
     """Creates an embed listing all active raids, max of 24 listings"""
     embed = discord.Embed(title=f"Active raids",
                           color=0xff9900,
@@ -21,7 +31,7 @@ def _create_embed(ctx, active_raids_dict: dict, max_field_count: int = 24):
     if not active_raids_dict:
         embed.description = "There are currently no active raids reported"
 
-    for index, raid in enumerate(active_raids_dict):
+    for index, raid in enumerate(_sort_raid_dict(active_raids_dict)):
         pokemon = raid.get("pokemon")
         gym = raid.get("gym")
         channel = discord.utils.get(ctx.guild.channels, id=raid.get("channel_id"))
@@ -60,9 +70,9 @@ class Raids(commands.Cog):
 
         Usage: ?raids
         """
-        active_raids_dict = execute_statement(create_select_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS
-        )).all(as_dict=True)
+        active_raids_dict = execute_statement(
+            statement=f"SELECT * from {common.ACTIVE_RAID_CHANNEL_OWNERS} ORDER BY hatch_time"
+        ).all(as_dict=True)
 
         embed = _create_embed(ctx, active_raids_dict)
 
