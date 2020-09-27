@@ -278,7 +278,7 @@ class Update(commands.Cog):
             ctx=ctx,
             channel=channel,
             new_channel_name=channel_name,
-            field_name_to_update="Despawn time",
+            field_name_to_update="Hatch time",
             field_new_value=time)
 
         execute_statement(create_update_query(
