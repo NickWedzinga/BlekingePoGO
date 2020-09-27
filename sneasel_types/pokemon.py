@@ -35,7 +35,7 @@ class Pokemon:
 
         # TODO: remove special case for mega once pokemondb adds GO megas
         if "mega" in self.name.lower():
-            icon_url = f"https://img.pokemondb.net/sprites/x-y/normal/{self.name.replace(' ', '-').lower()}.png"
+            icon_url = f"https://img.pokemondb.net/sprites/bank/normal/{self.name.replace(' ', '-').lower()}.png"
         else:
             icon_url = f"https://img.pokemondb.net/sprites/go/normal/{self.name.replace(' ', '-').lower()}.png"
         self.sprite_url = icon_url
