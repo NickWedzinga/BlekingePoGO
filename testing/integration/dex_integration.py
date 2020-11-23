@@ -1,4 +1,4 @@
-import common
+from common import constants
 from testing.integration.test_utils import invoke_wrapper
 from utils.exception_wrapper import catch_with_channel_message
 import discord
@@ -14,7 +14,7 @@ async def call_update_dex(bot, ctx):
     """Calls the update dex command to REST call and update all Pokédex info"""
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during update_pokedex invocation",
         True,
         "integration/update pokedex",
@@ -29,7 +29,7 @@ async def call_dex_pokemon_test(bot, ctx):
     """Calls the main dex command"""
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during dex invocation",
         True,
         "integration/dex",

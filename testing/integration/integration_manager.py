@@ -4,9 +4,9 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-import common
+from common import constants
 from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
-    dex_integration, raid_integration
+    dex_integration, raid_integration, rolewindow_integration
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
 
@@ -28,7 +28,7 @@ class TestManager(commands.Cog):
     @healthcheck.error
     async def healthcheck_on_error(self, ctx, error):
         traceback.print_exc()
-        for dev in common.DEVELOPERS:
+        for dev in constants.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in TEST command: {error}""")
 
@@ -42,11 +42,11 @@ class TestManager(commands.Cog):
         Usage: ?test
         """
         try:
-            common.TEST_RESULTS_CHANNEL = discord.utils.get(ctx.guild.channels, name="test_results")
-            await common.TEST_RESULTS_CHANNEL.send(
+            constants.TEST_RESULTS_CHANNEL = discord.utils.get(ctx.guild.channels, name="test_results")
+            await constants.TEST_RESULTS_CHANNEL.send(
                 f"""---**INTEGRATION-TESTS - STARTED: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**---""")
             await ctx.send(
-                f"Sending results to {common.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
+                f"Sending results to {constants.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
 
             # TODO: Add all the tests to a list or something to run
             await leaderboard_integration.run_tests(self.bot, ctx)
@@ -55,6 +55,7 @@ class TestManager(commands.Cog):
             await configure_integration.run_tests(self.bot, ctx)
             await dex_integration.run_tests(self.bot, ctx)
             await raid_integration.run_tests(self.bot, ctx)
+            await rolewindow_integration.run_tests(self.bot, ctx)
 
             await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
         except Exception as e:

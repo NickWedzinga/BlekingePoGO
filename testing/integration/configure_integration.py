@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 import discord
 import schedule
 
-import common
-from utils.exception_wrapper import catch_with_channel_message
+from common import constants
 from testing.integration.test_utils import invoke_wrapper
+from utils.exception_wrapper import catch_with_channel_message
 
 
 async def call_configure_tests(bot, ctx):
@@ -26,7 +26,7 @@ async def test_clean_table(bot, ctx):
     """Cleans any leftover scheduled events in case of previously broken tests"""
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during remove_scheduled_events inital cleanup",
         True,
         "integration/schedule/remove_scheduled_events",
@@ -45,7 +45,7 @@ async def test_create_channel(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule create_channel invocation",
         True,
         "integration/schedule/create_channel",
@@ -60,11 +60,11 @@ async def test_create_channel(bot, ctx, channel_name):
         channel = discord.utils.get(ctx.guild.channels, name=channel_name)
         if channel is None:
             raise ValueError(f"Error during create_channel, can't find the created channel")
-        await common.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Schedule[create_channel]: "
+        await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Schedule[create_channel]: "
                                                f"Verified that the channel created exists!")
     except Exception as e:
         traceback.print_exc()
-        await common.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during configure schedule create_channel "
+        await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during configure schedule create_channel "
                                                f"can't find the created_channel: {e}")
         raise ValueError(f"Error during create_channel, can't find the created channel")
 
@@ -81,7 +81,7 @@ async def test_send_message(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule send_message invocation",
         True,
         "integration/schedule/send_message",
@@ -104,7 +104,7 @@ async def test_purge(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule purge invocation",
         True,
         "integration/schedule/purge",
@@ -124,7 +124,7 @@ async def test_delete_channel(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule delete_channel invocation",
         True,
         "integration/schedule/delete_channel",
@@ -143,7 +143,7 @@ async def test_remove_scheduled_events(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during configure schedule create_channel invocation",
         True,
         "integration/schedule/create_channel",
@@ -156,7 +156,7 @@ async def test_remove_scheduled_events(bot, ctx, channel_name):
     assert(len(schedule.jobs) == 1)
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during list_scheduled_events invocation",
         True,
         "integration/schedule/list_scheduled_events",
@@ -168,7 +168,7 @@ async def test_remove_scheduled_events(bot, ctx, channel_name):
 
     await catch_with_channel_message(
         invoke_wrapper.invoke_event_now,
-        common.TEST_RESULTS_CHANNEL,
+        constants.TEST_RESULTS_CHANNEL,
         f":no_entry: Error during remove_scheduled_events invocation",
         True,
         "integration/schedule/remove_scheduled_events",

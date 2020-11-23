@@ -2,15 +2,6 @@
 Contains common code
 """
 
-# connection to database
-DATABASE_CONNECTION = None
-
-# data tables
-SCHEDULE_RAID = "configure__schedule_raid_channel"
-SCHEDULE_WEEKLY = "configure__schedule_weekly"
-ACTIVE_RAID_CHANNEL_OWNERS = "raid__active_channel_owners"
-STATS_REPORTED_RAIDS = "stats__reported_raids"
-
 # list of channels in which Sneasel can trigger sneaselcommands
 COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support", "momos_test_dungeon"]
 

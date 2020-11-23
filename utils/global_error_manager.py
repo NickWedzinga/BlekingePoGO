@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-import common
+from common import tables
 from utils.database_connector import execute_statement, create_select_query
 
 
@@ -12,7 +12,7 @@ def in_channel_list(channel_list):
 
 def validate_active_raid_and_user():
     async def predicate(ctx):
-        maybe_channel_dict = execute_statement(create_select_query(common.ACTIVE_RAID_CHANNEL_OWNERS, "channel_id", f"'{ctx.channel.id}'")).all(as_dict=True)
+        maybe_channel_dict = execute_statement(create_select_query(tables.ACTIVE_RAID_CHANNEL_OWNERS, "channel_id", f"'{ctx.channel.id}'")).all(as_dict=True)
 
         if "help" not in ctx.invoked_with:
             if not maybe_channel_dict:

@@ -5,18 +5,18 @@ from datetime import datetime, timedelta
 
 from spellchecker import SpellChecker
 
-import common_instances
+from common import instances
 from sneaselcommands.raids.raid import _validate_report, valid_time_hhmm, _find_pokemon_and_gym, \
     filter_pokemon_leftovers_from_gym, _remove_found_pokemon_from_report
 from utils.pokemon_collection import _parse_jsons_as_pokedex
 
-common_instances.POKEDEX = _parse_jsons_as_pokedex(
+instances.POKEDEX = _parse_jsons_as_pokedex(
     pokedex_json=json.load(open(os.path.dirname(os.path.abspath(__file__)) + "/test_pokedex.json")),
     extras_json={"response": []})
 
-common_instances.SPELLCHECKER = SpellChecker(distance=2)
-common_instances.SPELLCHECKER.word_frequency.remove_words(common_instances.SPELLCHECKER.word_frequency.words())
-common_instances.SPELLCHECKER.word_frequency.load_words(common_instances.POKEDEX.pokedict.keys())
+instances.SPELLCHECKER = SpellChecker(distance=2)
+instances.SPELLCHECKER.word_frequency.remove_words(instances.SPELLCHECKER.word_frequency.words())
+instances.SPELLCHECKER.word_frequency.load_words(instances.POKEDEX.pokedict.keys())
 
 
 class TestRaid(unittest.TestCase):

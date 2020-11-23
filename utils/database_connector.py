@@ -3,7 +3,7 @@ from typing import Optional
 
 import records
 
-import common
+from common import tables, instances
 
 
 def get_ranking_of_user(name: str, record_collection: records.RecordCollection) -> Optional[int]:
@@ -38,7 +38,7 @@ def create_insert_scheduled_event_query(task: str, weekday: str, at_time: str, t
                                         channel_id: int = 0, category_id: int = 0, guild_id: int = 0, number: int = 0,
                                         channel_name: str = "empty") -> str:
     """Creates an INSERT INTO query for the configure__schedule_weekly table"""
-    return f"INSERT INTO {common.SCHEDULE_WEEKLY} " \
+    return f"INSERT INTO {tables.SCHEDULE_WEEKLY} " \
            f"(task, weekday, at_time, tag, message, channel_id, category_id, guild_id, number, channel_name) " \
            f"VALUES ('{task}', '{weekday}', '{at_time}', '{tag}', '{message}', {channel_id}, {category_id}, {guild_id}, {number}, '{channel_name}')"
 
@@ -57,12 +57,12 @@ def create_delete_query(table_name: str, where_key: str = None, where_value: str
 
 # TODO: can't close connection after query because then it crashes while it's still attempting to retrieve data
 def execute_statement(statement: str) -> records.RecordCollection:
-    db = records.Database(common.DATABASE_CONNECTION)
+    db = records.Database(instances.DATABASE_CONNECTION)
     return db.query(statement)
 
 
 def execute_statements(statements: List[str]) -> List[records.RecordCollection]:
-    db = records.Database(common.DATABASE_CONNECTION)
+    db = records.Database(instances.DATABASE_CONNECTION)
     result_set = []
 
     for statement in statements:

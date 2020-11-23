@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-import common
+from common import constants
 from utils.database_connector import execute_statements, create_select_top_x_scores_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
@@ -61,7 +61,7 @@ class Ranks(commands.Cog):
         self.bot = bot
 
     @commands.command(name="ranks")
-    @in_channel_list(common.COMMAND_CHANNEL_LIST)
+    @in_channel_list(constants.COMMAND_CHANNEL_LIST)
     async def ranks(self, ctx):
         """
         Get all your current ranks in a private message.
@@ -69,12 +69,12 @@ class Ranks(commands.Cog):
         Usage: ?ranks
         """
         statements = []
-        for leaderboard in common.LEADERBOARD_LIST:
+        for leaderboard in constants.LEADERBOARD_LIST:
             statements.append(create_select_top_x_scores_query(leaderboard))
 
         all_leaderboards_data = execute_statements(statements)
         concat_message = []
-        for leaderboard_name, leaderboard_data in zip(common.LEADERBOARD_LIST, all_leaderboards_data):
+        for leaderboard_name, leaderboard_data in zip(constants.LEADERBOARD_LIST, all_leaderboards_data):
             for rank, user in enumerate(leaderboard_data.all(as_dict=True)):
                 if user.get("name") == ctx.author.display_name:
                     concat_message.append(
