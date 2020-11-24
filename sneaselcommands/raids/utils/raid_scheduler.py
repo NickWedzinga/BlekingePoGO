@@ -1,6 +1,6 @@
 import schedule
 
-import common
+from common import constants, tables
 from sneaselcommands.raids.utils.raid_embeds import update_time_in_embed
 from utils.database_connector import execute_statement, create_insert_query, create_delete_query
 from utils.scheduler import schedule_new_hourly_task, schedule_new_daily_task
@@ -22,12 +22,12 @@ async def update_raids_channel(bot, ctx):
 def cancel_all_scheduled_events_for_raid_channel(channel_id):
     """Clears all scheduled events"""
     execute_statement(create_delete_query(
-        table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+        table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
         where_key="channel_id",
         where_value=channel_id))
 
     execute_statement(create_delete_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         where_key="channel_id",
         where_value=channel_id))
 
@@ -47,7 +47,7 @@ def schedule_reminding_task(bot, ctx, created_channel, message, at_time, task_in
         message=message)
 
     execute_statement(create_insert_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         keys="(task, task_interval, at_time, tag, channel_id, reporter_id, message)",
         values=f"('remind', '{task_interval}', '{at_time}', 'send{created_channel.id}', {created_channel.id}, {ctx.author.id}, '{message}')"
     ))
@@ -68,7 +68,7 @@ def schedule_delete_channel_at(bot, ctx, created_channel, at_time):
         at_time=at_time)
 
     execute_statement(create_insert_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         keys="(task, task_interval, at_time, tag, channel_id, reporter_id, message)",
         values=f"('remove_channel_at', 'daily', '{at_time}', 'delete{created_channel.id}', {created_channel.id}, {ctx.author.id}, 'empty')"
     ))
@@ -97,7 +97,7 @@ def schedule_edit_embed(bot, ctx, channel, at_time):
         at_time=at_time)
 
     execute_statement(create_insert_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         keys="(task, task_interval, at_time, tag, channel_id, reporter_id, message)",
         values=f"('edit_embed', 'daily', '{at_time}', 'edit_embed{channel.id}', {channel.id}, {0}, 'empty')"
     ))
@@ -108,7 +108,7 @@ def update_embed(**kwargs):
     kwargs.get("bot").loop.create_task(update_time_in_embed(**kwargs))
 
     execute_statement(create_delete_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         where_key="tag",
         where_value=f"'edit_embed{kwargs.get('channel').id}'"))
 

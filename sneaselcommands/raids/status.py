@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils.channel_wrapper import find_embed_in_channel
+from utils.channel_wrapper import find_first_embed_in_channel
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import validate_active_raid_and_user
 
@@ -19,7 +19,7 @@ class Status(commands.Cog):
         These status images are merely copies of the original.
         If any changes are made to the original, the copies will not be updated.
         """
-        embed_message = await find_embed_in_channel(self.bot, ctx.channel, "Raid / status")
+        embed_message = await find_first_embed_in_channel(self.bot, ctx.channel, "Raid / status")
         embed = embed_message.embeds[0]
         embed.title = embed.title + " (COPY)"
         await ctx.send(embed=embed)

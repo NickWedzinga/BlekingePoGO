@@ -5,7 +5,7 @@ import discord
 import schedule
 from discord.ext import commands
 
-import common
+from common import constants, tables
 from sneaselcommands.raids.utils.raid_scheduler import delete_channel_at_time, update_embed, remind_task, get_interval
 from utils import scheduler
 from utils.channel_wrapper import purge_channel, create_channel, delete_channel
@@ -50,7 +50,7 @@ def _get_task(task):
 
 
 def _schedule_events(bot: discord.ext.commands.Bot):
-    weekly_task_info_list = execute_statement(create_select_query(common.SCHEDULE_WEEKLY)).all(as_dict=True)
+    weekly_task_info_list = execute_statement(create_select_query(tables.SCHEDULE_WEEKLY)).all(as_dict=True)
     for task_info in weekly_task_info_list:
         local_guild: discord.Guild = bot.get_guild(task_info.get("guild_id"))
         schedule_new_weekly_task(
@@ -66,7 +66,7 @@ def _schedule_events(bot: discord.ext.commands.Bot):
             category=None if local_guild is None else discord.utils.get(local_guild.categories, id=int(task_info.get("category_id")))
         )
 
-    task_info_list = execute_statement(create_select_query(common.SCHEDULE_RAID)).all(as_dict=True)
+    task_info_list = execute_statement(create_select_query(tables.SCHEDULE_RAID)).all(as_dict=True)
     for task_info in task_info_list:
         channel = bot.get_channel(int(task_info.get("channel_id")))
         get_interval(task_info.get("task_interval"))(
@@ -315,10 +315,10 @@ class Configure(commands.Cog):
 
         schedule.clear(tag)
         if tag is None:
-            execute_statement(create_delete_query(common.SCHEDULE_WEEKLY))
+            execute_statement(create_delete_query(tables.SCHEDULE_WEEKLY))
             await ctx.send(f"Removed all scheduled events")
         else:
-            execute_statement(create_delete_query(common.SCHEDULE_WEEKLY, "tag", f"'{tag}'"))
+            execute_statement(create_delete_query(tables.SCHEDULE_WEEKLY, "tag", f"'{tag}'"))
             await ctx.send(f"Removed all scheduled events with tag [{tag}]")
 
     @remove_scheduled_events.error

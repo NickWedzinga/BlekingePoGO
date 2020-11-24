@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
-from utils.channel_wrapper import find_embed_in_channel
+from utils.channel_wrapper import find_first_embed_in_channel
 from utils.time_wrapper import valid_time_hhmm, format_as_hhmm
 
 
 async def update_time_in_embed(**kwargs):
     """Finds the embed to update and edits it"""
-    embed_message = await find_embed_in_channel(kwargs.get("bot"), kwargs.get("channel"), "Raid/_edit_embed")
+    embed_message = await find_first_embed_in_channel(kwargs.get("bot"), kwargs.get("channel"), "Raid/_edit_embed")
     if embed_message is None:
         return
     else:

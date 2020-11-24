@@ -1,7 +1,7 @@
 from typing import Optional
 
-import common
-import common_instances
+from common import constants
+from common import instances
 from sneasel_types.pokemon import Pokemon
 
 
@@ -16,7 +16,7 @@ def check_scrumbled_pokemon_name(scrumbled_pokemon_name: list) -> Optional[Pokem
     backup_matches = []
 
     # Check scrumbled names
-    for key in common_instances.POKEDEX.pokedict.keys():
+    for key in instances.POKEDEX.pokedict.keys():
         set_key = set(key.split(" "))
         if set_key.issubset(set(scrumbled_pokemon_name)):
             proper_matches.append(key)
@@ -28,9 +28,9 @@ def check_scrumbled_pokemon_name(scrumbled_pokemon_name: list) -> Optional[Pokem
 
     # If scrumbling found some Pokémon matches, return longest match
     if proper_matches:
-        pokemon = common_instances.POKEDEX.lookup(max(proper_matches, key=len))
-    elif backup_matches and scrumbled_pokemon_name[0] not in common.RAID_EGG_TYPES:
-        pokemon = common_instances.POKEDEX.lookup(min(backup_matches, key=len))
+        pokemon = instances.POKEDEX.lookup(max(proper_matches, key=len))
+    elif backup_matches and scrumbled_pokemon_name[0] not in constants.RAID_EGG_TYPES:
+        pokemon = instances.POKEDEX.lookup(min(backup_matches, key=len))
 
     # checks that the first word in report is included in the found pokemon
     if pokemon is not None and scrumbled_pokemon_name[0].upper() in pokemon.name.upper():
@@ -44,10 +44,10 @@ def check_spelling_pokemon_name(pokemon_misspelled: str) -> Optional[Pokemon]:
 
     Returns the Pokémon if found, otherwise it will return None
     """
-    if pokemon_misspelled.upper() in common.RAID_EGG_TYPES:
+    if pokemon_misspelled.upper() in constants.RAID_EGG_TYPES:
         return None
-    pokemon_spell_checked = common_instances.SPELLCHECKER.correction(pokemon_misspelled)
-    return common_instances.POKEDEX.lookup(pokemon_spell_checked)
+    pokemon_spell_checked = instances.SPELLCHECKER.correction(pokemon_misspelled)
+    return instances.POKEDEX.lookup(pokemon_spell_checked)
 
 
 def check_scrumbled_and_spelling_pokemon(incorrect_pokemon_list: list) -> Optional[Pokemon]:
@@ -61,8 +61,8 @@ def check_scrumbled_and_spelling_pokemon(incorrect_pokemon_list: list) -> Option
     """
     maybe_correctly_spelled_pokemon: list = []
     for pokemon_sub_name in incorrect_pokemon_list:
-        if pokemon_sub_name.upper() not in common.RAID_EGG_TYPES:
-            maybe_correctly_spelled_pokemon.append(common_instances.SPELLCHECKER.correction(pokemon_sub_name))
+        if pokemon_sub_name.upper() not in constants.RAID_EGG_TYPES:
+            maybe_correctly_spelled_pokemon.append(instances.SPELLCHECKER.correction(pokemon_sub_name))
         else:
             maybe_correctly_spelled_pokemon.append(pokemon_sub_name)
 

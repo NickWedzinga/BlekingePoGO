@@ -4,8 +4,7 @@ import discord
 import schedule
 from discord.ext import commands
 
-import common
-import common_instances
+from common import constants, instances, tables
 from sneaselcommands.dex import create_no_matches_info_message, find_corrected_pokemon, \
     create_found_correction_info_message
 from sneaselcommands.raids.raid import create_raid_embed
@@ -13,7 +12,7 @@ from sneaselcommands.raids.utils.raid_embeds import update_time_in_embed
 from sneaselcommands.raids.utils.raid_scheduler import update_raids_channel, schedule_delete_channel_at, \
     schedule_edit_embed, schedule_reminding_task
 from sneaselcommands.raids.utils.raid_stats import update_pokemon_in_stats
-from utils.channel_wrapper import find_embed_in_channel
+from utils.channel_wrapper import find_first_embed_in_channel
 from utils.database_connector import execute_statement, create_delete_query, create_select_query, create_update_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import validate_active_raid_and_user
@@ -23,7 +22,7 @@ from utils.time_wrapper import valid_time_mm, valid_time_hhmm, format_as_hhmm
 def _clear_previous_jobs(channel_id):
     """Deletes all rows related to this raid and cancels all jobs"""
     execute_statement(create_delete_query(
-        table_name=common.SCHEDULE_RAID,
+        table_name=tables.SCHEDULE_RAID,
         where_key="channel_id",
         where_value=channel_id))
 
@@ -44,7 +43,7 @@ async def _start_new_jobs(bot, ctx, channel, hatch_time: datetime, minutes_until
 async def _maybe_update_channel_name(ctx, channel, new_channel_name: str, field_name_to_update: str, field_new_value: str):
     """Updates the channel name if it has not been updated within the last 10 minutes"""
     raid_channel_info = execute_statement(create_select_query(
-        table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+        table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
         where_key="channel_id",
         where_value=channel.id
     )).all(as_dict=True)[0]
@@ -53,7 +52,7 @@ async def _maybe_update_channel_name(ctx, channel, new_channel_name: str, field_
 
     if last_updated == "empty" or valid_time_hhmm(last_updated).time() < (datetime.now() - timedelta(minutes=10)).time():
         execute_statement(create_update_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+            table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
             column="last_updated",
             new_value=f"'{format_as_hhmm(datetime.now())}'",
             where_key="channel_id",
@@ -114,9 +113,9 @@ class Update(commands.Cog):
         channel = ctx.channel if channel_id is None else discord.utils.get(ctx.guild.channels, id=channel_id)
 
         pokemon_name_concat = " ".join(pokemon_name).capitalize()
-        pokemon = common_instances.POKEDEX.lookup(pokemon_name_concat)
+        pokemon = instances.POKEDEX.lookup(pokemon_name_concat)
 
-        if pokemon is None and pokemon_name_concat.upper() not in common.RAID_EGG_TYPES:
+        if pokemon is None and pokemon_name_concat.upper() not in constants.RAID_EGG_TYPES:
             maybe_found_pokemon = await find_corrected_pokemon(ctx, list(pokemon_name))
             if maybe_found_pokemon is not None:
                 await ctx.send(create_found_correction_info_message(ctx, maybe_found_pokemon.name, " ".join(pokemon_name)))
@@ -124,7 +123,7 @@ class Update(commands.Cog):
             else:
                 await ctx.send(create_no_matches_info_message(ctx=ctx, pokemon_name=pokemon_name_concat))
 
-        embed_message = await find_embed_in_channel(self.bot, channel, source="Raid: Update pokemon")
+        embed_message = await find_first_embed_in_channel(self.bot, channel, source="Raid: Update pokemon")
         if embed_message is None:
             return
 
@@ -159,7 +158,7 @@ class Update(commands.Cog):
             field_new_value=pokemon_name_concat)
 
         execute_statement(create_update_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+            table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
             column="pokemon",
             new_value=f"'{pokemon_name_concat}'",
             where_key="channel_id",
@@ -222,7 +221,7 @@ class Update(commands.Cog):
             field_new_value=time)
 
         execute_statement(create_update_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+            table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
             column="hatch_time",
             new_value=f"'{time}'",
             where_key="channel_id",
@@ -282,7 +281,7 @@ class Update(commands.Cog):
             field_new_value=time)
 
         execute_statement(create_update_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+            table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
             column="hatch_time",
             new_value=f"'{time}'",
             where_key="channel_id",
@@ -311,7 +310,7 @@ class Update(commands.Cog):
         Can only be used by the reporter and admins/moderators.
         """
         channel = ctx.channel if channel_id is None else discord.utils.get(ctx.guild.channels, id=channel_id)
-        embed_message = await find_embed_in_channel(self.bot, channel, source="Raid: Update gym")
+        embed_message = await find_first_embed_in_channel(self.bot, channel, source="Raid: Update gym")
         if embed_message is None:
             return
 
@@ -343,7 +342,7 @@ class Update(commands.Cog):
             await ctx.send(f"Gym updated to: {gym}")
 
         execute_statement(create_update_query(
-            table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+            table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
             column="gym",
             new_value=f"'{gym}'",
             where_key="channel_id",

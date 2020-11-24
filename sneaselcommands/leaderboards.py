@@ -4,7 +4,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-import common
+from common import constants
 from utils.channel_wrapper import delete_channel_messages
 from utils.database_connector import execute_statement, create_select_query, create_select_top_x_scores_query, \
     get_ranking_of_user
@@ -57,7 +57,7 @@ def _create_leaderboard_embed(leaderboard: str, score_dict: dict, command_channe
     """Creates the embed for the leaderboard channel"""
     embed = discord.Embed(title=f"Leaderboard Blekinge: {leaderboard.capitalize()} \n", color=0xff9900,
                           description=f"Submit your score with '?{leaderboard} score' in {command_channel.mention}")
-    embed.set_thumbnail(url=f"https://vignette.wikia.nocookie.net/pokemongo/images/{common.MEDAL_ICON_URLS.get(leaderboard)}")
+    embed.set_thumbnail(url=f"https://vignette.wikia.nocookie.net/pokemongo/images/{constants.MEDAL_ICON_URLS.get(leaderboard)}")
     embed.set_footer(text=f"Showing top 10 scores, find your scores with ?ranks in {command_channel}")
     embed.add_field(name="\u200b", value="\u200b", inline=False)
 
@@ -102,8 +102,8 @@ class Leaderboards(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):
         self.bot = bot
 
-    @commands.command(aliases=common.LEADERBOARD_LIST)
-    @in_channel_list(common.COMMAND_CHANNEL_LIST)
+    @commands.command(aliases=constants.LEADERBOARD_LIST)
+    @in_channel_list(constants.COMMAND_CHANNEL_LIST)
     async def leaderboard(self, ctx, score):
         """
         Submit your score to a given leaderboard.

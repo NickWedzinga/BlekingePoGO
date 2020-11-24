@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-import common
+from common import constants
 from utils.database_connector import execute_statement, create_select_top_x_scores_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
@@ -12,7 +12,7 @@ class List(commands.Cog):
         self.bot = bot
 
     @commands.command(name="list")
-    @in_channel_list(common.COMMAND_CHANNEL_LIST)
+    @in_channel_list(constants.COMMAND_CHANNEL_LIST)
     async def list(self, ctx, leaderboard):
         """
         List your position in a given leaderboard.
@@ -21,7 +21,7 @@ class List(commands.Cog):
 
         Usage: ?list jogger
         """
-        if leaderboard not in common.LEADERBOARD_LIST:
+        if leaderboard not in constants.LEADERBOARD_LIST:
             await ctx.send(f"The **{leaderboard}** leaderboard does not exist.")
             return
 

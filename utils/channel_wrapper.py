@@ -39,7 +39,7 @@ async def delete_channel(bot, channel, source: str = None):
     )
 
 
-async def find_embed_in_channel(bot, channel: Optional[discord.TextChannel], source: str, should_pm: bool = True) -> Optional[discord.Message]:
+async def find_first_embed_in_channel(bot, channel: Optional[discord.TextChannel], source: str, should_pm: bool = True) -> Optional[discord.Message]:
     """
     Returns the first message containing an embed in the provided channel
     If the channel/embed doesn't exist, will pm_dev_error and return None
@@ -54,4 +54,27 @@ async def find_embed_in_channel(bot, channel: Optional[discord.TextChannel], sou
             bot=bot,
             error_message="Unable to find embed channel" if channel is None else "Unable to find embed in channel",
             source=source)
+    return None
+
+
+async def find_embeds_in_channel(channel: Optional[discord.TextChannel]) -> list:
+    """
+    Returns all the messages in a given channel that have an embed.
+    """
+    embeds = []
+    if channel is not None:
+        async for message in channel.history(oldest_first=True):
+            if message.embeds:
+                embeds.append(message)
+    return embeds
+
+
+async def find_embed_in_channel_from_message_id(channel: Optional[discord.TextChannel], message_id: int) -> Optional[discord.Message]:
+    """
+    Returns the message matching the message_id.
+    """
+    if channel is not None:
+        async for message in channel.history():
+            if message.id == message_id:
+                return message
     return None

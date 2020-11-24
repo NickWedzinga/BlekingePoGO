@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from spellchecker import SpellChecker
 
-import common_instances
+from common import instances
 from sneasel_types.pokemon import Pokemon
 from utils import pokemon_collection
 from utils.exception_wrapper import pm_dev_error
@@ -24,14 +24,14 @@ def _find_containing_matches(pokemon_name: str) -> list:
     """Takes a name and checks for each word in name if a Pokémon contains that word"""
     possible_matches = []
     for sub_name in pokemon_name.split(" "):
-        sub_matches = _find_possible_matches(sub_name.upper(), common_instances.POKEDEX.pokedict.keys())
+        sub_matches = _find_possible_matches(sub_name.upper(), instances.POKEDEX.pokedict.keys())
         if len(sub_matches) < 10:
             [possible_matches.append(sub_match) for sub_match in sub_matches if sub_match not in possible_matches]
     return possible_matches
 
 
 def create_no_matches_info_message(ctx, pokemon_name: str):
-    pokemon_spelling_candidates = common_instances.SPELLCHECKER.candidates(pokemon_name)
+    pokemon_spelling_candidates = instances.SPELLCHECKER.candidates(pokemon_name)
     pokemon_containing_matches = _find_containing_matches(pokemon_name=pokemon_name)
 
     info_message = f"Could not find any matches for {pokemon_name} {ctx.author.mention}"
@@ -47,7 +47,7 @@ def create_found_correction_info_message(ctx, corrected_name: str, incorrect_nam
     """Creates a str that lists the corrected Pokémon and attempts to give spelling alternatives"""
     info_message = f"Showing result for **{corrected_name.title()}**, did not find **{incorrect_name.title()}** {ctx.author.mention}"
 
-    candidates = common_instances.SPELLCHECKER.candidates(incorrect_name)
+    candidates = instances.SPELLCHECKER.candidates(incorrect_name)
     if len(candidates) > 1:
         info_message += f"\nOther spelling options: {', '.join(list(map(str.title, candidates)))}"
     return info_message
@@ -73,14 +73,15 @@ async def find_corrected_pokemon(ctx, pokemon_name: list) -> Optional[Pokemon]:
 class Dex(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):
         self.bot = bot
-        common_instances.POKEDEX = pokemon_collection.create_pokedex_from_file_or_rest(
-            pokedex_file_path=common_instances.POKEDEX_FILE_PATH, pokedex_url=common_instances.POKEDEX_URL,
-            extras_file_path=common_instances.SHINY_FILE_PATH, extras_url=common_instances.SHINY_URL
+        instances.POKEDEX = pokemon_collection.create_pokedex_from_file_or_rest(
+            pokedex_file_path=instances.POKEDEX_FILE_PATH, pokedex_url=instances.POKEDEX_URL,
+            extras_file_path=instances.SHINY_FILE_PATH, extras_url=instances.SHINY_URL
         )
-        common_instances.SPELLCHECKER = SpellChecker(distance=2)
-        common_instances.SPELLCHECKER.word_frequency.remove_words(common_instances.SPELLCHECKER.word_frequency.words())
-        common_instances.SPELLCHECKER.word_frequency.load_words(common_instances.POKEDEX.pokedict.keys())
+        instances.SPELLCHECKER = SpellChecker(distance=2)
+        instances.SPELLCHECKER.word_frequency.remove_words(instances.SPELLCHECKER.word_frequency.words())
+        instances.SPELLCHECKER.word_frequency.load_words(instances.POKEDEX.pokedict.keys())
 
+    # TODO: soon level 50 max
     @commands.command(name="dex")
     async def dex(self, ctx, *pokemon_name):
         """
@@ -93,7 +94,7 @@ class Dex(commands.Cog):
             return
 
         pokemon_name_concat = " ".join(pokemon_name)
-        pkmn = common_instances.POKEDEX.lookup(pokemon_name_concat)
+        pkmn = instances.POKEDEX.lookup(pokemon_name_concat)
 
         if pkmn is None:
             maybe_found_pokemon = await find_corrected_pokemon(ctx, list(pokemon_name))
@@ -114,11 +115,11 @@ class Dex(commands.Cog):
     @commands.is_owner()
     async def update_pokedex(self, ctx):
         """Updates the Pokédex"""
-        common_instances.POKEDEX = pokemon_collection.update_pokedex(
-            pokedex_file_path=common_instances.POKEDEX_FILE_PATH,
-            pokedex_url=common_instances.POKEDEX_URL,
-            extras_file_path=common_instances.SHINY_FILE_PATH,
-            extras_url=common_instances.SHINY_URL
+        instances.POKEDEX = pokemon_collection.update_pokedex(
+            pokedex_file_path=instances.POKEDEX_FILE_PATH,
+            pokedex_url=instances.POKEDEX_URL,
+            extras_file_path=instances.SHINY_FILE_PATH,
+            extras_url=instances.SHINY_URL
         )
         await ctx.send(f"Updated Pokédex!")
 

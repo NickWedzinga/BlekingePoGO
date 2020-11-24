@@ -4,9 +4,9 @@ import discord
 import discord.ext.commands.context
 from discord.ext import commands
 
-import common
+from common import constants, tables
 from sneaselcommands.raids.raid import valid_time_hhmm
-from utils.channel_wrapper import find_embed_in_channel
+from utils.channel_wrapper import find_first_embed_in_channel
 from utils.database_connector import execute_statement
 from utils.exception_wrapper import pm_dev_error
 
@@ -71,17 +71,17 @@ class Raids(commands.Cog):
         Usage: ?raids
         """
         active_raids_dict = execute_statement(
-            statement=f"SELECT * from {common.ACTIVE_RAID_CHANNEL_OWNERS} ORDER BY hatch_time"
+            statement=f"SELECT * from {tables.ACTIVE_RAID_CHANNEL_OWNERS} ORDER BY hatch_time"
         ).all(as_dict=True)
 
         embed = _create_embed(ctx, active_raids_dict)
 
-        raids_channel = discord.utils.get(ctx.guild.channels, name=common.RAID_ACTIVES_CHANNEL)
+        raids_channel = discord.utils.get(ctx.guild.channels, name=constants.RAID_ACTIVES_CHANNEL)
         if raids_channel is None:
             await pm_dev_error(self.bot, "Can't find the raids channel to post list of active raids", "raids")
             return
 
-        embed_message = await find_embed_in_channel(self.bot, raids_channel, "raids listing", should_pm=False)
+        embed_message = await find_first_embed_in_channel(self.bot, raids_channel, "raids listing", should_pm=False)
         if embed_message is None:
             await raids_channel.send(embed=embed)
         else:

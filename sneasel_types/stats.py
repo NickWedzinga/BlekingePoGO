@@ -1,6 +1,6 @@
 from typing import Dict
 
-from common import CPM_VALUES
+from common.constants import CPM_VALUES
 
 
 class Stats:

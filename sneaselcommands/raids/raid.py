@@ -4,8 +4,7 @@ import discord
 import requests
 from discord.ext import commands
 
-import common
-import common_instances
+from common import instances, constants, tables
 from sneaselcommands.raids.utils.raid_scheduler import schedule_edit_embed, schedule_reminding_task, \
     schedule_delete_channel_at, update_raids_channel
 from sneaselcommands.raids.utils.raid_stats import insert_into_stats
@@ -69,7 +68,7 @@ def create_raid_embed(ctx, reporter, pokemon_name: str, gym_name: str, hatch_tim
     else:
         description = f"Reporter: {reporter}\nGym: {gym_name.capitalize()}\nDespawn time: {format_as_hhmm((maybe_valid_time + timedelta(minutes=45)))}"
 
-    pokemon = common_instances.POKEDEX.lookup(pokemon_name)
+    pokemon = instances.POKEDEX.lookup(pokemon_name)
     pokemon_icon = "https://www.pokencyclopedia.info/sprites/misc/spr_substitute/art__substitute.png"
     fast_moves = "N/A"
     charge_moves = "N/A"
@@ -78,9 +77,9 @@ def create_raid_embed(ctx, reporter, pokemon_name: str, gym_name: str, hatch_tim
     max_cp_40 = "N/A"
     types = "N/A"
 
-    if pokemon_name.upper() in common.RAID_EGG_TYPES:
+    if pokemon_name.upper() in constants.RAID_EGG_TYPES:
         pokemon_name = pokemon_name.upper()
-        pokemon_icon = common.RAID_EGG_ICON_URLS[pokemon_name]
+        pokemon_icon = constants.RAID_EGG_ICON_URLS[pokemon_name]
     elif pokemon is not None:
         pokemon_name = pokemon_name.title()
         if requests.get(pokemon.sprite_url).status_code == 200:
@@ -134,7 +133,7 @@ def _find_originally_misspelled_pokemon(report: list, corrected_pokemon_name: st
     for word in report:
         if word.upper() in corrected_pokemon_name.upper():
             original_pokemon_list.append(word)
-        elif common_instances.SPELLCHECKER.correction(word).upper() in corrected_pokemon_name.upper():
+        elif instances.SPELLCHECKER.correction(word).upper() in corrected_pokemon_name.upper():
             original_pokemon_list.append(word)
     return " ".join(original_pokemon_list)
 
@@ -145,7 +144,7 @@ def _find_pokemon_and_gym(report: list) -> (str, str):
         report = report[:-1]
 
     original_pokemon = report[0]
-    if original_pokemon.upper() in common.RAID_EGG_TYPES and original_pokemon.upper() != "MEGA":
+    if original_pokemon.upper() in constants.RAID_EGG_TYPES and original_pokemon.upper() != "MEGA":
         pokemon = original_pokemon
     else:
         pokemon = check_scrumbled_pokemon_name(report)
@@ -176,7 +175,7 @@ def _find_pokemon_and_gym(report: list) -> (str, str):
 
 def _find_channel_index_by_hatch_time(hatch_time: datetime):
     """Finds the position the channel should be created in by comparing hatch_times"""
-    active_raids = execute_statement(create_select_query(table_name=common.ACTIVE_RAID_CHANNEL_OWNERS)).all(as_dict=True)
+    active_raids = execute_statement(create_select_query(table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS)).all(as_dict=True)
     hatch_times = [hatch_time]
     for raid in active_raids:
         hatch_times.append(valid_time_hhmm(raid.get("hatch_time")))
@@ -240,7 +239,7 @@ async def _create_channel_and_information(bot, ctx, report: list):
         schedule_delete_channel_at(bot, ctx, created_channel, format_as_hhmm(calculated_hatch_time + timedelta(hours=1)))
 
     execute_statement(create_insert_query(
-        table_name=common.ACTIVE_RAID_CHANNEL_OWNERS,
+        table_name=tables.ACTIVE_RAID_CHANNEL_OWNERS,
         keys="(channel_id, reporter_id, pokemon, gym, hatch_time, last_updated)",
         values=f"('{created_channel.id}', '{ctx.author.id}', '{pokemon}', '{gym}', '{hatch_time}', 'empty')"))
 
@@ -255,7 +254,7 @@ class Raid(commands.Cog):
         self.bot = bot
 
     @commands.command(name="raid")
-    @in_channel_list(common.RAID_REPORT_CHANNEL_LIST)
+    @in_channel_list(constants.RAID_REPORT_CHANNEL_LIST)
     async def raid(self, ctx, *args):
         """
         ?raid <pokemon/egg_type> <gym> [hatch time/minutes to despawn]

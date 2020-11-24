@@ -1,9 +1,9 @@
 import re
 
-import discord.utils
+from discord import utils
 from discord.ext import commands
 
-import common
+from common import constants
 from utils.database_connector import execute_statement, create_select_query, create_update_query, execute_statements, \
     create_delete_query
 from utils.exception_wrapper import pm_dev_error
@@ -78,7 +78,7 @@ def _rename_user_in_idclaims(new_name, user_id) -> bool:
 def _rename_user_in_leaderboards(new_name: str, old_name: str):
     """Updates all the leaderboard tables with the new name"""
     statements = []
-    for leaderboard in common.LEADERBOARD_LIST:
+    for leaderboard in constants.LEADERBOARD_LIST:
         statements.append(
             create_update_query(f"leaderboard__{leaderboard}", "name", f"'{new_name}'", "name", f"'{old_name}'"))
     execute_statements(statements)
@@ -155,10 +155,10 @@ class Support(commands.Cog):
             execute_statement(
                 f"INSERT INTO leaderboard__idclaims (name, user_id) VALUES ('{ctx.author.display_name}', {ctx.author.id})")
 
-            role = discord.utils.get(ctx.message.guild.roles, name="claimed")
+            role = utils.get(ctx.message.guild.roles, name="claimed")
             await ctx.message.author.add_roles(role)
 
-            command_channel = discord.utils.get(ctx.message.guild.channels, name="leaderboards")
+            command_channel = utils.get(ctx.message.guild.channels, name="leaderboards")
             await message_user(self.bot, ctx.message.author, _create_introductory_message(),
                                source="Claim")
             await message_channel(
@@ -182,7 +182,7 @@ class Support(commands.Cog):
         Usage: ?rename McMomo 133713371337
         """
         try:
-            user_to_change = discord.utils.get(ctx.guild.members, id=int(user_id))
+            user_to_change = utils.get(ctx.guild.members, id=int(user_id))
             old_name = user_to_change.display_name
         except:
             await ctx.send("Could not find a user on this Discord server with that id.")
@@ -223,7 +223,7 @@ class Support(commands.Cog):
         Usage: ?delete McMomo 133713371337
         """
         statements = []
-        for leaderboard in common.LEADERBOARD_LIST:
+        for leaderboard in constants.LEADERBOARD_LIST:
             statements.append(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
         execute_statements(statements)
         await ctx.send(f"{user_name} is removed from all leaderboards.")
@@ -236,7 +236,7 @@ class Support(commands.Cog):
 
         Usage: ?delete from_leaderboard jogger McMomo
         """
-        if leaderboard in common.LEADERBOARD_LIST:
+        if leaderboard in constants.LEADERBOARD_LIST:
             in_leaderboard_before = execute_statement(
                 create_select_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'")).all(True)
             execute_statement(create_delete_query(f"leaderboard__{leaderboard}", "name", f"'{user_name}'"))
