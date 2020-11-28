@@ -16,17 +16,16 @@ async def call_trainercode_tests(bot, ctx):
 
 async def add_and_remove_code_test(bot, ctx):
     trainercode_command = bot.get_command("trainercode")
-    remove_command = bot.get_command("remove_trainercode")
 
     maybe_code_in_db = check_in_db(ctx)
     assert(not maybe_code_in_db)
 
-    await ctx.invoke(trainercode_command, 111122223333)
+    await ctx.invoke(trainercode_command, "111122223333")
 
     maybe_code_in_db = check_in_db(ctx)
     assert maybe_code_in_db
 
-    await ctx.invoke(remove_command)
+    await ctx.invoke(trainercode_command, "remove")
 
     maybe_code_in_db = check_in_db(ctx)
     assert(not maybe_code_in_db)
