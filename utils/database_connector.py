@@ -55,6 +55,11 @@ def create_delete_query(table_name: str, where_key: str = None, where_value: str
     return f"DELETE FROM {table_name} WHERE {where_key}={where_value}"
 
 
+def create_upsert_query(tablename: str, keys: str, values: str, key_to_update: str, update_value: str) -> str:
+    """Creates an UPSERT statement meaning it will INSERT unless duplicate in which case it will UPDATE"""
+    return f"INSERT INTO {tablename} {keys} VALUES {values} ON DUPLICATE KEY UPDATE {key_to_update}={update_value}"
+
+
 # TODO: can't close connection after query because then it crashes while it's still attempting to retrieve data
 def execute_statement(statement: str) -> records.RecordCollection:
     db = records.Database(instances.DATABASE_CONNECTION)
