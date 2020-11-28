@@ -1,10 +1,13 @@
-import discord.utils
+"""Trainer code command Cog"""
+from typing import Union
+
+import discord
 from discord.ext import commands
 
 from common import tables
 from utils.database_connector import execute_statement, create_select_query, create_upsert_query, create_delete_query
 from utils.exception_wrapper import pm_dev_error
-from typing import Union
+
 
 async def remove_trainercode(ctx):
     """
@@ -27,14 +30,22 @@ async def remove_trainercode(ctx):
         await ctx.send(f"Successfully removed your trainer code {ctx.author.mention}")
 
 
+def format_trainer_code(raw_code: str):
+    """Formats trainer codes like: 111122223333 -> 1111 2222 3333"""
+    return ' '.join([raw_code[i:i + 4] for i in range(0, len(raw_code), 4)])
+
+
 class Trainercode(commands.Cog):
+    """
+    Allows members to register their trainer codes and look up other trainers' codes
+    """
     def __init__(self, bot=None):
         self.bot = bot
 
     @commands.command(aliases=["tc"])
     async def trainercode(self, ctx, *code_or_user: Union[discord.User, str]):
         """
-        Use this command to register your trainer code and look up other trainer's codes
+        Use this command to register your trainer code and look up other trainers' codes
 
         Usage:
         To register your trainer code use: ?trainercode 111122223333
@@ -49,7 +60,8 @@ class Trainercode(commands.Cog):
             code_or_user = int("".join(code_or_user))
 
             if len(str(code_or_user)) != 12:
-                await ctx.send(f"Incorrect number of characters in your trainer code [{code_or_user}] {ctx.author.mention}")
+                await ctx.send(f"Incorrect number of characters in your trainer code [{code_or_user}] "
+                               f"{ctx.author.mention}")
                 return
 
             execute_statement(create_upsert_query(
@@ -59,7 +71,8 @@ class Trainercode(commands.Cog):
                 key_to_update="code",
                 update_value=f"'{code_or_user}'"
             ))
-            await ctx.send(f"Set your trainer code to [{code_or_user}] {ctx.author.mention}")
+            await ctx.send(f"Set your trainer code to **{format_trainer_code(str(code_or_user))}** "
+                           f"{ctx.author.mention}")
             return
         elif code_or_user and code_or_user[0] == "remove":
             await remove_trainercode(ctx)
@@ -80,19 +93,24 @@ class Trainercode(commands.Cog):
                 code = maybe_found_code[0].get("code")
                 assert(len(maybe_found_code) == 1)
                 assert(code is not None)
-            except:
-                await pm_dev_error(self.bot, error_message="Trainercode: Multiple codes for same user OR issue extracting code")
+            except AssertionError:
+                await pm_dev_error(self.bot, error_message="Trainercode: Multiple codes for same user OR "
+                                                           "issue extracting code")
                 return
 
-            await ctx.send(f"Trainer code for {lookup_user.mention}: {code}")
+            await ctx.send(f"**{format_trainer_code(str(code))}** is {lookup_user.mention}'s registered code")
             return
         else:
-            await ctx.send(f"Incorrect use of trainer codes, please type **?help trainercode** for help {ctx.author.mention}")
+            await ctx.send(f"Incorrect use of **?trainercode**."
+                           f" [{' '.join(code_or_user)}] is not a valid trainer code or mentioned user."
+                           f"\nPlease type **?help trainercode** for help {ctx.author.mention}")
 
     @trainercode.error
     async def trainercode_on_error(self, _, error):
+        """Error handler for trainer code command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="Trainercode")
 
 
 def setup(bot):
+    """Trainer code setup function"""
     bot.add_cog(Trainercode(bot))
