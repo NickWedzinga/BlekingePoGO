@@ -6,13 +6,33 @@ from utils.database_connector import execute_statement, create_select_query, cre
 from utils.exception_wrapper import pm_dev_error
 from typing import Union
 
+async def remove_trainercode(ctx):
+    """
+    Removes the trainer code of the message author
+    """
+    maybe_found_code = execute_statement(create_select_query(
+        table_name=tables.TRAINERCODES,
+        where_key="user_id",
+        where_value=ctx.author.id
+    )).all(as_dict=True)
+
+    if not maybe_found_code:
+        await ctx.send(f"You have not previously registered a trainer code {ctx.author.mention}")
+    else:
+        execute_statement(create_delete_query(
+            table_name=tables.TRAINERCODES,
+            where_key="user_id",
+            where_value=ctx.author.id
+        ))
+        await ctx.send(f"Successfully removed your trainer code {ctx.author.mention}")
+
 
 class Trainercode(commands.Cog):
     def __init__(self, bot=None):
         self.bot = bot
 
     @commands.command(aliases=["tc"])
-    async def trainercode(self, ctx, code_or_user: Union[int, discord.User]=None):
+    async def trainercode(self, ctx, *code_or_user: Union[discord.User, str]):
         """
         Use this command to register your trainer code and look up other trainer's codes
 
@@ -21,11 +41,13 @@ class Trainercode(commands.Cog):
         To print your own trainer code use: ?trainercode
         To print someone else's trainer code use: ?trainercode @McMomo
 
-        To remove your trainer code use: ?remove_trainercode
+        To remove your trainer code use: ?trainercode remove
 
         Instead of ?trainercode you can also use ?tc
         """
-        if code_or_user is not None and isinstance(code_or_user, int):
+        if code_or_user and not isinstance(code_or_user[0], discord.User) and "".join(code_or_user).isnumeric():
+            code_or_user = int("".join(code_or_user))
+
             if len(str(code_or_user)) != 12:
                 await ctx.send(f"Incorrect number of characters in your trainer code [{code_or_user}] {ctx.author.mention}")
                 return
@@ -39,8 +61,10 @@ class Trainercode(commands.Cog):
             ))
             await ctx.send(f"Set your trainer code to [{code_or_user}] {ctx.author.mention}")
             return
-        else:
-            lookup_user = code_or_user if code_or_user is not None and isinstance(code_or_user, discord.User) else ctx.author
+        elif code_or_user and code_or_user[0] == "remove":
+            await remove_trainercode(ctx)
+        elif not code_or_user or isinstance(code_or_user[0], discord.User):
+            lookup_user = ctx.author if not code_or_user else code_or_user[0]
 
             maybe_found_code = execute_statement(create_select_query(
                 table_name=tables.TRAINERCODES,
@@ -49,8 +73,7 @@ class Trainercode(commands.Cog):
             )).all(as_dict=True)
 
             if not maybe_found_code:
-                await ctx.send(f"No trainer code registered for {lookup_user.mention}. Type **?help trainercode** to "
-                               f"get started")
+                await ctx.send(f"No trainer code registered for {lookup_user.mention}")
                 return
 
             try:
@@ -63,37 +86,12 @@ class Trainercode(commands.Cog):
 
             await ctx.send(f"Trainer code for {lookup_user.mention}: {code}")
             return
+        else:
+            await ctx.send(f"Incorrect use of trainer codes, please type **?help trainercode** for help {ctx.author.mention}")
 
     @trainercode.error
     async def trainercode_on_error(self, _, error):
         await pm_dev_error(bot=self.bot, error_message=error, source="Trainercode")
-
-    @commands.command()
-    async def remove_trainercode(self, ctx):
-        """
-        Removes your trainer code.
-
-        Usage: ?remove_rolewindow
-        """
-        maybe_found_code = execute_statement(create_select_query(
-            table_name=tables.TRAINERCODES,
-            where_key="user_id",
-            where_value=ctx.author.id
-        )).all(as_dict=True)
-
-        if not maybe_found_code:
-            await ctx.send(f"You have not previously registered a trainer code {ctx.author.mention}")
-        else:
-            execute_statement(create_delete_query(
-                table_name=tables.TRAINERCODES,
-                where_key="user_id",
-                where_value=ctx.author.id
-            ))
-            await ctx.send(f"Successfully removed your trainer code {ctx.author.mention}")
-
-    @remove_trainercode.error
-    async def remove_trainercode_on_error(self, _, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="Remove_trainercode")
 
 
 def setup(bot):
