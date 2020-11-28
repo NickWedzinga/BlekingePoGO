@@ -57,9 +57,9 @@ class Trainercode(commands.Cog):
         Instead of ?trainercode you can also use ?tc
         """
         if code_or_user and not isinstance(code_or_user[0], discord.User) and "".join(code_or_user).isnumeric():
-            code_or_user = int("".join(code_or_user))
+            code_or_user = "".join(code_or_user)
 
-            if len(str(code_or_user)) != 12:
+            if len(code_or_user) != 12:
                 await ctx.send(f"Incorrect number of characters in your trainer code [{code_or_user}] "
                                f"{ctx.author.mention}")
                 return
