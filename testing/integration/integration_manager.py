@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from common import constants
 from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
-    dex_integration, raid_integration, rolewindow_integration
+    dex_integration, raid_integration, rolewindow_integration, trainercode_integration
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
 
@@ -56,6 +56,7 @@ class TestManager(commands.Cog):
             await dex_integration.run_tests(self.bot, ctx)
             await raid_integration.run_tests(self.bot, ctx)
             await rolewindow_integration.run_tests(self.bot, ctx)
+            await trainercode_integration.run_tests(self.bot, ctx)
 
             await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
         except Exception as e:
