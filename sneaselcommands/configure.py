@@ -5,12 +5,12 @@ import discord
 import schedule
 from discord.ext import commands
 
-from common import constants, tables
+from common import tables
 from sneaselcommands.raids.utils.raid_scheduler import delete_channel_at_time, update_embed, remind_task, get_interval
 from utils import scheduler
 from utils.channel_wrapper import purge_channel, create_channel, delete_channel
 from utils.database_connector import create_insert_scheduled_event_query, create_delete_query, execute_statement, \
-    create_select_query
+    create_select_query, create_insert_query
 from utils.exception_wrapper import pm_dev_error
 from utils.message_wrapper import message_channel
 from utils.scheduler import schedule_new_weekly_task
@@ -103,7 +103,9 @@ class Configure(commands.Cog):
                            "configure schedule create_channel, "
                            "configure schedule delete_channel, "
                            "configure schedule purge, "
-                           "configure schedule send_message")
+                           "configure schedule send_message, "
+                           "configure register_role, "
+                           "configure remove_role")
 
     @configure.error
     async def configure_on_error(self, _, error):
@@ -325,6 +327,72 @@ class Configure(commands.Cog):
     async def remove_scheduled_events_on_error(self, _, error):
         """Catches errors with configure schedule remove_scheduled_events sub-command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="remove_scheduled_events")
+
+    @configure.group()
+    @commands.has_role("Admin")
+    async def register_role(self, ctx, name):
+        """
+        Registers a role that members can assign themselves to.
+
+        Usage: ?configure register_role unown
+        """
+        maybe_role = discord.utils.get(ctx.guild.roles, name=name)
+        if maybe_role is None:
+            await ctx.send(f"Role with name [{name}] could not be found.")
+            return
+
+        maybe_previously_registered = execute_statement(create_select_query(
+            table_name=tables.REGISTERED_ROLES,
+            where_key="role_name",
+            where_value=f"'{name}'"
+        )).all(as_dict=True)
+
+        if maybe_previously_registered:
+            await ctx.send(f"Role [{name}] is already registered {ctx.author.mention}")
+            return
+        else:
+            execute_statement(create_insert_query(
+                table_name=tables.REGISTERED_ROLES,
+                keys="(role_name, role_id, registered_by)",
+                values=f"('{maybe_role.name}', '{str(maybe_role.id)}', '{ctx.author.display_name}')"
+            ))
+            await ctx.send(f"Registered role [{name}], members should now be able to use ?give command to get the role")
+
+    @register_role.error
+    async def register_role_on_error(self, _, error):
+        """Catches errors with configure register_role sub-command"""
+        await pm_dev_error(bot=self.bot, error_message=error, source="register_role")
+
+    @configure.group()
+    @commands.has_role("Admin")
+    async def remove_role(self, ctx, name):
+        """
+        Removes a previously registered role that members could assign themselves to.
+
+        Usage: ?configure remove_role unown
+        """
+        maybe_found = execute_statement(create_select_query(
+            table_name=tables.REGISTERED_ROLES,
+            where_key="role_name",
+            where_value=f"'{name}'"
+        )).all(as_dict=True)
+
+        if not maybe_found:
+            await ctx.send(f"No registered role found with the name [{name}] {ctx.author.mention}")
+            return
+
+        execute_statement(create_delete_query(
+            table_name=tables.REGISTERED_ROLES,
+            where_key="role_name",
+            where_value=f"'{name}'"
+        ))
+
+        await ctx.send(f"Removed role [{name}], members should no longer be able to use ?give command to get the role")
+
+    @remove_role.error
+    async def register_role_on_error(self, _, error):
+        """Catches errors with configure remove_role sub-command"""
+        await pm_dev_error(bot=self.bot, error_message=error, source="remove_role")
 
 
 def setup(bot):

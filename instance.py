@@ -11,7 +11,8 @@ initial_extensions = ['utils.global_error_manager', 'testing.integration.integra
                       'sneaselcommands.configure', 'sneaselcommands.dex', 'sneaselcommands.refresh',
                       'sneaselcommands.raids.raid', 'sneaselcommands.raids.close', 'sneaselcommands.raids.update',
                       'sneaselcommands.raids.status', 'sneaselcommands.raids.raids', 'sneaselcommands.rolewindow',
-                      'sneaselcommands.trainercode']
+                      'sneaselcommands.trainercode', 'sneaselcommands.roles.give', 'sneaselcommands.roles.remove',
+                      'sneaselcommands.roles.roles']
 for extension in initial_extensions:
     bot.load_extension(extension)
 
@@ -19,6 +20,7 @@ for extension in initial_extensions:
 def startup():
     print("Starting..")
     print(f"Discord version: {discord.__version__}")
+
     @bot.event
     async def on_ready():
         print('Logged in as: ' + bot.user.display_name)
