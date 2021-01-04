@@ -99,6 +99,7 @@ class Trainercode(commands.Cog):
     """
     Allows members to register their trainer codes and look up other trainers' codes
     """
+
     def __init__(self, bot=None):
         self.bot = bot
 
@@ -120,8 +121,9 @@ class Trainercode(commands.Cog):
         """
         # Hit by:
         # - ?tc 111122223333
-        # - ?tc McMomo 111122223333
-        if code_or_user and not isinstance(code_or_user[0], discord.User) and "".join([str(part) for part in code_or_user]).isnumeric() or \
+        # - ?tc @McMomo 111122223333
+        if code_or_user and not isinstance(code_or_user[0], discord.User) and "".join(
+                [str(part) for part in code_or_user]).isnumeric() or \
                 "".join([str(part) for part in code_or_user[1:]]).isnumeric():
             try:
                 name, code = await generic_or_specific_code(ctx, *code_or_user)
@@ -168,9 +170,27 @@ class Trainercode(commands.Cog):
                 else:
                     await ctx.send(build_code_string(maybe_found_codes))
         else:
-            await ctx.send(f"Incorrect use of **?trainercode**.\n"
-                           f"Not a valid trainer code or mentioned user(s), "
-                           f"please type **?help trainercode** for help {ctx.author.mention}")
+            concat_name = "".join([str(part) for part in code_or_user])
+            maybe_found_by_name = execute_statement(create_select_query(
+                table_name=tables.TRAINERCODES,
+                where_key="name",
+                where_value=f"'{concat_name}'"
+            )).all(as_dict=True)
+
+            if not maybe_found_by_name:
+                await ctx.send(f"Incorrect use of **?trainercode**.\n"
+                               f"Not a valid trainer code or mentioned user(s), "
+                               f"please type **?help trainercode** for help {ctx.author.mention}")
+                return
+
+            user_id = maybe_found_by_name[0].get("user_id")
+            maybe_found_codes = execute_statement(create_select_query(
+                table_name=tables.TRAINERCODES,
+                where_key="user_id",
+                where_value=user_id
+            )).all(as_dict=True)
+
+            await ctx.send(build_code_string(maybe_found_codes))
 
     @trainercode.error
     async def trainercode_on_error(self, _, error):
