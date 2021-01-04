@@ -105,7 +105,7 @@ class Configure(commands.Cog):
                            "configure schedule purge, "
                            "configure schedule send_message, "
                            "configure register_role, "
-                           "configure remove_role")
+                           "configure unregister_role")
 
     @configure.error
     async def configure_on_error(self, _, error):
@@ -365,11 +365,11 @@ class Configure(commands.Cog):
 
     @configure.group()
     @commands.has_role("Admin")
-    async def remove_role(self, ctx, name):
+    async def unregister_role(self, ctx, name):
         """
         Removes a previously registered role that members could assign themselves to.
 
-        Usage: ?configure remove_role unown
+        Usage: ?configure unregister_role unown
         """
         maybe_found = execute_statement(create_select_query(
             table_name=tables.REGISTERED_ROLES,
@@ -389,10 +389,10 @@ class Configure(commands.Cog):
 
         await ctx.send(f"Removed role [{name}], members should no longer be able to use ?give command to get the role")
 
-    @remove_role.error
+    @unregister_role.error
     async def register_role_on_error(self, _, error):
-        """Catches errors with configure remove_role sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="remove_role")
+        """Catches errors with configure unregister_role sub-command"""
+        await pm_dev_error(bot=self.bot, error_message=error, source="unregister_role")
 
 
 def setup(bot):

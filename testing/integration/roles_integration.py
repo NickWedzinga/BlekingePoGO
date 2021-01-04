@@ -40,7 +40,7 @@ async def basic_roles_test(bot, ctx):
     await ctx.invoke(remove_command, "test_role")
     assert(not any(role == test_role for role in ctx.author.roles))
 
-    remove_registered_command = bot.get_command("configure remove_role")
+    remove_registered_command = bot.get_command("configure unregister_role")
     await ctx.invoke(remove_registered_command, "test_role")
     maybe_registered_role = execute_statement(create_select_query(
         table_name=tables.REGISTERED_ROLES,
