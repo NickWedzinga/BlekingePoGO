@@ -12,7 +12,7 @@ class Roles(commands.Cog):
     @commands.command(name="roles")
     async def roles(self, ctx):
         """
-        Lists all the available roles that you can give/remove.
+        Lists all the available roles that you can sub/unsub.
 
         Usage: ?roles
         """
@@ -21,7 +21,7 @@ class Roles(commands.Cog):
         )).all(as_dict=True)
 
         if not registered_roles:
-            await ctx.send(f"There are currently no roles registered that you can give/remove {ctx.author.mention}")
+            await ctx.send(f"There are currently no roles registered that you can sub/unsub {ctx.author.mention}")
             return
 
         role_string = f"Available roles {ctx.author.mention}\n----------\n"
@@ -31,7 +31,7 @@ class Roles(commands.Cog):
         await ctx.send(role_string)
 
     @roles.error
-    async def remove_on_error(self, _, error):
+    async def roles_on_error(self, _, error):
         """Catches errors with roles command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="roles")
 

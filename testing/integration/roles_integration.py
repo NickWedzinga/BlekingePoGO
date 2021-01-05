@@ -9,7 +9,7 @@ from utils.database_connector import execute_statement, create_select_query
 async def call_roles_test(bot, ctx):
     try:
         await basic_roles_test(bot, ctx)
-        await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Roles[Basic test]: Give/Remove/Roles command invocation without error.")
+        await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Roles[Basic test]: Sub/Unsub/Roles command invocation without error.")
     except Exception as e:
         traceback.print_exc()
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during roles integration-tests: {e}")
@@ -32,12 +32,12 @@ async def basic_roles_test(bot, ctx):
     roles_command = bot.get_command("roles")
     await ctx.invoke(roles_command)
 
-    give_command = bot.get_command("give")
-    await ctx.invoke(give_command, "test_role")
+    sub_command = bot.get_command("sub")
+    await ctx.invoke(sub_command, "test_role")
     assert(any(role == test_role for role in ctx.author.roles))
 
-    remove_command = bot.get_command("remove")
-    await ctx.invoke(remove_command, "test_role")
+    unsub_command = bot.get_command("unsub")
+    await ctx.invoke(unsub_command, "test_role")
     assert(not any(role == test_role for role in ctx.author.roles))
 
     remove_registered_command = bot.get_command("configure unregister_role")

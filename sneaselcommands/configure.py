@@ -356,7 +356,7 @@ class Configure(commands.Cog):
                 keys="(role_name, role_id, registered_by)",
                 values=f"('{maybe_role.name}', '{str(maybe_role.id)}', '{ctx.author.display_name}')"
             ))
-            await ctx.send(f"Registered role [{name}], members should now be able to use ?give command to get the role")
+            await ctx.send(f"Registered role [{name}], members should now be able to use ?sub command to get the role")
 
     @register_role.error
     async def register_role_on_error(self, _, error):
@@ -387,7 +387,7 @@ class Configure(commands.Cog):
             where_value=f"'{name}'"
         ))
 
-        await ctx.send(f"Removed role [{name}], members should no longer be able to use ?give command to get the role")
+        await ctx.send(f"Removed role [{name}], members should no longer be able to use ?sub command to get the role")
 
     @unregister_role.error
     async def register_role_on_error(self, _, error):
