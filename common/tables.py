@@ -9,3 +9,5 @@ ACTIVE_RAID_CHANNEL_OWNERS = "raid__active_channel_owners"
 STATS_REPORTED_RAIDS = "stats__reported_raids"
 
 TRAINERCODES = "friends__trainercodes"
+
+STATIC_DATA = "__static_data"
