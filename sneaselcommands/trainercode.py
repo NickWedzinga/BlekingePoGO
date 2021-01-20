@@ -178,9 +178,7 @@ class Trainercode(commands.Cog):
             )).all(as_dict=True)
 
             if not maybe_found_by_name:
-                await ctx.send(f"Incorrect use of **?trainercode**.\n"
-                               f"Not a valid trainer code or mentioned user(s), "
-                               f"please type **?help trainercode** for help {ctx.author.mention}")
+                await ctx.send(f"{concat_name} has not registered a trainer code {ctx.author.mention}")
                 return
 
             user_id = maybe_found_by_name[0].get("user_id")
