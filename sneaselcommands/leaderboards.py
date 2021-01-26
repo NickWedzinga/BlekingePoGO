@@ -115,7 +115,7 @@ class Leaderboards(commands.Cog):
         # extract data
         try:
             score = float(score.replace(",", "."))
-            invoked_leaderboard = ctx.invoked_with
+            invoked_leaderboard = ctx.invoked_with.lower()
             if invoked_leaderboard == "leaderboard":
                 await ctx.send("Please submit to a specific leaderboard, such as jogger, type ?help for example usage.")
                 return
