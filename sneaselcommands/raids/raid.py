@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta
 
 import discord
@@ -14,6 +15,12 @@ from utils.global_error_manager import in_channel_list
 from utils.pokemon_corrector import check_scrumbled_pokemon_name, check_spelling_pokemon_name, \
     check_scrumbled_and_spelling_pokemon
 from utils.time_wrapper import valid_time_hhmm, valid_time_mm, format_as_hhmm
+
+
+def _remove_illegal_characters(args: list) -> list:
+    """Removes illegal varchar characters in preparation for database"""
+    illegal_characters = "['#%]"
+    return [re.sub(illegal_characters, "", word) for word in args]
 
 
 def _validate_report(args: list) -> str:
@@ -272,11 +279,12 @@ class Raid(commands.Cog):
         """
         args = maybe_replace_time(*args)
         validated_report = _validate_report(args)
+        legal_args = _remove_illegal_characters(args)
         if len(validated_report) > 1:
             await ctx.send(f"{validated_report} {ctx.author.mention}")
             return
 
-        await _create_channel_and_information(self.bot, ctx, args)
+        await _create_channel_and_information(self.bot, ctx, legal_args)
         await update_raids_channel(self.bot, ctx)
 
     @raid.error
