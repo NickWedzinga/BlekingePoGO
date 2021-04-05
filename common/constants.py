@@ -19,7 +19,8 @@ TEST_RESULTS_CHANNEL = None
 LEADERBOARD_LIST = ['jogger', 'pikachu', 'battlegirl', 'pokedex', 'collector', 'scientist', 'breeder',
                     'backpacker', 'fisher', 'youngster', 'berrymaster', 'gymleader', 'champion', 'battlelegend',
                     'ranger', 'unown', 'gentleman', 'pilot', 'totalxp', 'goldgyms', 'idol', 'greatleague',
-                    'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier', 'bestbuddy']
+                    'ultraleague', 'masterleague', 'acetrainer', 'cameraman', 'hero', 'purifier', 'bestbuddy',
+                    'risingstar', 'risingstarduo', 'sightseer', 'picnicker', 'successor']
 
 # Developers: McMomo,
 DEVELOPERS = [169688623699066880]
@@ -136,12 +137,17 @@ MEDAL_ICON_URLS = {
     "idol": "9/9b/Idol_Gold.png",
     "jogger": "9/98/Jogger_Gold.png",
     "masterleague": "d/d7/MasterLeague_Gold.png",
+    "picnicker": "0/05/Picnicker_Gold.png",
     "pikachu": "9/94/PikachuFan_Gold.png",
     "pilot": "4/4e/Pilot_Gold.png",
     "pokedex": "4/43/Kanto_Gold.png",
     "purifier": "4/47/Purifier_Gold.png",
     "ranger": "7/77/Researcher_Gold.png",
+    "risingstar": "8/82/RisingStar_Gold.png",
+    "risingstarduo": "8/82/RisingStarDuo_Gold.png",
     "scientist": "7/7c/Scientist_Gold.png",
+    "sightseer": "2/26/Sightseer_Gold.png",
+    "successor": "0/07/Successor_Gold.png",
     "totalxp": "b/bd/Pok%C3%A9mon_GO_Fest_Chicago_2017.png",
     "ultraleague": "5/5e/UltraLeague_Gold.png",
     "unown": "1/1b/Unown_Gold.png",
