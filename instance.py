@@ -11,7 +11,8 @@ initial_extensions = ['utils.global_error_manager', 'testing.integration.integra
                       'sneaselcommands.configure', 'sneaselcommands.dex', 'sneaselcommands.refresh',
                       'sneaselcommands.raids.raid', 'sneaselcommands.raids.close', 'sneaselcommands.raids.update',
                       'sneaselcommands.raids.status', 'sneaselcommands.raids.raids', 'sneaselcommands.rolewindow',
-                      'sneaselcommands.trainercode', 'sneaselcommands.roles.sub', 'sneaselcommands.roles.roles']
+                      'sneaselcommands.trainercode', 'sneaselcommands.roles.sub', 'sneaselcommands.roles.roles',
+                      'sneaselcommands.achievements']
 for extension in initial_extensions:
     bot.load_extension(extension)
 
