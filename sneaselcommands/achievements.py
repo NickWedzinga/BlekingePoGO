@@ -14,7 +14,7 @@ class Achievements(commands.Cog):
 
     @commands.command(name="achievements")
     @in_channel_list(constants.COMMAND_CHANNEL_LIST)
-    async def achievements(self, ctx, user: discord.User = None):
+    async def achievements(self, ctx, user: discord.Member = None):
         """
         Lists your completed achievements as well as those you are yet to complete
 
@@ -26,6 +26,7 @@ class Achievements(commands.Cog):
         )).all(as_dict=True)
 
         user_id = user.id if user is not None else ctx.author.id
+        user_name = user.nick if user is not None else ctx.author.display_name
         user_objectives = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_OBJECTIVES,
             where_key="user_id",
@@ -38,7 +39,7 @@ class Achievements(commands.Cog):
             where_value=f"'{user_id}'"
         )).all(as_dict=True)
 
-        status_list = f"Achievement status for {ctx.author.mention}\n"
+        status_list = f"**{user_name}'s Achievements - Requested by {ctx.author.mention}**\n"
         for entry in user_highscores:
             highscore_name = entry["achievement_name"]
             status_list += f":crown: Currently in the lead for {highscore_name.replace('_', ' ').title()}\n"
@@ -50,7 +51,7 @@ class Achievements(commands.Cog):
             else:
                 status_list += f":no_entry: {available_achievement_name.replace('_', ' ').title()}\n"
 
-        if status_list:
+        if available_objectives or user_highscores:
             await ctx.send(status_list)
         else:
             raise ValueError(f"Database Error: Empty {tables.ACHIEVEMENTS_OBJECTIVES_LIST} table")
@@ -154,7 +155,6 @@ class Achievements(commands.Cog):
                 await ctx.send(f"Achievement Highscore: [{achievement_name}] doesn't exist, hasn't been registered, or should be an objective")
                 return
 
-            # TODO: test all cases
             # If this is the first entry for this achievement, just insert
             if not previous_highscores:
                 execute_statement(create_upsert_query(
