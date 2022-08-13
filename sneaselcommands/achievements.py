@@ -13,7 +13,6 @@ class Achievements(commands.Cog):
         self.bot = bot
 
     @commands.command(name="achievements")
-    @in_channel_list(constants.COMMAND_CHANNEL_LIST)
     async def achievements(self, ctx, user: discord.Member = None):
         """
         Lists your completed achievements as well as those you are yet to complete
