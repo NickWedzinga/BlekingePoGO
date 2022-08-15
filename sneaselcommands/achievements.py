@@ -84,9 +84,9 @@ class Achievements(commands.Cog):
             for entry in user_highscores:
                 highscore_name = entry["achievement_name"]
                 if entry["time_limited"] == "true":
-                    status_list += f":crown: :hourglass: - High-score in {highscore_name.replace('_', ' ').title()} with a score of {entry['score']}\n"
+                    status_list += f":crown: :hourglass: - High-score in {highscore_name.replace('_', ' ').title()} with a score of **{entry['score']}**\n"
                 else:
-                    status_list += f":crown: - High-score in {highscore_name.replace('_', ' ').title()} with a score of {entry['score']}\n"
+                    status_list += f":crown: - High-score in {highscore_name.replace('_', ' ').title()} with a score of **{entry['score']}**\n"
 
         if available_timeless_objectives:
             status_list += "**Challenges**\n"
@@ -156,7 +156,7 @@ class Achievements(commands.Cog):
     @achievement.group()
     @commands.has_role("Admin")
     async def add(self, ctx, type: str, achievement_name: str, time_limited: str, user_id: str, user_name: str, score: str = None):
-        """Usage: ?achievements add <objective/highscore> <achievement_name> <user_id> <user_name> <score>"""
+        """Usage: ?achievements add <objective/highscore> <achievement_name> <time_limited=[true/false]> <user_id> <user_name> <score>"""
         if time_limited != "true" and time_limited != "false":
             return await ctx.send(f"time_limited has to be true or false, but was: [{time_limited}]")
         if not user_id.isnumeric:
