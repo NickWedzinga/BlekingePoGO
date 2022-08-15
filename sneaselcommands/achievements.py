@@ -1,3 +1,5 @@
+from typing import Dict
+
 import discord
 from discord.ext import commands
 
@@ -6,6 +8,30 @@ from utils.database_connector import execute_statement, create_select_query, cre
     create_update_query, create_delete_query
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
+
+
+def _count_number_of_participants() -> int:
+    """Query all objectives entries and count unique number of participants"""
+    objective_rows = execute_statement(create_select_query(
+        table_name=tables.ACHIEVEMENTS_OBJECTIVES
+    )).all(as_dict=True)
+
+    user_id_list = []
+    for row in objective_rows:
+        user_id_list.append(row["user_id"])
+    return len(list(set(user_id_list))) # convert list to set to remove duplicate entries
+
+
+def _extract_awarded_by_objective() -> Dict[str, str]:
+    """Query objective_list table and extract awarded information per achievement_name"""
+    objectives = execute_statement(create_select_query(
+        table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST
+    )).all(as_dict=True)
+
+    awarded_dict = {}
+    for objective in objectives:
+        awarded_dict[objective["achievement_name"]] = objective["awarded"]
+    return awarded_dict
 
 
 class Achievements(commands.Cog):
@@ -20,9 +46,17 @@ class Achievements(commands.Cog):
         Usage: ?achievements
         Usage: ?achievements @McMomo
         """
+        # extract available objectives and split into time-limited and timeless
         available_objectives = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST
         )).all(as_dict=True)
+        available_timeless_objectives = []
+        available_time_limited_objectives = []
+        for available_objective in available_objectives:
+            if available_objective["time_limited"] == "false":
+                available_timeless_objectives.append(available_objective)
+            else:
+                available_time_limited_objectives.append(available_objective)
 
         user_id = user.id if user is not None else ctx.author.id
         user_name = user.nick if user is not None else ctx.author.display_name
@@ -38,17 +72,41 @@ class Achievements(commands.Cog):
             where_value=f"'{user_id}'"
         )).all(as_dict=True)
 
-        status_list = f"**{user_name}'s Achievements - Requested by {ctx.author.mention}**\n"
-        for entry in user_highscores:
-            highscore_name = entry["achievement_name"]
-            status_list += f":crown: Currently in the lead for {highscore_name.replace('_', ' ').title()}\n"
+        nr_of_participants = _count_number_of_participants()
+        awarded_dict = _extract_awarded_by_objective()
 
-        for available_objective in available_objectives:
+        status_list = f"**{user_name}'s Achievements - Requested by {ctx.author.mention}**\n--------\n"
+        status_list += f"*Example entry: :white_check_mark:[5/10] - Some Example Achievement, " \
+                       f"this would mean 5 people have this achievement and 10 people have at least one achievement*" \
+                       f"\n--------\n"
+        if user_highscores:
+            status_list += "**Records**\n"
+            for entry in user_highscores:
+                highscore_name = entry["achievement_name"]
+                if entry["time_limited"] == "true":
+                    status_list += f":crown: :hourglass: - High-score in {highscore_name.replace('_', ' ').title()} with a score of {entry['score']}\n"
+                else:
+                    status_list += f":crown: - High-score in {highscore_name.replace('_', ' ').title()} with a score of {entry['score']}\n"
+
+        if available_timeless_objectives:
+            status_list += "**Challenges**\n"
+        for available_objective in available_timeless_objectives:
             available_achievement_name = available_objective["achievement_name"]
             if user_objectives and any(user_obj["achievement_name"] == available_achievement_name for user_obj in user_objectives):
-                status_list += f":white_check_mark: {available_achievement_name.replace('_', ' ').title()}\n"
+                if awarded_dict[available_achievement_name] == "1":
+                    status_list += f"**:white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}**\n"
+                else:
+                    status_list += f":white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
             else:
-                status_list += f":no_entry: {available_achievement_name.replace('_', ' ').title()}\n"
+                status_list += f":no_entry:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
+
+        if any(user_objective["time_limited"] == "true" for user_objective in user_objectives):
+            status_list += "**Time-Limited**\n"
+
+            for user_objective in user_objectives:
+                if user_objective["time_limited"] == "true":
+                    achievement_name = user_objective['achievement_name']
+                    status_list += f":hourglass:[{awarded_dict[achievement_name]}/{nr_of_participants}] {achievement_name.replace('_', ' ').title()}\n"
 
         if available_objectives or user_highscores:
             await ctx.send(status_list)
@@ -72,19 +130,19 @@ class Achievements(commands.Cog):
 
     @achievement.group()
     @commands.has_role("Admin")
-    async def create(self, ctx, type: str, achievement_name: str):
-        """Usage: ?achievements create <objective/highscore> <achievement_name>"""
+    async def create(self, ctx, type: str, achievement_name: str, time_limited: bool):
+        """Usage: ?achievements create <objective/highscore> <achievement_name> <time_limited=[true/false]>"""
         if type == "objective":
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
-                keys="(achievement_name, awarded)",
-                values=f"('{achievement_name}', '{'0'}')"
+                keys="(achievement_name, awarded, time_limited)",
+                values=f"('{achievement_name}', '{'0'}', '{str(time_limited)}')"
             ))
         elif type == "highscore":
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
-                keys="(achievement_name, user_id, score)",
-                values=f"('{achievement_name}', '{'N/A'}', '{'N/A'}')"
+                keys="(achievement_name, user_id, score, time_limited)",
+                values=f"('{achievement_name}', '{'N/A'}', '{'N/A'}', '{str(time_limited)}')"
             ))
         else:
             await ctx.send("Type has to be one of [objective, highscore]")
@@ -97,19 +155,25 @@ class Achievements(commands.Cog):
 
     @achievement.group()
     @commands.has_role("Admin")
-    async def add(self, ctx, type: str, achievement_name: str, user_id: str, user_name: str, score: str = None):
+    async def add(self, ctx, type: str, achievement_name: str, time_limited: str, user_id: str, user_name: str, score: str = None):
         """Usage: ?achievements add <objective/highscore> <achievement_name> <user_id> <user_name> <score>"""
+        if time_limited != "true" and time_limited != "false":
+            return await ctx.send(f"time_limited has to be true or false, but was: [{time_limited}]")
+        if not user_id.isnumeric:
+            return await ctx.send(f"Expected user_id to be numeric, but got [{user_id}]")
 
         if type == "objective":
             maybe_achievement_exists = execute_statement(create_select_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
                 where_key="achievement_name",
                 where_value=f"'{achievement_name}'"
-            )).all(as_dict=True)
+            )).first(as_dict=True)
 
             if not maybe_achievement_exists:
-                await ctx.send(f"Achievement Objective: [{achievement_name}] doesn't exist, hasn't been registered, or should be a highscore")
-                return
+                return await ctx.send(f":no_entry: Achievement Objective: [{achievement_name}] doesn't exist, hasn't been registered, or should be a highscore")
+
+            if maybe_achievement_exists["time_limited"] != time_limited:
+                return await ctx.send(f":no_entry: This achievement has time_limited=[{maybe_achievement_exists['time_limited']}], but you wanted to add it with [{time_limited}]")
 
             maybe_already_completed = execute_statement(create_select_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES,
@@ -122,17 +186,17 @@ class Achievements(commands.Cog):
                 return
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES,
-                keys="(achievement_name, user_id, user_name)",
-                values=f"('{achievement_name}', '{user_id}', '{user_name}')"
+                keys="(achievement_name, user_id, user_name, time_limited)",
+                values=f"('{achievement_name}', '{user_id}', '{user_name}', '{str(time_limited)}')"
             ))
             execute_statement(create_update_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
                 where_key="achievement_name",
                 where_value=f"'{achievement_name}'",
                 column="awarded",
-                new_value=f"'{int(maybe_achievement_exists[0]['awarded']) + 1}'"
+                new_value=f"'{int(maybe_achievement_exists['awarded']) + 1}'"
             ))
-            await ctx.send(f"Added achievement {achievement_name} to {user_name}, now {int(maybe_achievement_exists[0]['awarded']) + 1} have this achievement")
+            await ctx.send(f"Added achievement {achievement_name} to {user_name}, now {int(maybe_achievement_exists['awarded']) + 1} have this achievement")
             return
         elif type == "highscore":
             if score is None:
@@ -158,8 +222,8 @@ class Achievements(commands.Cog):
             if not previous_highscores:
                 execute_statement(create_upsert_query(
                     tablename=tables.ACHIEVEMENTS_HIGHSCORES,
-                    keys="(achievement_name, user_id, user_name, score)",
-                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}')",
+                    keys="(achievement_name, user_id, user_name, score, time_limited)",
+                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')",
                     key_to_update="score",
                     update_value=f"'{score}'"
                 ))
@@ -185,8 +249,8 @@ class Achievements(commands.Cog):
                 else:
                     execute_statement(create_insert_query(
                         table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                        keys="(achievement_name, user_id, user_name, score)",
-                        values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}')"
+                        keys="(achievement_name, user_id, user_name, score, time_limited)",
+                        values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')"
                     ))
                     await ctx.send(f"{user_name} is currently tied with record holder, inserting new entry for shared record holder with score {score}")
             # new entry has higher score than current recordholder, delete all current entries and insert new entry
@@ -198,8 +262,8 @@ class Achievements(commands.Cog):
                 ))
                 execute_statement(create_insert_query(
                     table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                    keys="(achievement_name, user_id, user_name, score)",
-                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}')"
+                    keys="(achievement_name, user_id, user_name, score, time_limited)",
+                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')"
                 ))
                 await ctx.send(f"New record with score {score}, deleted previous record holder(s) and inserting new entry")
             execute_statement(create_update_query(

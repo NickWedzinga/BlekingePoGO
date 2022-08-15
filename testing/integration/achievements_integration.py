@@ -41,13 +41,13 @@ async def achievements_empty_database(bot, ctx):
 async def objective_achievement_tests(bot, ctx):
     try:
         achievements_create_command = bot.get_command("achievement create")
-        await ctx.invoke(achievements_create_command, "objective", "test_objective")
+        await ctx.invoke(achievements_create_command, "objective", "test_objective", "false")
 
         achievements_command = bot.get_command("achievements")
         await ctx.invoke(achievements_command)
 
         add_command = bot.get_command("achievement add")
-        await ctx.invoke(add_command, "objective", "test_objective", "169688623699066880", "McMomo")
+        await ctx.invoke(add_command, "objective", "test_objective", "false", "169688623699066880", "McMomo")
 
         await constants.TEST_RESULTS_CHANNEL.send(
             f":white_check_mark: Achievements[Objectives]: Achievement objective command invocation without error.")
@@ -60,13 +60,13 @@ async def objective_achievement_tests(bot, ctx):
 async def highscore_base_achievement_tests(bot, ctx):
     try:
         achievements_create_command = bot.get_command("achievement create")
-        await ctx.invoke(achievements_create_command, "highscore", "test_highscore")
+        await ctx.invoke(achievements_create_command, "highscore", "test_highscore", "false")
 
         achievements_command = bot.get_command("achievements")
         await ctx.invoke(achievements_command)
 
         add_command = bot.get_command("achievement add")
-        await ctx.invoke(add_command, "highscore", "test_highscore", "169688623699066880", "McMomo", "1")
+        await ctx.invoke(add_command, "highscore", "test_highscore", "false", "169688623699066880", "McMomo", "1")
 
         await constants.TEST_RESULTS_CHANNEL.send(
             f":white_check_mark: Achievements[Highscores Base]: Achievement highscore base command invocation without error.")
@@ -80,7 +80,7 @@ async def highscore_corner_cases_achievement_tests(bot, ctx):
     try:
         # add 2nd person with same score and verify number of entries are 2
         add_command = bot.get_command("achievement add")
-        await ctx.invoke(add_command, "highscore", "test_highscore", "169688623699066881", "McMomo2", "1")
+        await ctx.invoke(add_command, "highscore", "test_highscore", "false", "169688623699066881", "McMomo2", "1")
         await asyncio.sleep(5)
         highscore_entries = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_HIGHSCORES
@@ -88,7 +88,7 @@ async def highscore_corner_cases_achievement_tests(bot, ctx):
         assert(len(highscore_entries) == 2)
 
         # add new score and verify that both previous are deleted and only new remains
-        await ctx.invoke(add_command, "highscore", "test_highscore", "169688623699066880", "McMomo", "0")
+        await ctx.invoke(add_command, "highscore", "test_highscore", "false", "169688623699066880", "McMomo", "0")
         await asyncio.sleep(5)
         highscore_entries = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_HIGHSCORES
@@ -96,7 +96,7 @@ async def highscore_corner_cases_achievement_tests(bot, ctx):
         assert (len(highscore_entries) == 1)
 
         # try to insert same score again and verify that we dont crash
-        await ctx.invoke(add_command, "highscore", "test_highscore", "169688623699066880", "McMomo", "0")
+        await ctx.invoke(add_command, "highscore", "test_highscore", "false", "169688623699066880", "McMomo", "0")
         await asyncio.sleep(5)
         highscore_entries = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_HIGHSCORES
