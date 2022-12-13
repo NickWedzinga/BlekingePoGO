@@ -130,5 +130,5 @@ class Dex(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="update_pokedex")
 
 
-def setup(bot):
-    bot.add_cog(Dex(bot))
+async def setup(bot):
+    await bot.add_cog(Dex(bot))

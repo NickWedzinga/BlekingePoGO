@@ -75,8 +75,8 @@ async def test_send_message(bot, ctx, channel_name):
     time_to_run = "0"
     channel_id = discord.utils.get(ctx.guild.channels, name=channel_name).id
 
-    channel = discord.utils.get(ctx.message.guild.channels, id=channel_id)
-    logs = await channel.history().flatten()
+    channel = discord.utils.get(ctx.guild.channels, id=channel_id)
+    logs = [log async for log in channel.history()]
     assert (len(logs) == 0)
 
     await catch_with_channel_message(
@@ -92,7 +92,7 @@ async def test_send_message(bot, ctx, channel_name):
         *[str(channel_id), str(today), time_to_run, "test-message"],
     )
 
-    logs = await channel.history().flatten()
+    logs = [log async for log in channel.history()]
     assert(len(logs) == 1)
 
 

@@ -361,5 +361,5 @@ class Update(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="update gym")
 
 
-def setup(bot):
-    bot.add_cog(Update(bot))
+async def setup(bot):
+    await bot.add_cog(Update(bot))

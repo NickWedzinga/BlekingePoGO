@@ -196,6 +196,5 @@ class Trainercode(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="Trainercode")
 
 
-def setup(bot):
-    """Trainer code setup function"""
-    bot.add_cog(Trainercode(bot))
+async def setup(bot):
+    await bot.add_cog(Trainercode(bot))

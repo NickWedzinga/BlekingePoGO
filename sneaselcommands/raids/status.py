@@ -29,5 +29,5 @@ class Status(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="Status")
 
 
-def setup(bot):
-    bot.add_cog(Status(bot))
+async def setup(bot):
+    await bot.add_cog(Status(bot))

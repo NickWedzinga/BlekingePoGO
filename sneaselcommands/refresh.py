@@ -40,5 +40,5 @@ class Refresh(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="Refresh")
 
 
-def setup(bot):
-    bot.add_cog(Refresh(bot))
+async def setup(bot):
+    await bot.add_cog(Refresh(bot))

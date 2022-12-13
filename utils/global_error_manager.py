@@ -48,5 +48,5 @@ class ErrorHandling(commands.Cog):
             await ctx.send(f"Command [**{ctx.invoked_with}**] was not found.")
 
 
-def setup(bot):
-    bot.add_cog(ErrorHandling(bot))
+async def setup(bot):
+    await bot.add_cog(ErrorHandling(bot))

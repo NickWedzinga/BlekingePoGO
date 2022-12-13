@@ -65,7 +65,7 @@ def _create_rolewindow(ctx, rolewindow_name: str, rolewindow_dict: dict, support
                           color=0xff9900,
                           description=f"Feel free to ask for help in {support_channel.mention} if anything is unclear.",
                           timestamp=datetime.utcnow())
-    embed.set_thumbnail(url=ctx.guild.icon_url)
+    embed.set_thumbnail(url=ctx.guild.icon)
     embed.set_footer(text=f"Please react below with the emoji that matches the role you want access to.")
 
     for key, value in rolewindow_dict.items():
@@ -215,5 +215,5 @@ class RoleWindow(commands.Cog):
                     await member.remove_roles(role_to_remove)
 
 
-def setup(bot):
-    bot.add_cog(RoleWindow(bot))
+async def setup(bot):
+    await bot.add_cog(RoleWindow(bot))

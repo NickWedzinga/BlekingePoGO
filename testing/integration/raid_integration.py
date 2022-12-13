@@ -149,7 +149,7 @@ async def _check_created_channel(ctx, channel_name):
         if channel is None:
             raise ValueError(f"Error with creating raid channel, can't find the created channel")
 
-        history = await channel.history().flatten()
+        history = [log async for log in channel.history()]
         assert(len(history) == 1)
         assert(len(history[0].embeds) == 1)
         assert(channel.category.name == f"{ctx.channel.category} raids")

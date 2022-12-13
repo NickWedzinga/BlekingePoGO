@@ -395,5 +395,5 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="unregister_role")
 
 
-def setup(bot):
-    bot.add_cog(Configure(bot))
+async def setup(bot):
+    await bot.add_cog(Configure(bot))

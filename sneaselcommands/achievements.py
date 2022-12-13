@@ -136,13 +136,13 @@ class Achievements(commands.Cog):
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
                 keys="(achievement_name, awarded, time_limited)",
-                values=f"('{achievement_name}', '{'0'}', '{str(time_limited)}')"
+                values=f"('{achievement_name}', '{'0'}', '{str(time_limited).lower()}')"
             ))
         elif type == "highscore":
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
                 keys="(achievement_name, user_id, score, time_limited)",
-                values=f"('{achievement_name}', '{'N/A'}', '{'N/A'}', '{str(time_limited)}')"
+                values=f"('{achievement_name}', '{'N/A'}', '{'N/A'}', '{str(time_limited).lower()}')"
             ))
         else:
             await ctx.send("Type has to be one of [objective, highscore]")
@@ -290,5 +290,5 @@ class Achievements(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="achievements add command")
 
 
-def setup(bot):
-    bot.add_cog(Achievements(bot))
+async def setup(bot):
+    await bot.add_cog(Achievements(bot))
