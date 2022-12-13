@@ -256,5 +256,5 @@ class Support(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="delete")
 
 
-def setup(bot):
-    bot.add_cog(Support(bot))
+async def setup(bot):
+    await bot.add_cog(Support(bot))

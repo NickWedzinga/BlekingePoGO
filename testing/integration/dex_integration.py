@@ -39,7 +39,7 @@ async def call_dex_pokemon_test(bot, ctx):
         "Dex",
         *{"Sneasel"}
     )
-    last_message = (await ctx.message.channel.history(limit=1).flatten())[0]
+    last_message = [log async for log in ctx.message.channel.history(limit=1)][0]
     test_embed: discord.embeds.Embed = last_message.embeds[0]
     assert("SNEASEL" in test_embed.title)
     assert("16-Feb-2017" in test_embed.description)

@@ -85,5 +85,5 @@ class Sub(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="unsub")
 
 
-def setup(bot):
-    bot.add_cog(Sub(bot))
+async def setup(bot):
+    await bot.add_cog(Sub(bot))
