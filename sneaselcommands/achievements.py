@@ -19,7 +19,7 @@ def _count_number_of_participants() -> int:
     user_id_list = []
     for row in objective_rows:
         user_id_list.append(row["user_id"])
-    return len(list(set(user_id_list))) # convert list to set to remove duplicate entries
+    return len(list(set(user_id_list)))  # convert list to set to remove duplicate entries
 
 
 def _extract_awarded_by_objective() -> Dict[str, str]:
@@ -32,6 +32,22 @@ def _extract_awarded_by_objective() -> Dict[str, str]:
     for objective in objectives:
         awarded_dict[objective["achievement_name"]] = objective["awarded"]
     return awarded_dict
+
+
+def _fetch_achievement_list_and_timelimited_split(table_name: str) -> (list[str], list[str]):
+    """Fetches achievement list from [table_name] and splits into two time_limited==true/false lists"""
+    # extract available objectives and split into time-limited and timeless
+    available_achievements = execute_statement(create_select_query(
+        table_name=table_name
+    )).all(as_dict=True)
+    available_timeless = []
+    available_time_limited = []
+    for available_achievement in available_achievements:
+        if available_achievement["time_limited"] == "false":
+            available_timeless.append(available_achievement)
+        else:
+            available_time_limited.append(available_achievement)
+    return available_time_limited, available_timeless
 
 
 class Achievements(commands.Cog):
@@ -59,7 +75,7 @@ class Achievements(commands.Cog):
                 available_time_limited_objectives.append(available_objective)
 
         user_id = user.id if user is not None else ctx.author.id
-        user_name = user.nick if user is not None else ctx.author.display_name
+        user_name = user.display_name if user is not None else ctx.author.display_name
         user_objectives = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_OBJECTIVES,
             where_key="user_id",
@@ -128,10 +144,14 @@ class Achievements(commands.Cog):
         """Catches errors with achievement base command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="achievement base command")
 
+    # TODO: should check database for duplicates, both objectives_list and highscores_list
     @achievement.group()
     @commands.has_role("Admin")
-    async def create(self, ctx, type: str, achievement_name: str, time_limited: bool):
+    async def create(self, ctx, type: str, achievement_name: str, time_limited: str):
         """Usage: ?achievements create <objective/highscore> <achievement_name> <time_limited=[true/false]>"""
+        if time_limited != "true" and time_limited != "false":
+            return await ctx.send(f"time_limited has to be true or false, but was: [{time_limited}]")
+
         if type == "objective":
             execute_statement(create_insert_query(
                 table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
@@ -153,9 +173,11 @@ class Achievements(commands.Cog):
         """Catches errors with achievements create command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="achievements create command")
 
+    # TODO: Simplify add command, should just be ?achievement add <achievement_name> <mention> [score]
+    #   check if achievement_name exists in objectives, if not highscores, if not return error
     @achievement.group()
     @commands.has_role("Admin")
-    async def add(self, ctx, type: str, achievement_name: str, time_limited: str, user_id: str, user_name: str, score: str = None):
+    async def add(self, ctx, type: str, achievement_name: str, time_limited: str, user: discord.Member, score: str = None):
         """Usage: ?achievements add <objective/highscore> <achievement_name> <time_limited=[true/false]> <user_id> <user_name> <score>"""
         if time_limited != "true" and time_limited != "false":
             return await ctx.send(f"time_limited has to be true or false, but was: [{time_limited}]")
@@ -288,6 +310,37 @@ class Achievements(commands.Cog):
     async def add_on_error(self, _, error):
         """Catches errors with achievements add command"""
         await pm_dev_error(bot=self.bot, error_message=error, source="achievements add command")
+
+    @achievement.group()
+    @commands.has_role("Admin")
+    async def list(self, ctx):
+        """Usage: ?achievements list"""
+
+        # extract available objectives and split into time-limited and timeless
+        (timeless_objectives, time_limited_objectives) = _fetch_achievement_list_and_timelimited_split(
+            table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST)
+        (timeless_highscores, time_limited_highscores) = _fetch_achievement_list_and_timelimited_split(
+            table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST)
+
+        status_list = f"**Complete list of available achievements**\n--------\n"
+        status_list += f"__**Objectives:**__\n"
+        for entry in timeless_objectives:
+            status_list += f":grey_question: {entry['achievement_name']}\n"
+        for entry in time_limited_objectives:
+            status_list += f":hourglass: {entry['achievement_name']}\n"
+
+        status_list += f"__**Highscores:**__\n"
+        for entry in timeless_highscores:
+            status_list += f":grey_question: {entry['achievement_name']}\n"
+        for entry in time_limited_highscores:
+            status_list += f":hourglass: {entry['achievement_name']}\n"
+
+        return await ctx.send(status_list)
+
+    @create.error
+    async def list_on_error(self, _, error):
+        """Catches errors with achievements list command"""
+        await pm_dev_error(bot=self.bot, error_message=error, source="achievements list command")
 
 
 def setup(bot):
