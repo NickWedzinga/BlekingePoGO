@@ -1,4 +1,5 @@
-import traceback
+import logging
+import logging
 from datetime import datetime
 
 import discord
@@ -28,7 +29,7 @@ class TestManager(commands.Cog):
 
     @healthcheck.error
     async def healthcheck_on_error(self, ctx, error):
-        traceback.print_exc()
+        logging.exception(error)
         for dev in constants.DEVELOPERS:
             user = ctx.bot.get_user(dev)
             await user.send(f"""Error in TEST command: {error}""")
@@ -63,7 +64,7 @@ class TestManager(commands.Cog):
 
             await ctx.send(f""":white_check_mark: All integration-tests are a-okay {ctx.message.author.mention}!""")
         except Exception as e:
-            traceback.print_exc()
+            logging.exception(e)
             await ctx.send(f""":no_entry: At least one error found: {e}!""")
 
     @test.error

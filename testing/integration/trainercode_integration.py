@@ -1,4 +1,4 @@
-import traceback
+import logging
 
 from common import constants, tables
 from utils.database_connector import execute_statement, create_select_query
@@ -11,7 +11,7 @@ async def call_trainercode_tests(bot, ctx):
         await constants.TEST_RESULTS_CHANNEL.send(
             ":white_check_mark: Trainercode: Command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(
             f":no_entry: Error during trainer code integration-tests: {e}")
         raise ValueError("Error during trainer code integration-tests") from e

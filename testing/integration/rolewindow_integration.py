@@ -1,4 +1,4 @@
-import traceback
+import logging
 
 from common import constants, instances
 
@@ -8,7 +8,7 @@ async def call_rolewindow_test(bot, ctx):
         await basic_rolewindow_test(bot, ctx)
         await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Rolewindow[Not unique]: Command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during rolewindow integration-tests: {e}")
         raise ValueError(f"Error during rolewindow integration-tests")
 

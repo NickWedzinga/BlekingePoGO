@@ -1,4 +1,4 @@
-import traceback
+import logging
 
 import discord
 
@@ -11,7 +11,7 @@ async def call_roles_test(bot, ctx):
         await basic_roles_test(bot, ctx)
         await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Roles[Basic test]: Sub/Unsub/Roles command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during roles integration-tests: {e}")
         raise ValueError(f"Error during roles integration-tests")
 

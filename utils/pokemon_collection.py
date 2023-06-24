@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Dict
 
@@ -93,7 +94,7 @@ def _populate_pokedex_json(pokedex_file_path, pokedex_url, update=False) -> json
         else:
             with open(pokedex_file_path, 'w', encoding='utf-8') as file:
                 json.dump({"pokemon": []}, file, ensure_ascii=False, indent=4)
-            print(f"Pokedex JSON was EMPTY, returned by request to URL: {pokedex_url}") # TODO: proper logging at some point
+            logging.error(f"Pokedex JSON was EMPTY, returned by request to URL: {pokedex_url}")
 
     return json.load(open(pokedex_file_path))
 

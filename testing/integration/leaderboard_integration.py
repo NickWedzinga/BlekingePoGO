@@ -1,4 +1,4 @@
-import traceback
+import logging
 
 from common import constants
 from testing.integration.test_utils import invoke_wrapper
@@ -32,7 +32,7 @@ async def add_to_leaderboards_test(bot, ctx):
         # check that user is no longer in leaderboard
         assert (len(execute_statement(create_select_query(table_name="leaderboard__test", where_key="name", where_value=f"'{ctx.author.display_name}'")).all(as_dict=True)) == 0)
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Leaderboard: Error during add_to_leaderboard integration-tests: {e}")
         raise ValueError("Error in Leaderboards integration-test")
 

@@ -1,5 +1,5 @@
 import calendar
-import traceback
+import logging
 from datetime import datetime, timedelta
 
 import discord
@@ -63,7 +63,7 @@ async def test_create_channel(bot, ctx, channel_name):
         await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Schedule[create_channel]: "
                                                f"Verified that the channel created exists!")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during configure schedule create_channel "
                                                f"can't find the created_channel: {e}")
         raise ValueError(f"Error during create_channel, can't find the created channel")

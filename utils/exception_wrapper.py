@@ -3,6 +3,7 @@ import traceback
 
 from common import constants
 from discord.ext import commands
+import logging
 
 
 def _formatted_error_log(source: str = "unspecified", error_message: str = None):
@@ -17,14 +18,14 @@ def _formatted_error_log(source: str = "unspecified", error_message: str = None)
     """
 
 
-async def catch_with_print(function_to_try, source: str, *args,  **kwargs):
+async def catch_with_logging(function_to_try, source: str, *args, **kwargs):
     try:
         if inspect.iscoroutinefunction(function_to_try):
             await function_to_try(*args, **kwargs)
         else:
             function_to_try(*args, **kwargs)
-    except:
-        print(_formatted_error_log(source=source))
+    except (Exception,):
+        logging.exception(f'Error occurred in source: [{source}]')
 
 
 async def catch_with_pm(bot, function_to_try, source: str, *args, **kwargs):
@@ -33,7 +34,7 @@ async def catch_with_pm(bot, function_to_try, source: str, *args, **kwargs):
             await function_to_try(*args, **kwargs)
         else:
             function_to_try(*args, **kwargs)
-    except:
+    except (Exception,):
         await pm_dev_error(bot, source=source)
 
 

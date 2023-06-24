@@ -1,5 +1,5 @@
 import asyncio
-import traceback
+import logging
 
 from common import constants, tables
 from utils.database_connector import execute_statement, create_select_query, create_delete_query
@@ -33,7 +33,7 @@ async def achievements_empty_database(bot, ctx):
         if "Database Error: Empty" in str(e):
             await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Achievements[Empty Table]: Achievements command invocation without error.")
         else:
-            traceback.print_exc()
+            logging.exception(e)
             await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during achievements integration-tests: {e}")
             raise ValueError(f"Error during achievements integration-tests")
 
@@ -52,7 +52,7 @@ async def objective_achievement_tests(bot, ctx):
         await constants.TEST_RESULTS_CHANNEL.send(
             f":white_check_mark: Achievements[Objectives]: Achievement objective command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during achievements objective integration-tests: {e}")
         raise ValueError(f"Error during achievements objectives integration-tests")
 
@@ -71,7 +71,7 @@ async def highscore_base_achievement_tests(bot, ctx):
         await constants.TEST_RESULTS_CHANNEL.send(
             f":white_check_mark: Achievements[Highscores Base]: Achievement highscore base command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during achievements highscores base integration-tests: {e}")
         raise ValueError(f"Error during achievements highscores base integration-tests")
 
@@ -106,7 +106,7 @@ async def highscore_corner_cases_achievement_tests(bot, ctx):
         await constants.TEST_RESULTS_CHANNEL.send(
             f":white_check_mark: Achievements[Highscores Corner Cases]: Achievement highscore corner cases command invocation without error.")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(
             f":no_entry: Error during achievements highscores corner cases integration-tests: {e}")
         raise ValueError(f"Error during achievements highscores corner cases integration-tests")

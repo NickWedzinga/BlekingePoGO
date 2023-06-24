@@ -1,4 +1,4 @@
-import traceback
+import logging
 from datetime import datetime, timedelta
 
 import discord
@@ -110,7 +110,7 @@ async def _invoke_raid_command(bot, ctx, *args):
         raid_command = bot.get_command("raid")
         await ctx.invoke(raid_command, *args)
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during raid invocation: {e}")
         raise ValueError(f"Error during raid invocation")
 
@@ -125,7 +125,7 @@ async def _check_created_rows_in_database(ctx):
         assert (3 >= len(schedule_raid_channel_dict) >= 1)
         assert (any(channel.get("reporter_id") in constants.DEVELOPERS for channel in schedule_raid_channel_dict))
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during raid checking database: {e}")
         raise ValueError(f"Error during raid checking database for new rows")
 
@@ -138,7 +138,7 @@ async def _check_deleted_rows_from_database():
         schedule_raid_channel_dict = execute_statement(create_select_query(tables.SCHEDULE_RAID)).all(as_dict=True)
         assert (len(schedule_raid_channel_dict) == 0)
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during raid checking database: {e}")
         raise ValueError(f"Error during raid checking database, possibly rows not removed")
 
@@ -157,7 +157,7 @@ async def _check_created_channel(ctx, channel_name):
         await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Raid: "
                                                f"Verified that the channel created exists!")
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during raid create channel: {e}")
         raise ValueError(f"Error during raid create_channel, can't find the created channel")
 
@@ -178,7 +178,7 @@ async def _invoke_update_command(bot, ctx, channel_name: str, time: str):
         update_command = bot.get_command("update despawn")
         await ctx.invoke(update_command, "1", channel_id=raid_channel.id)
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during close invocation: {e}")
         raise ValueError(f"Error during raid invocation")
 
@@ -189,7 +189,7 @@ async def _invoke_close_command(bot, ctx, channel_name):
         close_command = bot.get_command("close")
         await ctx.invoke(close_command, raid_channel.id)
     except Exception as e:
-        traceback.print_exc()
+        logging.exception(e)
         await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during close invocation: {e}")
         raise ValueError(f"Error during raid invocation")
 
