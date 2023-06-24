@@ -23,18 +23,31 @@ async def _validate_claimed_user(bot, ctx):
     author_id = ctx.author.id
     author_name = ctx.author.display_name
     statement = create_select_query(table_name="leaderboard__idclaims", where_key="user_id", where_value=author_id)
+    user_id = "DEFAULT"
+    user_name = "DEFAULT"
+    rows = []
     try:
-        rows = execute_statement(statement)
-        user_id = rows.first(as_dict=True).get("user_id")
-        user_name = rows.first(as_dict=True).get("name")
+        result = execute_statement(statement)
+        user_id = result.first(as_dict=True).get("user_id")
+        user_name = result.first(as_dict=True).get("name")
+        rows = result.all()
 
-        if len(rows.all()) > 1 or user_id != author_id or user_name != author_name:
+        if len(rows) > 1 or user_id != author_id or user_name != author_name:
             raise AssertionError("Username doesn't match claimed username")
     except Exception as e:
-        await ctx.send("Something wrong with your claimed name, did you change your nickname? Contact an admin.")
+        if user_id != author_id:
+            await ctx.send("Error with your claimed id, did you change discord account? Contact an admin.")
+        elif user_name != author_name:
+            await ctx.send("Error with your claimed name, did you change your nickname? Contact an admin.")
+        else:
+            await ctx.send("Error when validating claimed id. Contact an admin.")
         await pm_dev_error(
             bot=bot,
-            error_message=f"\nAuthor ID: {author_id}, Author Name: {author_name}\nSQL QUERY: {statement}",
+            error_message=f"\nDiscord display name: {author_name}, database display name: {user_name}"
+                          f"\nDiscord user id: {author_id}, database user id: {user_id}"
+                          f"\nAmount of entries found for this claimed user in id_claims should be 1, "
+                          f"was: {len(rows)}"
+                          f"\nSQL QUERY: {statement}",
             source="_validate_claimed_user")
         raise AssertionError("Username doesn't match claimed username")
 

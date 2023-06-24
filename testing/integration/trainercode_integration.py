@@ -8,11 +8,13 @@ async def call_trainercode_tests(bot, ctx):
     try:
         await add_and_remove_code_test(bot, ctx)
         await double_users_test(bot, ctx)
-        await constants.TEST_RESULTS_CHANNEL.send(f":white_check_mark: Trainercode: Command invocation without error.")
+        await constants.TEST_RESULTS_CHANNEL.send(
+            ":white_check_mark: Trainercode: Command invocation without error.")
     except Exception as e:
         traceback.print_exc()
-        await constants.TEST_RESULTS_CHANNEL.send(f":no_entry: Error during trainer code integration-tests: {e}")
-        raise ValueError(f"Error during trainer code integration-tests")
+        await constants.TEST_RESULTS_CHANNEL.send(
+            f":no_entry: Error during trainer code integration-tests: {e}")
+        raise ValueError("Error during trainer code integration-tests") from e
 
 
 async def add_and_remove_code_test(bot, ctx):
@@ -20,7 +22,7 @@ async def add_and_remove_code_test(bot, ctx):
 
     await ctx.invoke(trainercode_command, "remove")
     maybe_code_in_db = check_in_db(ctx)
-    assert (not maybe_code_in_db)
+    assert not maybe_code_in_db
 
     await invoke_command_and_assert(ctx, trainercode_command, "111122223333")
     await invoke_command_and_assert(ctx, trainercode_command, "000011112222")
@@ -37,12 +39,13 @@ async def double_users_test(bot, ctx):
 
     await ctx.invoke(trainercode_command, "remove")
     maybe_code_in_db = check_in_db(ctx)
-    assert (not maybe_code_in_db)
+    assert not maybe_code_in_db
 
-    await invoke_command_and_assert(ctx, trainercode_command, ctx.author, nr_of_codes=0)
+    await invoke_command_and_assert(ctx, trainercode_command, ctx.author.display_name, nr_of_codes=0)
     await invoke_command_and_assert(ctx, trainercode_command, "000011112222")
-    await invoke_command_and_assert(ctx, trainercode_command, ctx.author, nr_of_codes=1)
-    await invoke_command_and_assert(ctx, trainercode_command, ctx.author, ctx.author, nr_of_codes=1)
+    await invoke_command_and_assert(ctx, trainercode_command, ctx.author.display_name, nr_of_codes=1)
+    await invoke_command_and_assert(
+        ctx, trainercode_command, ctx.author.display_name, ctx.author.display_name, nr_of_codes=1)
     await invoke_command_and_assert(ctx, trainercode_command, "McMomo2", "123412341234", nr_of_codes=2)
     await invoke_command_and_assert(ctx, trainercode_command, "McMomo3", "111122223333", nr_of_codes=3)
 

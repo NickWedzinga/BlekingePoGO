@@ -119,9 +119,9 @@ class Trainercode(commands.Cog):
 
         Instead of ?trainercode you can also use ?tc
         """
-        # Hit by:
+        # User is registering trainer code, hit by:
         # - ?tc 111122223333
-        # - ?tc @McMomo 111122223333
+        # - ?tc McMomo 111122223333
         if code_or_user and not isinstance(code_or_user[0], discord.User) and "".join(
                 [str(part) for part in code_or_user]).isnumeric() or \
                 "".join([str(part) for part in code_or_user[1:]]).isnumeric():
@@ -145,6 +145,7 @@ class Trainercode(commands.Cog):
             await ctx.send(f"Set the trainer code for {name} to **{format_trainer_code(str(code))}** "
                            f"{ctx.author.mention}")
             return
+        # User it trying to remove a trainercode
         elif code_or_user and code_or_user[0] == "remove":
             try:
                 await remove_trainercode(ctx, code_or_user)
