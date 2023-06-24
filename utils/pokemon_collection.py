@@ -86,9 +86,14 @@ def _populate_pokedex_json(pokedex_file_path, pokedex_url, update=False) -> json
     If [update] is False and there is a previously locally stored Pokédex we read from that.
     """
     if update or not os.path.isfile(pokedex_file_path) or os.path.getsize(pokedex_file_path) == 0:
-        json_data = requests.get(pokedex_url)
-        with open(pokedex_file_path, 'w', encoding='utf-8') as file:
-            json.dump(json_data.json(), file, ensure_ascii=False, indent=4)
+        response = requests.get(pokedex_url)
+        if response.ok:
+            with open(pokedex_file_path, 'w', encoding='utf-8') as file:
+                json.dump(response.json(), file, ensure_ascii=False, indent=4)
+        else:
+            with open(pokedex_file_path, 'w', encoding='utf-8') as file:
+                json.dump({"pokemon": []}, file, ensure_ascii=False, indent=4)
+            print(f"Pokedex JSON was EMPTY, returned by request to URL: {pokedex_url}") # TODO: proper logging at some point
 
     return json.load(open(pokedex_file_path))
 
