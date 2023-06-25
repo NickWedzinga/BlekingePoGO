@@ -1,9 +1,13 @@
 import inspect
+import logging
 import traceback
+from typing import Union
+
+from discord import Client
+from discord.ext import commands
+from discord.ext.commands import Bot
 
 from common import constants
-from discord.ext import commands
-import logging
 
 
 def _formatted_error_log(source: str = "unspecified", error_message: str = None):
@@ -56,7 +60,7 @@ async def catch_with_pm_and_channel_message(bot, function_to_try, channel, catch
             await function_to_try(*args[:-1], args[-1])
         else:
             function_to_try(*args[:-1], args[-1])
-    except Exception:
+    except (Exception,):
         await channel.send(f"{catch_message}")
         await pm_dev_error(bot, source=source)
 
@@ -66,8 +70,11 @@ async def channel_send_error(ctx, error_message=None, source="unspecified"):
         await ctx.send(_formatted_error_log(source=source, error_message=error_message)[:1999])
 
 
-async def pm_dev_error(bot, error_message=None, source="unspecified"):
+async def pm_dev_error(client: Union[Client, Bot], error_message=None, source="unspecified"):
     if not isinstance(error_message, commands.errors.CheckFailure):
         for dev in constants.DEVELOPERS:
-            user = bot.get_user(dev)
-            await user.send(_formatted_error_log(source=source, error_message=error_message)[:1999])
+            user = client.get_user(dev)
+            if user:
+                await user.send(_formatted_error_log(source=source, error_message=error_message)[:1999])
+            else:
+                logging.exception(f'Error: could not find developer user to DM')

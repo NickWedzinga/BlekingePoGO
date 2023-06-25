@@ -1,6 +1,6 @@
 import unittest
 
-from sneaselcommands import support
+from sneaselcommands.leaderboards import support
 
 
 class TestSupport(unittest.TestCase):

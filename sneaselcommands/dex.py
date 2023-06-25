@@ -81,7 +81,8 @@ class Dex(commands.Cog):
         instances.SPELLCHECKER.word_frequency.remove_words(instances.SPELLCHECKER.word_frequency.words())
         instances.SPELLCHECKER.word_frequency.load_words(instances.POKEDEX.pokedict.keys())
 
-    # TODO: soon level 50 max
+    # TODO: soon level 50 max, yes very soon xd
+    # TODO: hybridcommand
     @commands.command(name="dex")
     async def dex(self, ctx, *pokemon_name):
         """

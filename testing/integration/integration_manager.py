@@ -1,13 +1,12 @@
 import logging
-import logging
 from datetime import datetime
 
 import discord
 from discord.ext import commands
 
 from common import constants
-from testing.integration import leaderboard_integration, list_integration, support_integration, configure_integration, \
-    dex_integration, raid_integration, rolewindow_integration, trainercode_integration, roles_integration, \
+from testing.integration import support_integration, configure_integration, \
+    dex_integration, rolewindow_integration, trainercode_integration, roles_integration, \
     achievements_integration
 from utils.exception_wrapper import pm_dev_error
 from utils.global_error_manager import in_channel_list
@@ -51,12 +50,11 @@ class TestManager(commands.Cog):
                 f"Sending results to {constants.TEST_RESULTS_CHANNEL.mention}. This may take a while :sweat_smile:")
 
             # TODO: Add all the tests to a list or something to run
-            await leaderboard_integration.run_tests(self.bot, ctx)
-            await list_integration.run_tests(ctx, self.bot)
+            # await leaderboard_integration.run_tests(self.bot, ctx) # TODO: temporary disabled, replaced with interactions which cant be invoked
             await support_integration.run_tests(ctx, self.bot)
             await configure_integration.run_tests(self.bot, ctx)
             await dex_integration.run_tests(self.bot, ctx)
-            # await raid_integration.run_tests(self.bot, ctx) # TODO: temporary disables, to be replaced with threads
+            # await raid_integration.run_tests(self.bot, ctx) # TODO: temporary disabled, to be replaced with threads
             await rolewindow_integration.run_tests(self.bot, ctx)
             await trainercode_integration.run_tests(self.bot, ctx)
             await roles_integration.run_tests(self.bot, ctx)
