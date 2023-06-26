@@ -56,7 +56,7 @@ class TestManager(commands.Cog):
             await support_integration.run_tests(ctx, self.bot)
             await configure_integration.run_tests(self.bot, ctx)
             await dex_integration.run_tests(self.bot, ctx)
-            await raid_integration.run_tests(self.bot, ctx)
+            # await raid_integration.run_tests(self.bot, ctx) # TODO: temporary disables, to be replaced with threads
             await rolewindow_integration.run_tests(self.bot, ctx)
             await trainercode_integration.run_tests(self.bot, ctx)
             await roles_integration.run_tests(self.bot, ctx)
