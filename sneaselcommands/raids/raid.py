@@ -277,15 +277,18 @@ class Raid(commands.Cog):
         Type ?status, to ask Sneasel to re-send the raid information
         Type ?close, to close the raid channel early
         """
-        args = maybe_replace_time(*args)
-        validated_report = _validate_report(args)
-        legal_args = _remove_illegal_characters(args)
-        if len(validated_report) > 1:
-            await ctx.send(f"{validated_report} {ctx.author.mention}")
-            return
+        await ctx.send(f"[?raid, ?raids] commands are temporarily disabled {ctx.author.mention}")
+        return
 
-        await _create_channel_and_information(self.bot, ctx, legal_args)
-        await update_raids_channel(self.bot, ctx)
+        # args = maybe_replace_time(*args)
+        # validated_report = _validate_report(args)
+        # legal_args = _remove_illegal_characters(args)
+        # if len(validated_report) > 1:
+        #     await ctx.send(f"{validated_report} {ctx.author.mention}")
+        #     return
+        #
+        # await _create_channel_and_information(self.bot, ctx, legal_args)
+        # await update_raids_channel(self.bot, ctx)
 
     @raid.error
     async def raid_on_error(self, _, error):

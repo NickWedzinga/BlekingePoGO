@@ -70,22 +70,25 @@ class Raids(commands.Cog):
 
         Usage: ?raids
         """
-        active_raids_dict = execute_statement(
-            statement=f"SELECT * from {tables.ACTIVE_RAID_CHANNEL_OWNERS} ORDER BY hatch_time"
-        ).all(as_dict=True)
+        await ctx.send(f"[?raid, ?raids] commands are temporarily disabled {ctx.author.mention}")
+        return
 
-        embed = _create_embed(ctx, active_raids_dict)
-
-        raids_channel = discord.utils.get(ctx.guild.channels, name=constants.RAID_ACTIVES_CHANNEL)
-        if raids_channel is None:
-            await pm_dev_error(self.bot, "Can't find the raids channel to post list of active raids", "raids")
-            return
-
-        embed_message = await find_first_embed_in_channel(self.bot, raids_channel, "raids listing", should_pm=False)
-        if embed_message is None:
-            await raids_channel.send(embed=embed)
-        else:
-            await embed_message.edit(embed=embed)
+        # active_raids_dict = execute_statement(
+        #     statement=f"SELECT * from {tables.ACTIVE_RAID_CHANNEL_OWNERS} ORDER BY hatch_time"
+        # ).all(as_dict=True)
+        #
+        # embed = _create_embed(ctx, active_raids_dict)
+        #
+        # raids_channel = discord.utils.get(ctx.guild.channels, name=constants.RAID_ACTIVES_CHANNEL)
+        # if raids_channel is None:
+        #     await pm_dev_error(self.bot, "Can't find the raids channel to post list of active raids", "raids")
+        #     return
+        #
+        # embed_message = await find_first_embed_in_channel(self.bot, raids_channel, "raids listing", should_pm=False)
+        # if embed_message is None:
+        #     await raids_channel.send(embed=embed)
+        # else:
+        #     await embed_message.edit(embed=embed)
 
     @raids.error
     async def raids_on_error(self, _, error):
