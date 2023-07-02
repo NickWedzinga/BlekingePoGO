@@ -62,7 +62,7 @@ class Raids(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.has_any_role("Admin", "Moderator")
+    @commands.has_role("Admin")
     @commands.command(name="raids", hidden=True)
     async def raids(self, ctx):
         """
