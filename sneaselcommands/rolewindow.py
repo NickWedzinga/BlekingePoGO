@@ -106,7 +106,7 @@ class RoleWindow(commands.Cog):
         _create_dictionary_from_database()
 
     @commands.command(name="rolewindow", hidden=True)
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def rolewindow(self, ctx, name: str, channel_id: int, unique: bool, *args):
         """
         ?rolewindow one_worded_name channel_id unique_roles emoji_name1 role_name1 emoji_name2 role_name2...
@@ -148,7 +148,7 @@ class RoleWindow(commands.Cog):
         await channel_send_error(ctx=ctx, error_message=error, source="Role Window")
 
     @commands.command(name="remove_rolewindow", hidden=True)
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def remove_rolewindow(self, ctx, channel_id: int, message_id: int):
         """
         ?remove_rolewindow channel_id message_id

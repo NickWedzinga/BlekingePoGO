@@ -113,7 +113,7 @@ class Dex(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="dex")
 
     @commands.command(name="update_pokedex", hidden=True)
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def update_pokedex(self, ctx):
         """Updates the Pokédex"""
         instances.POKEDEX = pokemon_collection.update_pokedex(

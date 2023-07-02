@@ -271,7 +271,7 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule send_message")
 
     @commands.command()
-    @commands.has_any_role("Admin", "Moderator")
+    @commands.has_role("Admin")
     async def list_scheduled_events(self, ctx):
         """
         Lists all the current scheduled events.
@@ -297,7 +297,7 @@ class Configure(commands.Cog):
         await pm_dev_error(bot=self.bot, error_message=error, source="list_scheduled_events")
 
     @commands.command()
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def remove_scheduled_events(self, ctx, tag=None):
         """
         Removes a scheduled event.
