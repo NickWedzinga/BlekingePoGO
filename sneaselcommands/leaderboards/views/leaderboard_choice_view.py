@@ -15,6 +15,7 @@ class LeaderboardChoiceView(discord.ui.View):
     @discord.ui.button(label='submit', style=discord.ButtonStyle.green)
     async def submit(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(LeaderboardSubmitModal(self.leaderboard_controller))
+        await interaction.delete_original_response()
 
     @discord.ui.button(label='leaderboard', style=discord.ButtonStyle.green)
     async def leaderboard(self, interaction: discord.Interaction, button: discord.ui.Button):
