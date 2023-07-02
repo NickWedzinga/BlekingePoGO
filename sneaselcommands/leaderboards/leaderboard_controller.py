@@ -46,7 +46,7 @@ class LeaderboardController:
                 # new top 3
                 elif name == user.get("name") and not any(
                         name == user_entry.get("name") for user_entry in previous_top_3):
-                    await interaction.response.send_message.send(
+                    await interaction.response.send_message(
                         f":crown: Congratulations {interaction.user.mention} on your #{index + 1} placement in the "
                         f"{self.leaderboard} leaderboard! \n"
                         f"Please send an in-game screenshot to any admin for verification.", ephemeral=True)
