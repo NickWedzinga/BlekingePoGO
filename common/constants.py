@@ -4,7 +4,7 @@ Contains common code
 from enum import Enum
 
 # list of channels in which Sneasel can trigger sneaselcommands
-COMMAND_CHANNEL_LIST = ["leaderboards", "sneasel_commands", "support", "momos_test_dungeon"]
+COMMAND_CHANNEL_LIST = ["sneasel_commands", "other", "momos_test_dungeon"]
 
 # list of raid report channels
 RAID_REPORT_CHANNEL_LIST = ["raids"]
