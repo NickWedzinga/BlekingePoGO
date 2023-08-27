@@ -1,7 +1,9 @@
+import logging
 from typing import Dict
 
 import discord
 from discord.ext import commands
+from records import RecordCollection
 
 from common import constants, tables
 from utils.database_connector import execute_statement, create_select_query, create_upsert_query, create_insert_query, \
@@ -30,6 +32,80 @@ def _get_highscore_list() -> list:
     return execute_statement(create_select_query(
         table_name=tables.ACHIEVEMENTS_HIGHSCORES,
     )).all(as_dict=True)
+
+
+async def _add_members_to_objective(ctx, achievement: RecordCollection, *members: discord.Member):
+    awarded = int(achievement["awarded"])
+    time_limited = achievement["time_limited"]
+    achievement_name = achievement["achievement_name"]
+
+    for member in members:
+        maybe_already_completed = execute_statement(f"select * FROM {tables.ACHIEVEMENTS_OBJECTIVES} WHERE achievement_name='{achievement_name}' AND user_id='{member.id}'").all(as_dict=True)
+        if maybe_already_completed:
+            await ctx.send(f"{member.mention} already has completed this achievement")
+        else:
+            execute_statement(create_insert_query(
+                table_name=tables.ACHIEVEMENTS_OBJECTIVES,
+                keys="(achievement_name, user_id, user_name, time_limited)",
+                values=f"('{achievement_name}', '{member.id}', '{member.display_name}', '{time_limited}')"
+            ))
+            awarded += 1
+            execute_statement(create_update_query(
+                table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
+                where_key="achievement_name",
+                where_value=f"'{achievement_name}'",
+                column="awarded",
+                new_value=f"'{awarded}'"
+            ))
+            await ctx.send(
+                f"Added achievement {achievement_name} to {member.display_name}, now {awarded} have this achievement")
+
+
+async def _add_members_to_highscore(ctx, achievement: RecordCollection, score: int, *members: discord.Member):
+    time_limited = achievement["time_limited"]  # TODO: remove time_limited from highscore
+    achievement_name = achievement["achievement_name"]
+
+    previous_highscores = execute_statement(create_select_query(
+        table_name=tables.ACHIEVEMENTS_HIGHSCORES,
+        where_key="achievement_name",
+        where_value=f"'{achievement_name}'"
+    )).all(as_dict=True)
+
+    if previous_highscores and int(previous_highscores[0]["score"]) != score:
+        execute_statement(create_delete_query(
+            table_name=tables.ACHIEVEMENTS_HIGHSCORES,
+            where_key="achievement_name",
+            where_value=f"'{achievement_name}'"
+        ))
+        await ctx.send(f"New record with score {score}, deleted previous record holder(s) and inserting new entries")
+
+    for member in members:
+        if any(member.id == entry['user_id'] for entry in previous_highscores):
+            await ctx.send(f"{member.display_name} already has an entry with score {score}")
+        else:
+            execute_statement(create_insert_query(
+                table_name=tables.ACHIEVEMENTS_HIGHSCORES,
+                keys="(achievement_name, user_id, user_name, score, time_limited)",
+                values=f"('{achievement_name}', '{member.id}', '{member.display_name}', '{score}', '{str(time_limited)}')"
+            ))
+            await ctx.send(
+                f"Added highscore for {member.display_name} with score {score}")
+
+        # TODO: combine into one update
+        execute_statement(create_update_query(
+            table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
+            where_key="achievement_name",
+            where_value=f"'{achievement_name}'",
+            column="score",
+            new_value=f"'{score}'"
+        ))
+        execute_statement(create_update_query(
+            table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
+            where_key="achievement_name",
+            where_value=f"'{achievement_name}'",
+            column="user_id",
+            new_value=f"'{member.id}'"
+        ))
 
 
 def _count_number_of_participants() -> int:
@@ -71,7 +147,7 @@ class Achievements(commands.Cog):
         available_timeless_objectives, _ = _get_objective_lists()
 
         user_id = user.id if user is not None else ctx.author.id
-        user_name = user.nick if user is not None else ctx.author.display_name
+        user_name = user.display_name if user is not None else ctx.author.display_name
         user_objectives = execute_statement(create_select_query(
             table_name=tables.ACHIEVEMENTS_OBJECTIVES,
             where_key="user_id",
@@ -203,139 +279,53 @@ class Achievements(commands.Cog):
 
     @achievement.group()
     @commands.has_role("Admin")
-    async def add(self, ctx, type: str, achievement_name: str, time_limited: str, user_id: str, user_name: str, score: str = None):
-        """Usage: ?achievement add <objective/highscore> <achievement_name> <time_limited=[true/false]> <user_id> <user_name> <score>"""
-        if time_limited != "true" and time_limited != "false":
-            return await ctx.send(f"time_limited has to be true or false, but was: [{time_limited}]")
-        if not user_id.isnumeric:
-            return await ctx.send(f"Expected user_id to be numeric, but got [{user_id}]")
+    async def add_highscore(self, ctx, achievement_name: str, score: int, *members: discord.Member):
+        """
+        Usage: ?achievement add <achievement_name> <optional_score> [list of members]
+        ?achievement add catch_record 25 @McMomo
+        """
+        achievement = execute_statement(create_select_query(
+            table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
+            where_key="achievement_name",
+            where_value=f"'{achievement_name}'"
+        )).first(as_dict=True)
 
-        if type == "objective":
-            maybe_achievement_exists = execute_statement(create_select_query(
-                table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'"
-            )).first(as_dict=True)
+        if not achievement:
+            return await ctx.send(f":no_entry: Achievement highscore with name [{achievement_name}] could not be found")
 
-            if not maybe_achievement_exists:
-                return await ctx.send(f":no_entry: Achievement Objective: [{achievement_name}] doesn't exist, hasn't been registered, or should be a highscore")
+        return await _add_members_to_highscore(ctx, achievement, score, *members)
 
-            if maybe_achievement_exists["time_limited"] != time_limited:
-                return await ctx.send(f":no_entry: This achievement has time_limited=[{maybe_achievement_exists['time_limited']}], but you wanted to add it with [{time_limited}]")
+    @add_highscore.error
+    async def add_highscore_on_error(self, ctx, error):
+        """Catches errors with achievements add_highscore command"""
+        if isinstance(error, discord.ext.commands.errors.MemberNotFound):
+            await ctx.send(f"{error} The members have to be mentioned with @Name, like {ctx.author.mention}")
+        await pm_dev_error(client=self.bot, error_message=error, source="achievements add_highscore sub-command")
 
-            maybe_already_completed = execute_statement(create_select_query(
-                table_name=tables.ACHIEVEMENTS_OBJECTIVES,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'"
-            )).all(as_dict=True)
+    @achievement.group()
+    @commands.has_role("Admin")
+    async def add_objective(self, ctx, achievement_name: str, *members: discord.Member):
+        """
+        Usage: ?achievement add_objective <achievement_name> [list of mentioned members]
+        ?achievement add_objective catch_something @McMomo @SneaselNr1 @FanOfSneasel
+        """
+        achievement = execute_statement(create_select_query(
+            table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
+            where_key="achievement_name",
+            where_value=f"'{achievement_name}'"
+        )).first(as_dict=True)
 
-            if any(user_id == entry["user_id"] for entry in maybe_already_completed):
-                await ctx.send(f"{user_name} has already completed this objective")
-                return
-            execute_statement(create_insert_query(
-                table_name=tables.ACHIEVEMENTS_OBJECTIVES,
-                keys="(achievement_name, user_id, user_name, time_limited)",
-                values=f"('{achievement_name}', '{user_id}', '{user_name}', '{str(time_limited)}')"
-            ))
-            execute_statement(create_update_query(
-                table_name=tables.ACHIEVEMENTS_OBJECTIVES_LIST,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'",
-                column="awarded",
-                new_value=f"'{int(maybe_achievement_exists['awarded']) + 1}'"
-            ))
-            await ctx.send(f"Added achievement {achievement_name} to {user_name}, now {int(maybe_achievement_exists['awarded']) + 1} have this achievement")
-            return
-        elif type == "highscore":
-            if score is None:
-                await ctx.send("Score is a mandatory field for highscores")
-                return
-            maybe_achievement_exists = execute_statement(create_select_query(
-                table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'"
-            )).all(as_dict=True)
+        if not achievement:
+            return await ctx.send(f":no_entry: Achievement objective with name [{achievement_name}] could not be found")
 
-            previous_highscores = execute_statement(create_select_query(
-                table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'"
-            )).all(as_dict=True)
+        return await _add_members_to_objective(ctx, achievement, *members)
 
-            if not maybe_achievement_exists:
-                await ctx.send(f"Achievement Highscore: [{achievement_name}] doesn't exist, hasn't been registered, or should be an objective")
-                return
-
-            # If this is the first entry for this achievement, just insert
-            if not previous_highscores:
-                execute_statement(create_upsert_query(
-                    tablename=tables.ACHIEVEMENTS_HIGHSCORES,
-                    keys="(achievement_name, user_id, user_name, score, time_limited)",
-                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')",
-                    key_to_update="score",
-                    update_value=f"'{score}'"
-                ))
-                await ctx.send(
-                    f"No previous highscores found, adding first entry for {user_name} with score {score}")
-            # or if the new submission is also already currently the sole record holder, just update the score
-            elif len(previous_highscores) == 1 and previous_highscores[0]["user_id"] == user_id:
-                execute_statement(create_update_query(
-                    table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                    where_key="achievement_name",
-                    where_value=f"'{achievement_name}'",
-                    column="score",
-                    new_value=f"'{score}'"
-                ))
-                await ctx.send(
-                    f"Previous highscore was held by same person, updating score from {previous_highscores[0]['score']} to {score}")
-            # or if the new submission is tied with record holder, insert new tied entry
-            elif previous_highscores[0]["score"] == score:
-                # just making sure the new entry isn't already currently the recordholder with same score
-                if any(user_id == entry['user_id'] for entry in previous_highscores):
-                    await ctx.send(f"{user_name} already has an entry with score {score}")
-                    return
-                else:
-                    execute_statement(create_insert_query(
-                        table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                        keys="(achievement_name, user_id, user_name, score, time_limited)",
-                        values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')"
-                    ))
-                    await ctx.send(f"{user_name} is currently tied with record holder, inserting new entry for shared record holder with score {score}")
-            # new entry has higher score than current recordholder, delete all current entries and insert new entry
-            else:
-                execute_statement(create_delete_query(
-                    table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                    where_key="achievement_name",
-                    where_value=f"'{achievement_name}'"
-                ))
-                execute_statement(create_insert_query(
-                    table_name=tables.ACHIEVEMENTS_HIGHSCORES,
-                    keys="(achievement_name, user_id, user_name, score, time_limited)",
-                    values=f"('{achievement_name}', '{user_id}', '{user_name}', '{score}', '{str(time_limited)}')"
-                ))
-                await ctx.send(f"New record with score {score}, deleted previous record holder(s) and inserting new entry")
-            execute_statement(create_update_query(
-                table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'",
-                column="score",
-                new_value=f"'{score}'"
-            ))
-            execute_statement(create_update_query(
-                table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
-                where_key="achievement_name",
-                where_value=f"'{achievement_name}'",
-                column="user_id",
-                new_value=f"'{user_id}'"
-            ))
-            return
-        else:
-            await ctx.send("Type has to be one of [objective, highscore]")
-
-    @add.error
-    async def add_on_error(self, _, error):
-        """Catches errors with achievements add command"""
-        await pm_dev_error(client=self.bot, error_message=error, source="achievements add command")
+    @add_objective.error
+    async def add_objective_on_error(self, ctx, error):
+        """Catches errors with achievements add_objective command"""
+        if isinstance(error, discord.ext.commands.errors.MemberNotFound):
+            await ctx.send(f"{error} The members have to be mentioned with @Name, like {ctx.author.mention}")
+        await pm_dev_error(client=self.bot, error_message=error, source="achievements add_objective sub-command")
 
 
 async def setup(bot):
