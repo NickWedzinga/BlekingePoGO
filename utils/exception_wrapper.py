@@ -39,7 +39,7 @@ async def catch_with_pm(bot, function_to_try, source: str, *args, **kwargs):
         else:
             function_to_try(*args, **kwargs)
     except (Exception,):
-        await pm_dev_error(bot, source=source)
+        await pm_dev_error(client=bot, source=source)
 
 
 async def catch_with_channel_message(function_to_try, channel, catch_message, should_throw: bool, source: str, *args):
@@ -62,7 +62,7 @@ async def catch_with_pm_and_channel_message(bot, function_to_try, channel, catch
             function_to_try(*args[:-1], args[-1])
     except (Exception,):
         await channel.send(f"{catch_message}")
-        await pm_dev_error(bot, source=source)
+        await pm_dev_error(client=bot, source=source)
 
 
 async def channel_send_error(ctx, error_message=None, source="unspecified"):

@@ -110,7 +110,7 @@ class Configure(commands.Cog):
     @configure.error
     async def configure_on_error(self, _, error):
         """Catches errors with configure base command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="configure base command")
+        await pm_dev_error(client=self.bot, error_message=error, source="configure base command")
 
     @configure.group()
     @commands.has_role("Admin")
@@ -124,7 +124,7 @@ class Configure(commands.Cog):
     @schedule.error
     async def schedule_on_error(self, _, error):
         """Catches errors with schedule base command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="schedule base command")
+        await pm_dev_error(client=self.bot, error_message=error, source="schedule base command")
 
     @schedule.command()
     @commands.has_role("Admin")
@@ -161,7 +161,7 @@ class Configure(commands.Cog):
     @create_channel.error
     async def create_channel_on_error(self, _, error):
         """Catches errors with configure schedule create_channel sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule create_channel")
+        await pm_dev_error(client=self.bot, error_message=error, source="configure schedule create_channel")
 
     @schedule.command()
     @commands.has_role("Admin")
@@ -194,7 +194,7 @@ class Configure(commands.Cog):
     @delete_channel.error
     async def delete_channel_on_error(self, _, error):
         """Catches errors with configure schedule delete_channel sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule delete_channel")
+        await pm_dev_error(client=self.bot, error_message=error, source="configure schedule delete_channel")
 
     @schedule.command()
     @commands.has_role("Admin")
@@ -233,7 +233,7 @@ class Configure(commands.Cog):
     @purge.error
     async def purge_on_error(self, _, error):
         """Catches errors with configure schedule purge sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="schedule purge command")
+        await pm_dev_error(client=self.bot, error_message=error, source="schedule purge command")
 
     @schedule.command()
     @commands.has_role("Admin")
@@ -268,7 +268,7 @@ class Configure(commands.Cog):
     @send_message.error
     async def send_message_on_error(self, _, error):
         """Catches errors with configure schedule send_message sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="configure schedule send_message")
+        await pm_dev_error(client=self.bot, error_message=error, source="configure schedule send_message")
 
     @commands.command()
     @commands.has_role("Admin")
@@ -294,7 +294,7 @@ class Configure(commands.Cog):
     @list_scheduled_events.error
     async def list_scheduled_events_on_error(self, _, error):
         """Catches errors with configure schedule list_scheduled_events sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="list_scheduled_events")
+        await pm_dev_error(client=self.bot, error_message=error, source="list_scheduled_events")
 
     @commands.command()
     @commands.has_role("Admin")
@@ -326,7 +326,7 @@ class Configure(commands.Cog):
     @remove_scheduled_events.error
     async def remove_scheduled_events_on_error(self, _, error):
         """Catches errors with configure schedule remove_scheduled_events sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="remove_scheduled_events")
+        await pm_dev_error(client=self.bot, error_message=error, source="remove_scheduled_events")
 
     @configure.group()
     @commands.has_role("Admin")
@@ -361,7 +361,7 @@ class Configure(commands.Cog):
     @register_role.error
     async def register_role_on_error(self, _, error):
         """Catches errors with configure register_role sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="register_role")
+        await pm_dev_error(client=self.bot, error_message=error, source="register_role")
 
     @configure.group()
     @commands.has_role("Admin")
@@ -392,7 +392,7 @@ class Configure(commands.Cog):
     @unregister_role.error
     async def register_role_on_error(self, _, error):
         """Catches errors with configure unregister_role sub-command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="unregister_role")
+        await pm_dev_error(client=self.bot, error_message=error, source="unregister_role")
 
 
 async def setup(bot):

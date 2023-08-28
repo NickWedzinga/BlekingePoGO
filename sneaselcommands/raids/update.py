@@ -98,7 +98,7 @@ class Update(commands.Cog):
     @update.error
     async def update_on_error(self, _, error):
         """Catches errors with update base command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="update")
+        await pm_dev_error(client=self.bot, error_message=error, source="update")
 
     @update.command(aliases=["pokémon", "Pokémon", "Pokemon"])
     @validate_active_raid_and_user()
@@ -174,7 +174,7 @@ class Update(commands.Cog):
     @pokemon.error
     async def pokemon_on_error(self, _, error):
         """Catches errors with update pokemon command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="update pokemon")
+        await pm_dev_error(client=self.bot, error_message=error, source="update pokemon")
 
     @update.command(aliases=["Hatch"])
     @validate_active_raid_and_user()
@@ -237,7 +237,7 @@ class Update(commands.Cog):
     @hatch.error
     async def hatch_on_error(self, _, error):
         """Catches errors with update hatch command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="update hatch")
+        await pm_dev_error(client=self.bot, error_message=error, source="update hatch")
 
     @update.command(aliases=["Despawn"])
     @validate_active_raid_and_user()
@@ -297,7 +297,7 @@ class Update(commands.Cog):
     @despawn.error
     async def despawn_on_error(self, _, error):
         """Catches errors with update despawn command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="update despawn")
+        await pm_dev_error(client=self.bot, error_message=error, source="update despawn")
 
     @update.command(aliases=["Gym"])
     @validate_active_raid_and_user()
@@ -358,7 +358,7 @@ class Update(commands.Cog):
     @gym.error
     async def gym_on_error(self, _, error):
         """Catches errors with update gym command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="update gym")
+        await pm_dev_error(client=self.bot, error_message=error, source="update gym")
 
 
 async def setup(bot):

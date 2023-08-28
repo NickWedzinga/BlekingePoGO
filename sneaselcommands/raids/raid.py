@@ -194,7 +194,7 @@ async def _find_raid_category(bot, ctx) -> discord.CategoryChannel:
     maybe_category = discord.utils.get(ctx.guild.categories, name=f"{ctx.channel.category.name} raids")
 
     if maybe_category is None:
-        await pm_dev_error(bot=bot,
+        await pm_dev_error(client=bot,
                            error_message=f"Somehow can't find category: [{ctx.channel.category.name} raids]",
                            source="Create raid channel, finding category")
     return maybe_category if maybe_category is not None else ctx.channel.category
@@ -292,7 +292,7 @@ class Raid(commands.Cog):
 
     @raid.error
     async def raid_on_error(self, _, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="Raid")
+        await pm_dev_error(client=self.bot, error_message=error, source="Raid")
 
 
 async def setup(bot):
