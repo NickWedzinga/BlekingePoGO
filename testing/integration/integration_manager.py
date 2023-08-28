@@ -67,7 +67,7 @@ class TestManager(commands.Cog):
 
     @test.error
     async def test_on_error(self, ctx, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="Test")
+        await pm_dev_error(client=self.bot, error_message=error, source="Test")
 
 
 async def setup(bot):

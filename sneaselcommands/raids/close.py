@@ -30,7 +30,7 @@ class Close(commands.Cog):
 
     @close.error
     async def close_on_error(self, _, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="Close")
+        await pm_dev_error(client=self.bot, error_message=error, source="Close")
 
 
 async def setup(bot):

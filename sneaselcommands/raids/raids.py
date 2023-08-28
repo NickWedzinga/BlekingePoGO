@@ -92,7 +92,7 @@ class Raids(commands.Cog):
 
     @raids.error
     async def raids_on_error(self, _, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="raid/Raids")
+        await pm_dev_error(client=self.bot, error_message=error, source="raid/Raids")
 
 
 async def setup(bot):

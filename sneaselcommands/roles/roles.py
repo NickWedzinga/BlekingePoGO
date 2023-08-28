@@ -33,7 +33,7 @@ class Roles(commands.Cog):
     @roles.error
     async def roles_on_error(self, _, error):
         """Catches errors with roles command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="roles")
+        await pm_dev_error(client=self.bot, error_message=error, source="roles")
 
 
 async def setup(bot):

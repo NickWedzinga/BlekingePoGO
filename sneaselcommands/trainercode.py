@@ -194,7 +194,7 @@ class Trainercode(commands.Cog):
     @trainercode.error
     async def trainercode_on_error(self, _, error):
         """Error handler for trainer code command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="Trainercode")
+        await pm_dev_error(client=self.bot, error_message=error, source="Trainercode")
 
 
 async def setup(bot):

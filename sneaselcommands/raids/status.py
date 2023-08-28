@@ -26,7 +26,7 @@ class Status(commands.Cog):
 
     @status.error
     async def status_on_error(self, _, error):
-        await pm_dev_error(bot=self.bot, error_message=error, source="Status")
+        await pm_dev_error(client=self.bot, error_message=error, source="Status")
 
 
 async def setup(bot):

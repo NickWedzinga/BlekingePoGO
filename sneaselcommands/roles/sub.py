@@ -46,7 +46,7 @@ class Sub(commands.Cog):
     @sub.error
     async def sub_on_error(self, _, error):
         """Catches errors with sub command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="sub")
+        await pm_dev_error(client=self.bot, error_message=error, source="sub")
 
     @commands.command(name="unsub")
     async def unsub(self, ctx, name):
@@ -82,7 +82,7 @@ class Sub(commands.Cog):
     @unsub.error
     async def unsub_on_error(self, _, error):
         """Catches errors with unsub command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="unsub")
+        await pm_dev_error(client=self.bot, error_message=error, source="unsub")
 
 
 async def setup(bot):

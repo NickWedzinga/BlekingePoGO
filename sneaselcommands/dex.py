@@ -110,7 +110,7 @@ class Dex(commands.Cog):
     @dex.error
     async def dex_on_error(self, _, error):
         """Catches errors with dex command"""
-        await pm_dev_error(bot=self.bot, error_message=error, source="dex")
+        await pm_dev_error(client=self.bot, error_message=error, source="dex")
 
     @commands.command(name="update_pokedex", hidden=True)
     @commands.has_role("Admin")
@@ -128,7 +128,7 @@ class Dex(commands.Cog):
     async def update_pokedex_on_error(self, _, error):
         """Catches errors with update_pokedex command"""
 
-        await pm_dev_error(bot=self.bot, error_message=error, source="update_pokedex")
+        await pm_dev_error(client=self.bot, error_message=error, source="update_pokedex")
 
 
 async def setup(bot):
