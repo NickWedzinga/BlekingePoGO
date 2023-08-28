@@ -30,7 +30,7 @@ def _get_objective_lists() -> [list, list]:
 def _get_highscore_list() -> list:
     """Returns a list of available highscores"""
     return execute_statement(create_select_query(
-        table_name=tables.ACHIEVEMENTS_HIGHSCORES,
+        table_name=tables.ACHIEVEMENTS_HIGHSCORES_LIST,
     )).all(as_dict=True)
 
 
