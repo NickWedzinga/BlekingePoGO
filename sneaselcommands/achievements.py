@@ -58,7 +58,7 @@ async def _add_members_to_objective(ctx, achievement: RecordCollection, *members
                 new_value=f"'{awarded}'"
             ))
             await ctx.send(
-                f"Added achievement {achievement_name} to {member.display_name}, now {awarded} have this achievement")
+                f"Added achievement **{achievement_name}** to {member.mention}, now **{awarded}** have this achievement")
 
 
 async def _add_members_to_highscore(ctx, achievement: RecordCollection, score: int, *members: discord.Member):
@@ -77,7 +77,7 @@ async def _add_members_to_highscore(ctx, achievement: RecordCollection, score: i
             where_key="achievement_name",
             where_value=f"'{achievement_name}'"
         ))
-        await ctx.send(f"New record with score {score}, deleted previous record holder(s) and inserting new entries")
+        await ctx.send(f"New record with score **{score}**, deleted previous record holder(s) and inserting new entries")
 
     for member in members:
         if any(member.id == entry['user_id'] for entry in previous_highscores):
@@ -89,7 +89,7 @@ async def _add_members_to_highscore(ctx, achievement: RecordCollection, score: i
                 values=f"('{achievement_name}', '{member.id}', '{member.display_name}', '{score}', '{str(time_limited)}')"
             ))
             await ctx.send(
-                f"Added highscore for {member.display_name} with score {score}")
+                f"Added highscore for {member.mention} with score **{score}**")
 
         # TODO: combine into one update
         execute_statement(create_update_query(
@@ -175,31 +175,32 @@ class Achievements(commands.Cog):
                     status_list += f":crown: :hourglass: - High-score in {highscore_name.replace('_', ' ').title()} with a score of **{entry['score']}**\n"
                 else:
                     status_list += f":crown: - High-score in {highscore_name.replace('_', ' ').title()} with a score of **{entry['score']}**\n"
-
+        timeless_list = ""
         if available_timeless_objectives:
-            status_list += "**Challenges**\n"
-        for available_objective in available_timeless_objectives:
-            available_achievement_name = available_objective["achievement_name"]
-            if user_objectives and any(user_obj["achievement_name"] == available_achievement_name for user_obj in user_objectives):
-                if awarded_dict[available_achievement_name] == "1":
-                    status_list += f"**:white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}**\n"
+            timeless_list += "**Challenges**\n"
+            for available_objective in available_timeless_objectives:
+                available_achievement_name = available_objective["achievement_name"]
+                if user_objectives and any(user_obj["achievement_name"] == available_achievement_name for user_obj in user_objectives):
+                    if awarded_dict[available_achievement_name] == "1":
+                        timeless_list += f"**:white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}**\n"
+                    else:
+                        timeless_list += f":white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
                 else:
-                    status_list += f":white_check_mark:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
-            else:
-                status_list += f":no_entry:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
-
+                    timeless_list += f":no_entry:[{awarded_dict[available_achievement_name]}/{nr_of_participants}] {available_achievement_name.replace('_', ' ').title()}\n"
+        time_limited_list = ""
         if any(user_objective["time_limited"] == "true" for user_objective in user_objectives):
-            status_list += "**Time-Limited**\n"
-
+            time_limited_list += "**Time-Limited**\n"
             for user_objective in user_objectives:
                 if user_objective["time_limited"] == "true":
                     achievement_name = user_objective['achievement_name']
-                    status_list += f":hourglass:[{awarded_dict[achievement_name]}/{nr_of_participants}] {achievement_name.replace('_', ' ').title()}\n"
+                    time_limited_list += f":hourglass:[{awarded_dict[achievement_name]}/{nr_of_participants}] {achievement_name.replace('_', ' ').title()}\n"
 
-        if available_timeless_objectives or user_highscores:
+        if status_list:
             await ctx.send(status_list)
-        else:
-            raise ValueError(f"Database Error: Empty {tables.ACHIEVEMENTS_OBJECTIVES_LIST} table")
+        if timeless_list:
+            await ctx.send(timeless_list)
+        if time_limited_list:
+            await ctx.send(time_limited_list)
 
     @achievements.error
     async def achievements_on_error(self, _, error):
